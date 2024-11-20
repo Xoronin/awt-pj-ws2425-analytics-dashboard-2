@@ -1,9 +1,16 @@
 import { XAPIStatement } from '../data/xapi-generator';
 
+/**
+ * Service for interacting with xAPI statements collection in database
+ */
 export class XAPIDataService {
     private apiUrl = 'http://localhost:5050/api';
 
-
+    /**
+     * Saves multiple xAPI statements in bulk
+     * @param statements - Array of xAPI statements to save
+     * @throws Error if save operation fails
+     */
     async saveBulkStatements(statements: XAPIStatement[]): Promise<void> {
         try {
             const response = await fetch(`${this.apiUrl}/statements`, {
@@ -24,6 +31,11 @@ export class XAPIDataService {
         }
     }
 
+    /**
+     * Retrieves all xAPI statements from the LRS
+     * @returns Array of stored xAPI statements
+     * @throws Error if fetch operation fails
+     */
     async getStatements(): Promise<XAPIStatement[]> {
         try {
             const response = await fetch(`${this.apiUrl}/statements`);

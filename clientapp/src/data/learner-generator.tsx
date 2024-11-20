@@ -97,6 +97,9 @@ export interface LearnerProfile {
 }
 
 
+/**
+ * Service for generating learner profiles based on predefined personas
+ */
 class LearnerGenerator {
     private utility: Utility;
 
@@ -105,7 +108,9 @@ class LearnerGenerator {
     }
 
     /**
-     * Generate a learner profile using persona attributes.
+     * Creates a learner profile from a persona template
+     * @param persona - Base persona to generate profile from
+     * @returns Structured learner profile with randomized preferences
      */
     createLearnerProfile(persona: Persona): LearnerProfile {
         return {
@@ -119,7 +124,8 @@ class LearnerGenerator {
     }
 
     /**
-     * Generate preferred times for a learner (e.g., morning, evening).
+     * Randomly selects 1-2 preferred learning times
+     * @returns Array of time preferences (morning, afternoon, evening, night)
      */
     private generatePreferredTimes(): string[] {
         const times = ['morning', 'afternoon', 'evening', 'night'];
@@ -128,7 +134,9 @@ class LearnerGenerator {
     }
 
     /**
-     * Generate session duration for a learner based on their time multiplier.
+     * Calculates session duration based on persona's time multiplier
+     * @param timeMultiplier - Factor affecting session length
+     * @returns Duration in minutes
      */
     private generateSessionDuration(timeMultiplier: number): number {
         const baseDurations: Record<string, [number, number]> = {
@@ -144,7 +152,9 @@ class LearnerGenerator {
     }
 
     /**
-     * Determine persona category based on time multiplier.
+     * Maps time multiplier to learner category
+     * @param timeMultiplier - Time factor for learning sessions
+     * @returns Category label (active, average, struggling, instructor)
      */
     private getPersonaCategory(timeMultiplier: number): string {
         if (timeMultiplier < 1) return 'active';

@@ -54,18 +54,38 @@ export const verbs = {
     launched: 'http://adlnet.gov/expapi/verbs/launched'
 };
 
+/**
+ * Service for generating structured course data from XML manifests and LOM metadata
+ */
 class CourseDataGenerator{
     private lomDataService = new LOMDataService();
 
+    /**
+     * Parses an XML string into a DOM Document
+     * @param xmlString - The XML content to parse
+     * @returns Parsed XML Document
+     */
     parseXMLString(xmlString: string): Document {
         const parser = new DOMParser();
         return parser.parseFromString(xmlString, 'application/xml');
     }
 
+    /**
+     * Safely extracts text content from an XML element
+     * @param element - The XML element to extract text from
+     * @returns Trimmed text content or empty string
+     */
     getTextContent(element: Element | null): string {
         return element?.textContent?.trim() || '';
     }
 
+    /**
+     * Creates an Activity object from XML item element and LOM metadata
+     * @param item - XML item element containing activity data
+     * @param xmlDoc - The complete XML document
+     * @param lomData - Array of LOM metadata objects
+     * @returns Activity object with combined data
+     */
     createActivity(item: Element, xmlDoc: Document, lomData: LomData[]): Activity {
         const id = item.getAttribute('identifierref') || '';
         const title = this.getTextContent(item.querySelector('title'));
@@ -118,6 +138,11 @@ class CourseDataGenerator{
         };
     }
 
+    /**
+     * Maps LOM difficulty strings to numerical values
+     * @param difficulty - LOM difficulty string
+     * @returns Normalized difficulty value between 0 and 1
+     */
     private mapLOMDifficultyToNumber(difficulty: string): number {
         switch (difficulty.toLowerCase()) {
             case 'very easy':
@@ -135,6 +160,11 @@ class CourseDataGenerator{
         }
     }
 
+    /**
+    * Parses ISO 8601 duration format into minutes
+    * @param duration - ISO 8601 duration string (e.g., "PT1H30M")
+    * @returns Total duration in minutes
+    */
     private parseTypicalLearningTime(duration: string): number {
         // Parse ISO 8601 duration format (e.g., "PT1H30M" or "PT45M")
         const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
@@ -148,6 +178,10 @@ class CourseDataGenerator{
         );
     }
 
+    /**
+     * Loads and processes course data from XML manifest
+     * @returns Promise resolving to structured course data
+     */
     async loadCourseData(): Promise<CourseStructure> {
         try {
             const response = await fetch('https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/course/imsmanifest.xml');
@@ -199,6 +233,11 @@ class CourseDataGenerator{
         }
     }
 
+    /**
+     * Calculates activity difficulty based on title keywords
+     * @param title - Activity title
+     * @returns Difficulty value between 0 and 1
+     */
     calculateDifficulty(title: string): number {
         const lowerTitle = title.toLowerCase();
         if (lowerTitle.includes('grundlagen')) {

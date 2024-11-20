@@ -788,4 +788,7 @@
     <None Include="server\node_modules\define-data-property\package.json" />
     <None Include="server\node_modules\define-data-property\README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="clientapp\src\components\" />
+  </ItemGroup>
 </Project>

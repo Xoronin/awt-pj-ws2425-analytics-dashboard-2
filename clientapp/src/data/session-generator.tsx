@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import Utility from '../helper/utility';
 import { Activity, CourseStructure } from './course-data-generator';
-import { Persona, LearnerProfile } from './learner-generator';
+import LearnerGenerator, { Persona, LearnerProfile } from './learner-generator';
 
 export interface LearningSession {
     id: string;
@@ -51,13 +51,23 @@ export interface Learner {
     profile: LearnerProfile;
 }
 
-export class LearningSessionGenerator {
+/**
+ * Generates simulated learning sessions with realistic student interactions
+ */
+class LearningSessionGenerator {
     private utility: Utility;
 
     constructor() {
         this.utility = new Utility();
     }
 
+    /**
+     * Creates a complete learning session for a student
+     * @param learner - Student profile and persona
+     * @param courseStructure - Available course content
+     * @param date - Session date
+     * @returns Complete learning session with activities and interactions
+     */
     generateSession(
         learner: Learner, 
         courseStructure: CourseStructure,
@@ -85,7 +95,12 @@ export class LearningSessionGenerator {
         };
     }
 
-    // Creates realistic start times based on learner's preferences
+    /**
+    * Determines start time based on learner preferences
+    * @param date - Base date
+    * @param preferredTimes - Learner's preferred time slots
+    * @returns Start time for the session
+    */
     private generatePreferredStartTime(date: Date, preferredTimes: string[]): Date {
         const timeRanges: Record<string, [number, number]> = {
             'morning': [8, 11],
@@ -104,7 +119,11 @@ export class LearningSessionGenerator {
         return new Date(newDate.setHours(hour, minute, 0, 0));
     }
 
-    // Determines how long the session will last
+    /**
+     * Calculates session length based on learner characteristics
+     * @param learner - Student profile
+     * @returns Duration in minutes
+     */
     private calculateSessionDuration(learner: Learner): number {
         const baseDuration = learner.profile.averageSessionDuration;
         const effortMultiplier = learner.persona.effort;
@@ -128,7 +147,14 @@ export class LearningSessionGenerator {
         return Math.max(15, Math.round(baseDuration * effortMultiplier * (1 + variance)));
     }
 
-    // Selects activities for the session
+    /**
+    * Creates planned activities for the session
+    * @param learner - Student profile
+    * @param courseStructure - Available content
+    * @param sessionStart - Start time
+    * @param sessionDuration - Available time
+    * @returns Array of planned activities
+    */
     private planSessionActivities(
         learner: Learner,
         courseStructure: CourseStructure,
@@ -174,7 +200,11 @@ export class LearningSessionGenerator {
         return plannedActivities;
     }
 
-    // Get the maximum number of activities per session depending of the persona
+    /**
+    * Determines maximum activities per session based on persona
+    * @param persona - Learner persona
+    * @returns Maximum number of activities
+    */
     private getMaxActivities(persona: Persona): number {
         switch (persona.type) {
             case 'sprinter':
@@ -190,6 +220,12 @@ export class LearningSessionGenerator {
         }
     }
 
+    /**
+     * Chooses next activity based on learner preferences
+     * @param learner - Student profile
+     * @param courseStructure - Available content
+     * @returns Selected activity
+     */
     private selectNextActivity(learner: Learner, courseStructure: CourseStructure): Activity {
         const { persona } = learner;
         const allActivities = courseStructure.sections.flatMap(section => section.activities);
@@ -242,6 +278,12 @@ export class LearningSessionGenerator {
         return this.utility.randomChoice(suitableActivities);
     }
 
+    /**
+     * Determines activity duration based on content and learner
+     * @param activity - Learning activity
+     * @param learner - Student profile
+     * @returns Duration in minutes
+     */
     private calculateActivityDuration(activity: Activity, learner: Learner): number {
         // Parse typicalLearningTime if available, otherwise use default
         let baseDuration = 15; // default 15 minutes
@@ -324,6 +366,15 @@ export class LearningSessionGenerator {
         return Math.min(Math.max(finalDuration, 5), 120);
     }
 
+
+    /**
+     * Creates interaction events for an activity
+     * @param learner - Student profile
+     * @param activity - Learning activity
+     * @param startTime - Activity start
+     * @param duration - Activity duration
+     * @returns Array of interactions
+     */
     private generateActivityInteractions(
         learner: Learner,
         activity: Activity,
@@ -373,6 +424,14 @@ export class LearningSessionGenerator {
         return interactions;
     }
 
+    /**
+     * Adds persona-specific interaction patterns
+     * @param interactions - Current interactions
+     * @param learner - Student profile
+     * @param activity - Learning activity
+     * @param timestamp - Event time
+     * @param progress - Activity progress
+     */
     private addPersonaSpecificInteractions(
         interactions: ActivityInteraction[],
         learner: Learner,
@@ -431,10 +490,21 @@ export class LearningSessionGenerator {
         }
     }
 
+    /**
+     * Determines if learner completes activity
+     * @param learner - Student profile
+     * @returns Completion status
+     */
     private shouldCompleteActivity(learner: Learner): boolean {
         return Math.random() < learner.persona.completionRate;
     }
 
+    /**
+     * Generates interaction timing points
+     * @param duration - Activity duration
+     * @param persona - Learner persona
+     * @returns Array of time points
+     */
     private calculateInteractionPoints(duration: number, persona: Persona): number[] {
         const points: number[] = [];
         const baseInterval = 5; // Base interval in minutes
@@ -457,6 +527,13 @@ export class LearningSessionGenerator {
         return points;
     }
 
+    /**
+     * Adds completion-related interactions
+     * @param interactions - Current interactions
+     * @param learner - Student profile
+     * @param activity - Learning activity
+     * @param timestamp - Completion time
+     */
     private addCompletionInteractions(
         interactions: ActivityInteraction[],
         learner: Learner,
@@ -505,6 +582,11 @@ export class LearningSessionGenerator {
         }
     }
 
+    /**
+     * Calculates activity score based on learner performance
+     * @param learner - Student profile
+     * @returns Score object with scaled and raw values
+     */
     private calculateActivityScore(learner: Learner): { scaled: number; raw: number; min: number; max: number; } {
         const baseScore = learner.persona.averageScore;
         const variance = this.utility.randomFloat(-0.1, 0.1);
@@ -519,3 +601,5 @@ export class LearningSessionGenerator {
     }
 
 }
+
+export default LearningSessionGenerator;
