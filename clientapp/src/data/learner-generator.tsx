@@ -1,4 +1,4 @@
-import Utility from './utility';
+import Utility from '../helper/utility';
 
 export interface Persona {
   id: string;

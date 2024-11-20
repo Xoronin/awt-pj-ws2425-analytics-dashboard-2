@@ -5,7 +5,7 @@ import { verbs, Activity, CourseStructure } from './course-data-generator';
 import CourseDataGenerator from './course-data-generator';
 import { XAPIDataService } from '../services/xapi-service';
 import { LearningSessionGenerator, LearningSession, Learner, ActivityInteraction } from './session-generator';
-import Utility from './utility';
+import Utility from '../helper/utility';
 // Interfaces for learners, xAPI statements, and sessions
 
 export interface XAPIStatement {

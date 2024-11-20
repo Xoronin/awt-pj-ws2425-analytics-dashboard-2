@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, { useState, useEffect } from 'react';
-import GenerateXAPIData from './components/xapi-generator';
+import GenerateXAPIData from './data/xapi-generator';
 import { Button, Card, CardContent, CardHeader, Typography, Box, LinearProgress, Alert } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
 import LOMDataService from './services/lom-service';
