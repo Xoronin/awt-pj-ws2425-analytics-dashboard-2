@@ -22,7 +22,7 @@ npm start
 Frontend clientapp
 
 ```
-cd clietnapp
+cd clientapp
 ```
 ```
 npm install
