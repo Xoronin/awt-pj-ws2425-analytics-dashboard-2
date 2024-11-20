@@ -9,13 +9,23 @@ MongoDB: https://cloud.mongodb.com/v2/60ac01604d05953f36d6f976#/clusters
 Initial setup:
 Backend server:
 
-$ cd server
-$ npm install
-$ npm start
-
+```
+cd server
+```
+```
+npm install
+```
+```
+npm start
+```
 Frontend clientapp
 
-$ cd clietnapp
-$ npm install
-$ npm start
-
+```
+cd clietnapp
+```
+```
+npm install
+```
+```
+npm start
+```
