@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import Utility from './utility';
+import Utility from '../helper/utility';
 import { Activity, CourseStructure } from './course-data-generator';
 import { Persona, LearnerProfile } from './learner-generator';
 

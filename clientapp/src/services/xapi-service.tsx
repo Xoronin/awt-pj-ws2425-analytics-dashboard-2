@@ -1,4 +1,4 @@
-import { XAPIStatement } from '../components/xapi-generator';
+import { XAPIStatement } from '../data/xapi-generator';
 
 export class XAPIDataService {
     private apiUrl = 'http://localhost:5050/api';
