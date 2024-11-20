@@ -1,0 +1,421 @@
+{
+  "http://adlnet.gov/expapi/verbs/initialized": {
+    "actor": {
+      "mbox": "mailto:user@example.com"
+    },
+    "verb": {
+      "id": "http://adlnet.gov/expapi/verbs/initialized",
+      "display": {
+        "en": "initialized"
+      }
+    },
+    "object": {
+      "id": "https://example.com/activities/course-1234",
+      "objectType": "Activity",
+      "definition": {
+        "name": {
+          "en": "Introduction to Data Science Course"
+        },
+        "description": {
+          "en": "A foundational course on data science concepts and techniques."
+        },
+        "type": "http://adlnet.gov/expapi/activities/course"
+      }
+    },
+    "context": {
+      "contextActivities": {
+        "parent": [
+          {
+            "id": "https://example.com/activities/learning-path-5678",
+            "definition": {
+              "name": {
+                "en": "Data Science Learning Path"
+              }
+            }
+          }
+        ]
+      },
+      "extensions": {
+        "https://example.com/activities/extensions/course_id": "course-1234"
+      },
+      "platform": "Web Learning Platform"
+    },
+    "timestamp": "2024-10-10T12:00:00Z",
+    "version": "1.0.0",
+    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  },
+  "http://adlnet.gov/expapi/verbs/exited": {
+    "actor": {
+      "mbox": "mailto:user@example.com"
+    },
+    "verb": {
+      "id": "http://adlnet.gov/expapi/verbs/exited",
+      "display": {
+        "en": "exited"
+      }
+    },
+    "object": {
+      "id": "https://example.com/activities/course-1234",
+      "objectType": "Activity",
+      "definition": {
+        "name": {
+          "en": "Introduction to Data Science Course"
+        },
+        "description": {
+          "en": "A foundational course on data science concepts and techniques."
+        },
+        "type": "http://adlnet.gov/expapi/activities/course"
+      }
+    },
+    "context": {
+      "contextActivities": {
+        "parent": [
+          {
+            "id": "https://example.com/activities/learning-path-5678",
+            "definition": {
+              "name": {
+                "en": "Data Science Learning Path"
+              }
+            }
+          }
+        ]
+      },
+      "extensions": {
+        "https://example.com/activities/extensions/course_id": "course-1234"
+      },
+      "platform": "Web Learning Platform"
+    },
+    "timestamp": "2024-10-10T12:00:00Z",
+    "version": "1.0.0",
+    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  },
+  "http://adlnet.gov/expapi/verbs/completed": {
+    "actor": {
+      "mbox": "mailto:user@example.com"
+    },
+    "timestamp": "2024-09-06T11:12:36+01:00",
+    "version": "1.0.0",
+    "id": "9b64ccc7-8600-46c5-95d4-5b8fb21ae664",
+    "result": {
+      "score": {
+        "raw": 1,
+        "min": 0,
+        "max": 3,
+        "scaled": 0.3333333333333333
+      },
+      "completion": true,
+      "success": false,
+      "duration": "PT11S"
+    },
+    "verb": {
+      "id": "http://adlnet.gov/expapi/verbs/completed",
+      "display": {
+        "en": "completed"
+      }
+    },
+    "object": {
+      "id": "https://example.com/activities/course-1234",
+      "definition": {
+        "type": "http://adlnet.gov/expapi/activities/assessment",
+        "name": {
+          "en": "Course 1234"
+        },
+        "extensions": {
+          "https://w3id.org/learning-analytics/learning-management-system/external-id": ""
+        }
+      },
+      "objectType": "Activity"
+    },
+    "context": {
+      "contextActivities": {
+        "parent": [
+          {
+            "id": "https://example.com/activities/learning-path-5678",
+            "definition": {
+              "name": {
+                "en": "Data Science Learning Path"
+              }
+            }
+          }
+        ]
+      },
+      "extensions": {
+        "https://example.com/activities/extensions/course_id": "course-1234"
+      },
+      "platform": "Web Learning Platform"
+    }
+  },
+  "http://adlnet.gov/expapi/verbs/scored": {
+    "actor": {
+      "mbox": "mailto:user@example.com"
+    },
+    "timestamp": "2024-06-27T07:37:04.232Z",
+    "version": "1.0.0",
+    "id": "97515839-5368-43ef-8d84-d376e5d7d532",
+    "result": {
+      "score": {
+        "scaled": 0.6666666666666666,
+        "min": 0,
+        "max": 9
+      }
+    },
+    "verb": {
+      "id": "http://adlnet.gov/expapi/verbs/scored",
+      "display": {
+        "en": "scored"
+      }
+    },
+    "object": {
+      "id": "https://example.com/activities/course-1234",
+      "definition": {
+        "type": "http://adlnet.gov/expapi/activities/course",
+        "name": {
+          "en": "Example Course"
+        },
+        "description": {
+          "en": "An objective determines whether competency has been achieved in a desired area. Objectives typically are associated with questions and assessments. Objectives are not learning content and cannot be SCOs."
+        }
+      },
+      "objectType": "Activity"
+    },
+    "context": {
+      "contextActivities": {
+        "parent": [
+          {
+            "id": "https://example.com/activities/learning-path-5678",
+            "definition": {
+              "name": {
+                "en": "Data Science Learning Path"
+              }
+            }
+          }
+        ]
+      },
+      "extensions": {
+        "https://example.com/activities/extensions/course_id": "course-1234"
+      },
+      "platform": "Web Learning Platform"
+    }
+  },
+
+  "https://w3id.org/xapi/dod-isd/verbs/prescribed": {
+    "actor": {
+      "mbox": "mailto:instructor@example.com"
+    },
+    "verb": {
+      "id": "https://w3id.org/xapi/dod-isd/verbs/prescribed",
+      "display": {
+        "en": "prescribed"
+      }
+    },
+    "object": {
+      "id": "https://example.com/competencies/competency-456",
+      "definition": {
+        "type": "http://adlnet.gov/expapi/activities/objective",
+        "name": {
+          "en": "objective"
+        },
+        "description": {
+          "en": "An objective determines whether competency has been achieved in a desired area. Objectives typically are associated with questions and assessments. Objectives are not learning content and cannot be SCOs."
+        }
+      }
+    },
+    "result": {
+      "score": {
+        "scaled": 0.8,
+        "min": 0,
+        "max": 9
+      }
+    },
+    "context": {
+      "instructor": {
+        "mbox": "mailto:instructor@example.com"
+      },
+      "extensions": {
+        "https://example.com/api/traceData/profiles/v1p0p0/extensions/course_id": "course-123"
+      }
+    }
+  },
+
+  "http://adlnet.gov/expapi/verbs/failed": {
+    "actor": {
+      "mbox": "mailto:learner@example.com"
+    },
+    "verb": {
+      "id": "http://adlnet.gov/expapi/verbs/failed",
+      "display": {
+        "en": "failed"
+      }
+    },
+    "object": {
+      "id": "https://example.com/activities/quiz-789",
+      "objectType": "Activity",
+      "definition": {
+        "type": "http://adlnet.gov/expapi/activities/assessment",
+        "name": {
+          "en": "Final Quiz on Example Course"
+        },
+        "description": {
+          "en": "A final quiz to test basic knowledge in example course."
+        },
+        "extensions": {
+          "https://w3id.org/learning-analytics/learning-management-system/external-id": "quiz-789"
+        }
+      }
+    },
+    "result": {
+      "score": {
+        "raw": 4,
+        "min": 0,
+        "max": 10,
+        "scaled": 0.4
+      },
+      "completion": true,
+      "success": false,
+      "duration": "PT20M"
+    },
+    "context": {
+      "instructor": {
+        "mbox": "mailto:instructor@example.com"
+      },
+      "extensions": {
+        "https://example.com/activities/extensions/course_id": "course-123"
+      }
+    },
+    "timestamp": "2024-10-10T14:30:00Z",
+    "version": "1.0.0",
+    "id": "c5bc8e04-94b6-4b1e-92e3-674c1d0fb830"
+  },
+
+  "http://adlnet.gov/expapi/verbs/passed": {
+    "actor": {
+      "mbox": "mailto:learner@example.com"
+    },
+    "verb": {
+      "id": "http://adlnet.gov/expapi/verbs/passed",
+      "display": {
+        "en": "passed"
+      }
+    },
+    "object": {
+      "id": "https://example.com/activities/quiz-789",
+      "objectType": "Activity",
+      "definition": {
+        "type": "http://adlnet.gov/expapi/activities/assessment",
+        "name": {
+          "en": "Final Quiz on Example Course"
+        },
+        "description": {
+          "en": "A final quiz to test basic knowledge in example course."
+        },
+        "extensions": {
+          "https://w3id.org/learning-analytics/learning-management-system/external-id": "quiz-789"
+        }
+      }
+    },
+    "result": {
+      "score": {
+        "raw": 8,
+        "min": 0,
+        "max": 10,
+        "scaled": 0.8
+      },
+      "completion": true,
+      "success": true,
+      "duration": "PT15M"
+    },
+    "context": {
+      "instructor": {
+        "mbox": "mailto:instructor@example.com"
+      },
+      "extensions": {
+        "https://example.com/activities/extensions/course_id": "course-123"
+      }
+    },
+    "timestamp": "2024-10-10T14:30:00Z",
+    "version": "1.0.0",
+    "id": "d3c8f8a4-6aaf-4c58-8a1a-5b3f8c4f7a73"
+  },
+
+  "http://id.tincanapi.com/verb/rated": {
+    "actor": {
+      "mbox": "mailto:learner@example.com"
+    },
+    "verb": {
+      "id": "http://id.tincanapi.com/verb/rated",
+      "display": {
+        "en": "rated"
+      }
+    },
+    "object": {
+      "id": "https://example.com/activities/course-456",
+      "objectType": "Activity",
+      "definition": {
+        "type": "http://adlnet.gov/expapi/activities/resource",
+        "name": {
+          "en": "Example Course"
+        },
+        "description": {
+          "en": "An example course on a specific topic"
+        },
+        "extensions": {
+          "https://w3id.org/learning-analytics/learning-management-system/external-id": "course-456"
+        }
+      }
+    },
+    "result": {
+      "score": {
+        "raw": 4,
+        "min": 1,
+        "max": 5
+      }
+    },
+    "context": {
+      "instructor": {
+        "mbox": "mailto:instructor@example.com"
+      },
+      "extensions": {
+        "https://example.com/activities/extensions/course_id": "course-456"
+      }
+    },
+    "timestamp": "2024-10-10T14:30:00Z",
+    "version": "1.0.0",
+    "id": "a5d9c7f1-88b3-4df3-a8a1-1f5d2e9b3b16"
+  },
+  "https://w3id.org/xapi/acrossx/verbs/searched": {
+    "actor": {
+      "mbox": "mailto:learner@example.com"
+    },
+    "verb": {
+      "id": "https://w3id.org/xapi/acrossx/verbs/searched",
+      "display": {
+        "en": "searched"
+      }
+    },
+    "object": {
+      "id": "https://example.com/activities/course-456",
+      "objectType": "Course",
+      "definition": {
+        "type": "http://adlnet.gov/expapi/activities/resource",
+        "name": {
+          "en": "Resource"
+        },
+        "description": {
+          "en": "A course consists of resources available for learners to search and explore."
+        }
+      }
+    },
+    "context": {
+      "instructor": {
+        "mbox": "mailto:instructor@example.com"
+      },
+      "extensions": {
+        "https://w3id.org/xapi/acrossx/extension/search-term": "data science basics",
+        "https://w3id.org/xapi/acrossx/extension/results-count": 15
+      }
+    },
+    "timestamp": "2024-10-10T14:30:00Z",
+    "version": "1.0.0",
+    "id": "b7d8f8a4-2b3f-4c58-9a1a-7d4e8f9b2a14"
+  }
+}

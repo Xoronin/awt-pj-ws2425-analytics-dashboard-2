@@ -1,0 +1,873 @@
+{
+  "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+  "@context": "https://w3id.org/xapi/profiles/context",
+  "type": "Profile",
+  "conformsTo": "https://w3id.org/xapi/profiles#1.0",
+  "prefLabel": {
+    "en": "AWT-Learning Technology Project xAPI Vocabulary"
+  },
+  "definition": {
+    "en": "The xAPI vocabulary list includes Verbs and Activity Types used to represent common learning experiences in the project AWT-Learning Technology Project."
+  },
+  "versions": [
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1p0p0",
+      "generatedAtTime": "2024-09-10T18:00:00.000Z"
+    }
+  ],
+  "author": {
+    "type": "Organization",
+    "name": "Fraunhofer Gesellschaft - AWT Project at TU Berlin",
+    "url": "https://awt-lt.fraunhofer.de/"
+  },
+  "concepts": [
+    {
+      "id": "https://w3id.org/xapi/acrossx/verbs/searched",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/acrossx",
+      "prefLabel": {
+        "en": "searched"
+      },
+      "definition": {
+        "en": "Indicates the actor looked for information in an object."
+      }
+    },
+    {
+      "id": "http://id.tincanapi.com/verb/rated",
+      "type": "Verb",
+      "inScheme": "https://registry.tincanapi.com",
+      "prefLabel": {
+        "en": "rated"
+      },
+      "definition": {
+        "en": "Action of giving a rating to an object. Should only be used when the action is the rating itself, as opposed to another action such as 'reading' where a rating can be applied to the object as part of that action. In general the rating should be included in the Result with a Score object."
+      }
+    },
+    {
+      "id": "https://w3id.org/xapi/dod-isd/verbs/prescribed",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/dod-isd",
+      "prefLabel": {
+        "en": "prescribed"
+      },
+      "definition": {
+        "en": "State authoritatively or as a rule that an action or procedure should be carried out. Use with the 'KSA' extension with a value of 'A', with the 'category' extension with a value of 'Competence', and with the 'interactivity level' extension with a value of 3."
+      }
+    },
+    {
+      "id": "http://adlnet.gov/expapi/activities/performance",
+      "type": "ActivityType",
+      "inScheme": "https://w3id.org/xapi/adl/v1.0",
+      "prefLabel": {
+        "en": "performance"
+      },
+      "definition": {
+        "en": "A performance is an attempted task or series of tasks within a particular context. Tasks would likely take on the form of interactions, or the performance could be self-contained content. It emphasizes students or learners being able to do, or perform, specific skills as a result of the instruction."
+      }
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/extensions/course_id",
+      "type": "ContextExtension",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1.0",
+      "prefLabel": {
+        "en": "course id"
+      },
+      "definition": {
+        "en": "Represents the course id (url) the actor has experienced in the statement."
+      }
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/extensions/self-assessment",
+      "type": "ContextExtension",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1.0",
+      "prefLabel": {
+        "en": "Self assessment"
+      },
+      "definition": {
+        "en": "Reflects whether the conducted assessment is a self assessment or external assessment."
+      }
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/extensions/evaluator",
+      "type": "ContextExtension",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1.0",
+      "prefLabel": {
+        "en": "Evaluator"
+      },
+      "definition": {
+        "en": "Represents the user id of the evaluator"
+      }
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/extensions/question",
+      "type": "ContextExtension",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1.0",
+      "prefLabel": {
+        "en": "Question"
+      },
+      "definition": {
+        "en": "Provides the question an actor asked."
+      }
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/extensions/answer",
+      "type": "ContextExtension",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1.0",
+      "prefLabel": {
+        "en": "Answer"
+      },
+      "definition": {
+        "en": "Provides the answer an actor received to a question asked."
+      }
+    },
+    {
+      "id": "http://id.tincanapi.com/extension/feedback",
+      "type": "ContextExtension",
+      "inScheme": "https://registry.tincanapi.com",
+      "prefLabel": {
+        "en": "Feedback"
+      },
+      "definition": {
+        "en": "A value representing a piece of feedback relating to a statement. The feedback should be a string."
+      }
+    },
+    {
+      "id": "https://w3id.org/xapi/dod-isd/verbs/achieved",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/dod-isd/v1.0",
+      "prefLabel": {
+        "en": "achieved"
+      },
+      "definition": {
+        "en": "Successfully bring about or reach a desired objective, level, or result by effort, skill, or courage. Use with the 'KSA' extension with a value of 'A', with the 'category' extension with a value of 'Responding', and with the 'interactivity level' extension with a value of 2, 3, or 4."
+      }
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/answered",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/adl/v1.0",
+      "prefLabel": {
+        "en": "answered"
+      },
+      "definition": {
+        "en": "Indicates the actor replied to a question, where the object is generally an activity representing the question. The text of the answer will often be included in the response inside result."
+      }
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/asked",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/adl/v1.0",
+      "prefLabel": {
+        "en": "asked"
+      },
+      "definition": {
+        "en": "Indicates an inquiry by an actor with the expectation of a response or answer to a question."
+      }
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/attempted",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/adl/v1.0",
+      "prefLabel": {
+        "en": "attempted"
+      },
+      "definition": {
+        "en": "Indicates the actor made an effort to access the object. An attempt statement without additional activities could be considered incomplete in some cases."
+      }
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/attended",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/adl/v1.0",
+      "prefLabel": {
+        "en": "attended"
+      },
+      "definition": {
+        "en": "Indicates the actor was present at a virtual or physical event or activity."
+      },
+      "relatedMatch": [
+        "https://w3id.org/xapi/adb/verbs/attended",
+        "http://activitystrea.ms/schema/attend"
+      ]
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/completed",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/scorm/v/2",
+      "prefLabel": {
+        "en": "completed"
+      },
+      "definition": {
+        "en": "Indicates the actor finished or concluded the activity normally."
+      },
+      "exactMatch": [
+        "http://activitystrea.ms/schema/complete"
+      ]
+    },
+    {
+      "id": "http://activitystrea.ms/complete",
+      "type": "Verb",
+      "inScheme": "http://activitystrea.ms/schema",
+      "prefLabel": {
+        "en": "completed"
+      },
+      "definition": {
+        "en": "Indicates that the actor has completed the object."
+      },
+      "exactMatch": [
+        "http://adlnet.gov/expapi/verbs/completed"
+      ]
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/exited",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/adl/v1.0",
+      "prefLabel": {
+        "en": "exited"
+      },
+      "definition": {
+        "en": "Indicates the actor intentionally departed from the activity or object."
+      }
+    },
+    {
+      "id": "http://activitystrea.ms/experience",
+      "type": "Verb",
+      "inScheme": "http://activitystrea.ms/schema",
+      "prefLabel": {
+        "en": "experienced"
+      },
+      "definition": {
+        "en": "Indicates that the actor has experienced the object in some manner. Note that, depending on the specific object types used for both the actor and object, the meaning of this verb can overlap that of the consume and play verbs. For instance, a person might experience a movie; or play the movie; or consume the movie. The experience verb can be considered a more generic form of other more specific verbs as consume, play, watch, listen, and read."
+      },
+      "exactMatch": [
+        "http://adlnet.gov/expapi/verbs/experienced"
+      ]
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/experienced",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/adl/v1.0",
+      "prefLabel": {
+        "en": "experienced"
+      },
+      "definition": {
+        "en": "Indicates the actor only encountered the object, and is applicable in situations where a specific achievement or completion is not required."
+      }
+    },
+    {
+      "id": "http://id.tincanapi.com/verb/expired",
+      "type": "Verb",
+      "inScheme": "https://registry.tincanapi.com",
+      "prefLabel": {
+        "en": "expired"
+      },
+      "definition": {
+        "en": "Indicates that the object (a competency or certification) has expired for the actor."
+      }
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/failed",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/scorm/v/2",
+      "prefLabel": {
+        "en": "failed"
+      },
+      "definition": {
+        "en": "Indicates the actor did not successfully pass an activity to a level of predetermined satisfaction."
+      }
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/initialized",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/scorm/v/2",
+      "prefLabel": {
+        "en": "initialized"
+      },
+      "definition": {
+        "en": "Indicates the activity provider has determined that the actor successfully started an activity."
+      }
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/launched",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/adl/v1.0",
+      "prefLabel": {
+        "en": "launched"
+      },
+      "definition": {
+        "en": "Indicates the actor attempted to start an activity."
+      }
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/passed",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/scorm/v/2",
+      "prefLabel": {
+        "en": "passed"
+      },
+      "definition": {
+        "en": "Indicates the actor successfully passed an activity to a level of predetermined satisfaction."
+      },
+      "broader": [
+        "http://adlnet.gov/expapi/verbs/completed"
+      ]
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/progressed",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/adl/v1.0",
+      "prefLabel": {
+        "en": "progressed"
+      },
+      "definition": {
+        "en": "Indicates a value of how much of an actor has advanced or moved through an activity."
+      }
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/scored",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/scorm/v/2",
+      "prefLabel": {
+        "en": "scored"
+      },
+      "definition": {
+        "en": "Indicates a numerical value related to an actor's performance on an activity."
+      }
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/terminated",
+      "type": "Verb",
+      "inScheme": "https://w3id.org/xapi/scorm/v/2",
+      "prefLabel": {
+        "en": "terminated"
+      },
+      "definition": {
+        "en": "Indicates that the actor successfully ended an activity."
+      }
+    },
+    {
+      "id": "http://activitystrea.ms/terminate",
+      "type": "Verb",
+      "inScheme": "http://activitystrea.ms/schema",
+      "prefLabel": {
+        "en": "terminated"
+      },
+      "definition": {
+        "en": "Indicates that the actor successfully ended an activity."
+      },
+      "exactMatch": [
+        "http://adlnet.gov/expapi/verbs/terminated"
+      ]
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/extensions/search-term",
+      "type": "ContextExtension",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1.0",
+      "prefLabel": {
+        "en": "search-term"
+      },
+      "definition": {
+        "en": "provide the term an actor searched for"
+      }
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/extensions/results-count",
+      "type": "ContextExtension",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1.0",
+      "prefLabel": {
+        "en": "results-count"
+      },
+      "definition": {
+        "en": "provide the count of results an actor received"
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles#target-score",
+      "type": "StatementTemplate",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+      "prefLabel": {
+        "en": "Target-score"
+      },
+      "definition": {
+        "en": "Records an instructor is defining a target score of an objective (learning-objective, competency, or skill) level"
+      },
+      "verb": "https://w3id.org/xapi/dod-isd/verbs/prescribed",
+      "objectActivityType": "http://adlnet.gov/expapi/activities/objective",
+      "contextExtension": [
+        "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/extensions/course_id"
+      ],
+      "rules": [
+        {
+          "location": "$.actor.mbox",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.scaled",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.min",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.max",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.context.instructor.mbox",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.context.instructor.mbox_sha1sum",
+          "presence": "included"
+        },
+        {
+          "location": "$.context.extensions['https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/extensions/course_id']",
+          "presence": "included"
+        }
+      ]
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles#self-assessment",
+      "type": "StatementTemplate",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+      "prefLabel": {
+        "en": "Self-assessment"
+      },
+      "definition": {
+        "en": "Records the actor conducting a self-assessment on scoring an objective (learning-objective, competency, or skill) level"
+      },
+      "verb": "http://adlnet.gov/expapi/verbs/scored",
+      "objectActivityType": "http://adlnet.gov/expapi/activities/objective",
+      "contextExtension": [
+        "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1p0p0/extensions/self-assessment"
+      ],
+      "rules": [
+        {
+          "location": "$.actor.mbox",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.scaled",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.min",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.max",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.context.extensions['https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1p0p0/extensions/self-assessment']",
+          "presence": "included"
+        }
+      ]
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles#external-assessment",
+      "type": "StatementTemplate",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+      "prefLabel": {
+        "en": "External-assessment"
+      },
+      "definition": {
+        "en": "Records an instructor is conducting an external-assessment on an actor scoring an objective (learning-objective, competency, or skill) level"
+      },
+      "verb": "http://adlnet.gov/expapi/verbs/scored",
+      "objectActivityType": "http://adlnet.gov/expapi/activities/objective",
+      "contextExtension": [
+        "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1p0p0/extensions/self-assessment"
+      ],
+      "rules": [
+        {
+          "location": "$.actor.mbox",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.scaled",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.min",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.max",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.context.instructor.mbox",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.context.instructor.mbox_sha1sum",
+          "presence": "included"
+        },
+        {
+          "location": "$.context.extensions['https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/v1p0p0/extensions/self-assessment']",
+          "presence": "included"
+        }
+      ]
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles#initialized",
+      "type": "StatementTemplate",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+      "prefLabel": {
+        "en": "Resource Initialized"
+      },
+      "definition": {
+        "en": "Records when a user initializes an resource, marking the start of the activity."
+      },
+      "verb": "http://adlnet.gov/expapi/verbs/initialized",
+      "objectActivityType": "http://id.tincanapi.com/activitytype/resource",
+      "rules": [
+        {
+          "location": "$.object.id",
+          "presence": "included"
+        },
+        {
+          "location": "$.actor.mbox",
+          "presence": "included"
+        },
+        {
+          "location": "$.timestamp",
+          "presence": "included"
+        }
+      ]
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles#exited",
+      "type": "StatementTemplate",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+      "prefLabel": {
+        "en": "Resource Exited"
+      },
+      "definition": {
+        "en": "Records when a user exits a resource, marking the end of the activity."
+      },
+      "verb": "http://adlnet.gov/expapi/verbs/exited",
+      "objectActivityType": "http://id.tincanapi.com/activitytype/resource",
+      "rules": [
+        {
+          "location": "$.object.id",
+          "presence": "included"
+        },
+        {
+          "location": "$.actor.mbox",
+          "presence": "included"
+        },
+        {
+          "location": "$.timestamp",
+          "presence": "included"
+        }
+      ]
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles#completed",
+      "type": "StatementTemplate",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+      "prefLabel": {
+        "en": "Activity Completed"
+      },
+      "definition": {
+        "en": "Records when a user completes an activity, including completion status and result details."
+      },
+      "verb": "http://adlnet.gov/expapi/verbs/completed",
+      "objectActivityType": "http://adlnet.gov/expapi/activities/assessment",
+      "rules": [
+        {
+          "location": "$.object.id",
+          "presence": "included"
+        },
+        {
+          "location": "$.actor.mbox",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.raw",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.min",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.max",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.scaled",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.completion",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.success",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.duration",
+          "presence": "included"
+        },
+        {
+          "location": "$.object.definition.extensions['https://w3id.org/learning-analytics/learning-management-system/external-id']",
+          "presence": "recommended"
+        }
+      ]
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles#achieved",
+      "type": "StatementTemplate",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+      "prefLabel": {
+        "en": "Activity Achieved"
+      },
+      "definition": {
+        "en": "Records when a user completes an activity successfully, including an achievement."
+      },
+      "verb": "https://w3id.org/xapi/dod-isd/verbs/achieved",
+      "objectActivityType": "http://adlnet.gov/expapi/activities/assessment",
+      "rules": [
+        {
+          "location": "$.object.id",
+          "presence": "included"
+        },
+        {
+          "location": "$.actor.mbox",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.raw",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.min",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.max",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.scaled",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.completion",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.success",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.duration",
+          "presence": "included"
+        },
+        {
+          "location": "$.object.definition.extensions['https://w3id.org/learning-analytics/learning-management-system/external-id']",
+          "presence": "recommended"
+        }
+      ]
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles#failed",
+      "type": "StatementTemplate",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+      "prefLabel": {
+        "en": "Activity Failed"
+      },
+      "definition": {
+        "en": "Records when a user fails an activity, such as an assessment or quiz."
+      },
+      "verb": "http://adlnet.gov/expapi/verbs/failed",
+      "objectActivityType": "http://adlnet.gov/expapi/activities/assessment",
+      "rules": [
+        {
+          "location": "$.object.id",
+          "presence": "included"
+        },
+        {
+          "location": "$.actor.mbox",
+          "presence": "included"
+        },
+        {
+          "location": "$.timestamp",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.raw",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.min",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.max",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.scaled",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.success",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.duration",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.object.definition.extensions['https://w3id.org/learning-analytics/learning-management-system/external-id']",
+          "presence": "recommended"
+        }
+      ]
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles#passed",
+      "type": "StatementTemplate",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+      "prefLabel": {
+        "en": "Activity Passed"
+      },
+      "definition": {
+        "en": "Records when a user passes an activity, such as an assessment or quiz."
+      },
+      "verb": "http://adlnet.gov/expapi/verbs/passed",
+      "objectActivityType": "http://adlnet.gov/expapi/activities/assessment",
+      "rules": [
+        {
+          "location": "$.object.id",
+          "presence": "included"
+        },
+        {
+          "location": "$.actor.mbox",
+          "presence": "included"
+        },
+        {
+          "location": "$.timestamp",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.raw",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.min",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.max",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.scaled",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.success",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.duration",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.object.definition.extensions['https://w3id.org/learning-analytics/learning-management-system/external-id']",
+          "presence": "recommended"
+        }
+      ]
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles#rated",
+      "type": "StatementTemplate",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+      "prefLabel": {
+        "en": "Activity Rated"
+      },
+      "definition": {
+        "en": "Records when a user rates an activity, such as a course or resource."
+      },
+      "verb": "http://id.tincanapi.com/verb/rated",
+      "objectActivityType": "http://adlnet.gov/expapi/activities/resource",
+      "rules": [
+        {
+          "location": "$.object.id",
+          "presence": "included"
+        },
+        {
+          "location": "$.actor.mbox",
+          "presence": "included"
+        },
+        {
+          "location": "$.timestamp",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.raw",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.scaled",
+          "presence": "included"
+        },
+        {
+          "location": "$.result.score.min",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.result.score.max",
+          "presence": "recommended"
+        },
+        {
+          "location": "$.object.definition.extensions['https://w3id.org/learning-analytics/learning-management-system/external-id']",
+          "presence": "recommended"
+        }
+      ]
+    },
+    {
+      "id": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles#searched",
+      "type": "StatementTemplate",
+      "inScheme": "https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles",
+      "prefLabel": {
+        "en": "Search Performed"
+      },
+      "definition": {
+        "en": "Records when a user performs a search within the platform, resources library, or within a course."
+      },
+      "verb": "https://w3id.org/xapi/acrossx/verbs/searched",
+      "objectActivityType": "http://adlnet.gov/expapi/activities/resource",
+      "rules": [
+        {
+          "location": "$.object.id",
+          "presence": "included"
+        },
+        {
+          "location": "$.actor.mbox",
+          "presence": "included"
+        },
+        {
+          "location": "$.timestamp",
+          "presence": "included"
+        },
+        {
+          "location": "$.context.extensions['https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/extensions/search-term']",
+          "presence": "included"
+        },
+        {
+          "location": "$.context.extensions['https://awt-lt.fokus.fraunhofer.de/api/traceData/profiles/extensions/results-count']",
+          "presence": "optional"
+        }
+      ]
+    }
+  ]
+}

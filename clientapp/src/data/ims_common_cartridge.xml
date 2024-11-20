@@ -1,0 +1,129 @@
+<!-- Moodle 2 Common Cartridge generator -->
+<manifest xmlns="http://www.imsglobal.org/xsd/imsccv1p1/imscp_v1p1" xmlns:lomimscc="http://ltsc.ieee.org/xsd/imsccv1p1/LOM/manifest" xmlns:lom="http://ltsc.ieee.org/xsd/imsccv1p1/LOM/resource" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" identifier="M_2B5F3DB1" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsccv1p1/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p1/ccv1p1_imscp_v1p2_v1p0.xsd http://ltsc.ieee.org/xsd/imsccv1p1/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p1/LOM/ccv1p1_lommanifest_v1p0.xsd http://ltsc.ieee.org/xsd/imsccv1p1/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p1/LOM/ccv1p1_lomresource_v1p0.xsd">
+	<metadata>
+		<schema>IMS Common Cartridge</schema>
+		<schemaversion>1.1.0</schemaversion>
+		<lomimscc:lom>
+			<lomimscc:general>
+				<lomimscc:title>
+					<lomimscc:string language="en">Baumchirurg/Baumchirurgin</lomimscc:string>
+				</lomimscc:title>
+				<lomimscc:language>en</lomimscc:language>
+				<lomimscc:description>
+					<lomimscc:string language="en">Dieser Kurs gibt einen Überblick über die benötigten Kompetenzen und Fähigkeiten für die Berufsbezeichnung Baumchirurg/Baumchirurgin (http://data.europa.eu/esco/occupation/fa30c1cb-dbc5-409c-8124-7284592b123c)</lomimscc:string>
+				</lomimscc:description>
+				<lomimscc:identifier>
+					<lomimscc:catalog>category</lomimscc:catalog>
+					<lomimscc:entry>6113.6</lomimscc:entry>
+				</lomimscc:identifier>
+			</lomimscc:general>
+		</lomimscc:lom>
+	</metadata>
+	<organizations>
+		<organization identifier="O_32753132" structure="rooted-hierarchy">
+			<item identifier="root">
+				<item identifier="I_00FABA9A">
+					<title>Grundlagen der Baumpflege</title>
+					<item identifier="I_A8531FEB" identifierref="I_E28A58BF_R">
+						<title>Bäume schützen</title>
+					</item>
+					<item identifier="I_3DFBBC79" identifierref="I_273350DB_R">
+						<title>Bäume kappen</title>
+					</item>
+					<item identifier="I_80934D41" identifierref="I_6885A2F4_R">
+						<title>Bäume ausdünnen</title>
+					</item>
+					<item identifier="I_018EF56F" identifierref="I_538FF15E_R">
+						<title>Baumkonservierung</title>
+					</item>
+					<item identifier="I_02429027" identifierref="I_5A568D55_R">
+						<title>über Fragen zu Bäumen beraten</title>
+					</item>
+					<item identifier="I_D459AF40" identifierref="I_CCE510D4_R">
+						<title>Krankheits- und Schädlingsbekämpfung durchführen</title>
+					</item>
+					<item identifier="I_6FC50F13" identifierref="I_7B0540E8_R">
+						<title>Grünpflanzen pflanzen</title>
+					</item>
+					<item identifier="I_0CDA34DA" identifierref="I_F835AE53_R">
+						<title>Baumkrankheiten bekämpfen</title>
+					</item>
+				</item>
+				<item identifier="I_D0DC26F1">
+					<title>Grundlagen des Kletterns</title>
+					<item identifier="I_F53A47AD" identifierref="I_066D7146_R">
+						<title>auf Bäume klettern</title>
+					</item>
+					<item identifier="I_9A5F5D33" identifierref="I_B7B8920E_R">
+						<title>Gefahren im Umgang mit Bäumen mindern</title>
+					</item>
+					<item identifier="I_30C2727A" identifierref="I_9DFB6C23_R">
+						<title>mit Seilausrüstung Bäume erklettern</title>
+					</item>
+					<item identifier="I_D48D1B23" identifierref="I_A05A9AD9_R">
+						<title>Sicherheitsverfahren bei der Arbeit in großen Höhen befolgen</title>
+					</item>
+				</item>
+				<item identifier="I_50F388CD">
+					<title>Grundlagen der Instandhaltung</title>
+					<item identifier="I_FD36D805" identifierref="I_B38736CB_R">
+						<title>Kettensäge bedienen</title>
+					</item>
+					<item identifier="I_938103FA" identifierref="I_AF9D405C_R">
+						<title>forstwirtschaftliche Ausrüstung instand halten</title>
+					</item>
+					<item identifier="I_6EED8747" identifierref="I_9C812898_R">
+						<title>bei der Baumidentifizierung assistieren</title>
+					</item>
+				</item>
+			</item>
+		</organization>
+	</organizations>
+	<resources>
+		<resource identifier="I_E28A58BF_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/11.xml"/>
+		</resource>
+		<resource identifier="I_273350DB_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/04.xml"/>
+		</resource>
+		<resource identifier="I_6885A2F4_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/07.xml"/>
+		</resource>
+		<resource identifier="I_538FF15E_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/09.xml"/>
+		</resource>
+		<resource identifier="I_5A568D55_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/06.xml"/>
+		</resource>
+		<resource identifier="I_066D7146_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/03.xml"/>
+		</resource>
+		<resource identifier="I_B7B8920E_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/10.xml"/>
+		</resource>
+		<resource identifier="I_9DFB6C23_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/05.xml"/>
+		</resource>
+		<resource identifier="I_A05A9AD9_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/08.xml"/>
+		</resource>
+		<resource identifier="I_CCE510D4_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/01.xml"/>
+		</resource>
+		<resource identifier="I_B38736CB_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/02.xml"/>
+		</resource>
+		<resource identifier="I_AF9D405C_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/15.xml"/>
+		</resource>
+		<resource identifier="I_7B0540E8_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/14.xml"/>
+		</resource>
+		<resource identifier="I_F835AE53_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/12.xml"/>
+		</resource>
+		<resource identifier="I_9C812898_R" type="imswl_xmlv1p1">
+			<file href="https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/13.xml"/>
+		</resource>
+	</resources>
+</manifest>

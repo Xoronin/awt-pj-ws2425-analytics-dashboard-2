@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "awt_analytics_dashboard", "awt_analytics_dashboard.esproj", "{E77F371C-71B1-4DB5-9F9E-59192A0ACA31}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E77F371C-71B1-4DB5-9F9E-59192A0ACA31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E77F371C-71B1-4DB5-9F9E-59192A0ACA31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E77F371C-71B1-4DB5-9F9E-59192A0ACA31}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{E77F371C-71B1-4DB5-9F9E-59192A0ACA31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E77F371C-71B1-4DB5-9F9E-59192A0ACA31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E77F371C-71B1-4DB5-9F9E-59192A0ACA31}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {375BD96A-1EC2-4CF9-8568-305F6A61B841}
+	EndGlobalSection
+EndGlobal
