@@ -1,3 +1,7 @@
+
+/**
+*  Helper class with usefull utility functions
+*/
 class Utility {
     constructor() { }
 

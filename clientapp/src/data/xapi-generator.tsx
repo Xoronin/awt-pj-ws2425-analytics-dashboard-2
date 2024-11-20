@@ -4,10 +4,11 @@ import LearnerGenerator from './learner-generator';
 import { verbs, Activity, CourseStructure } from './course-data-generator';
 import CourseDataGenerator from './course-data-generator';
 import { XAPIDataService } from '../services/xapi-service';
-import { LearningSessionGenerator, LearningSession, Learner, ActivityInteraction } from './session-generator';
+import { LearningSession, Learner, ActivityInteraction } from './session-generator';
+import LearningSessionGenerator from './session-generator';
 import Utility from '../helper/utility';
-// Interfaces for learners, xAPI statements, and sessions
 
+// Interfaces for learners, xAPI statements, and sessions
 export interface XAPIStatement {
     actor: {
         mbox: string;
@@ -61,6 +62,9 @@ export interface XAPIStatement {
 // Valid verbs for xAPI statements
 type ValidVerb = keyof typeof verbs;
 
+/**
+ * Generates xAPI statements from simulated learning sessions and learner profiles
+ */
 class GenerateXAPIData {
     private courseStructure: CourseStructure | null = null;
     private learners: Learner[] = [];
@@ -79,13 +83,17 @@ class GenerateXAPIData {
         this.courseDataGenerator = new CourseDataGenerator();
     }
 
-    // Initialize the course structure by loading data from a file
+    /**
+     * Initializes the course structure and generates learner profiles
+     */
     async initialize(): Promise<void> {
         this.courseStructure = await this.courseDataGenerator.loadCourseData();
         this.generateLearnerProfiles();
     }
 
-    // Generate learner profiles based on predefined personas
+    /**
+     * Creates learner profiles for each predefined persona
+     */
     private generateLearnerProfiles(): void {
         const allPersonas = [...personas, ...outliers];
         for (const persona of allPersonas) {
@@ -98,6 +106,12 @@ class GenerateXAPIData {
         }
     }
 
+    /**
+     * Creates a learning session for a learner if they're likely to participate
+     * @param learner - Student profile
+     * @param date - Session date
+     * @returns Learning session or null
+     */
     private generateSession(learner: Learner, date: Date): LearningSession | null {
         if (!this.courseStructure) {
             throw new Error('Course structure not initialized');
@@ -115,6 +129,11 @@ class GenerateXAPIData {
         return null;
     }
 
+    /**
+     * Converts a learning session into xAPI statements
+     * @param session - Learning session to convert
+     * @returns Array of xAPI statements
+     */
     private convertSessionToStatements(session: LearningSession): XAPIStatement[] {
         const statements: XAPIStatement[] = [];
 
@@ -148,8 +167,15 @@ class GenerateXAPIData {
         return statements;
     }
 
-
-    // Create an xAPI statement for a learner
+    /**
+     * Creates an individual xAPI statement
+     * @param learner - Student profile
+     * @param verb - Action verb
+     * @param timestamp - Event time
+     * @param activity - Optional learning activity
+     * @param interaction - Optional interaction details
+     * @returns xAPI statement
+     */
     private createStatement(
         learner: Learner,
         verb: ValidVerb,
@@ -217,7 +243,12 @@ class GenerateXAPIData {
         return statement;
     }
 
-    // Generate the results for an activity if the verb is prescribed, scored, completed, failed, passed or rated
+    /**
+     * Generates result data for specific verbs
+     * @param verb - Action verb
+     * @param profile - Learner profile
+     * @returns Result object for xAPI statement
+     */
     private generateResult(verb: ValidVerb, profile: LearnerProfile): XAPIStatement['result'] | undefined {
         switch (verb) {
             case 'prescribed':
@@ -285,7 +316,11 @@ class GenerateXAPIData {
         }
     }
 
-    // Generate and save all statements in the xAPI data service
+    /**
+     * Generates and saves statements for multiple learners over time
+     * @param days - Number of days to simulate
+     * @param onProgress - Progress callback
+     */
     async generateAndSaveStatements(days: number, onProgress?: (progress: number) => void): Promise<void> {
         try {
             if (!this.courseStructure) {
@@ -329,7 +364,10 @@ class GenerateXAPIData {
         }
     }
 
-    // Function to check if the service is connected
+    /**
+     * Validates connection to xAPI service
+     * @returns Connection status
+     */
     async validateService(): Promise<boolean> {
         try {
             // Try to fetch statements to validate the service is working
@@ -340,7 +378,6 @@ class GenerateXAPIData {
             return false;
         }
     }
-
 }
 
 export default GenerateXAPIData;

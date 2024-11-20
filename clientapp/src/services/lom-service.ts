@@ -49,6 +49,9 @@ export interface LomData {
     };
 }
 
+/**
+ * Service for interacting with LOM collection in database
+ */
 class LOMDataService {
 
     private apiUrl = 'http://localhost:5050/api';
