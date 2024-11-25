@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import React, { useState, useEffect } from 'react';
 import GenerateXAPIData from './data/xapi-generator';
 import { Button, Card, CardContent, CardHeader, Typography, Box, LinearProgress, Alert } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
 import LOMDataService from './services/lom-service';
+import VerbService from './services/verb-service';
+import LearnerGenerator from './data/learner-generator';
 
 const XAPIGenerator = () => {
     const [generating, setGenerating] = useState(false);
@@ -14,6 +15,8 @@ const XAPIGenerator = () => {
 
     const xApiGenerator = new GenerateXAPIData();
     const lomDataService = new LOMDataService();
+    const verbService = new VerbService();
+    const learnerGenerator = new LearnerGenerator();
 
     useEffect(() => {
         checkService();
@@ -32,22 +35,27 @@ const XAPIGenerator = () => {
 
     const generateData = async () => {
         try {
-            setGenerating(true);
-            setError('');
-            setProgress(0);
-            setStatus('Initializing...');
+            //setGenerating(true);
+            //setError('');
+            //setProgress(0);
+            //setStatus('Initializing...');
 
-            await lomDataService.storeLomDataInMongoDB();
+            //await learnerGenerator.generateAndStoreLearners();
 
-            await xApiGenerator.initialize();
+            const allSessions = await xApiGenerator.generateAllSessions(50, 12);
+
+            //await lomDataService.storeLomDataInMongoDB();
+            //await verbService.storeVerbsInMongoDB();
+
+            //await xApiGenerator.initialize();
             setStatus('Generating data...');
 
-            await xApiGenerator.generateAndSaveStatements(10, (progress) => {
-                setProgress(progress);
-                setStatus(`Generating and saving data: ${progress}%`);
-            });
+            //await xApiGenerator.generateAndSaveStatements(12, (progress) => {
+            //    setProgress(progress);
+            //    setStatus(`Generating and saving data: ${progress}%`);
+            //});
 
-            setStatus('Data generation complete');
+           setStatus('Data generation complete');
         } catch (error) {
             setError(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
             setStatus('Generation failed');
@@ -80,7 +88,7 @@ const XAPIGenerator = () => {
                         <Button
                             variant="contained"
                             onClick={generateData}
-                            disabled={generating || !serviceAvailable}
+                            //disabled={generating || !serviceAvailable}
                             sx={{ alignSelf: 'flex-start' }}
                         >
                             {generating ? 'Generating...' : 'Generate xAPI Data'}

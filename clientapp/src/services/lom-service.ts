@@ -120,7 +120,7 @@ class LOMDataService {
                         value: this.extractValue(parsedXml.lom, 'educational.semanticDensity.value')
                     },
                     typicalLearningTime: {
-                        duration: this.extractValue(parsedXml.lom, 'educational.typicalLearningTime.duration')
+                        duration: 'PT30M0S' //this.extractValue(parsedXml.lom, 'educational.typicalLearningTime.duration')
                     }
                 },
                 classification: {
@@ -191,11 +191,11 @@ class LOMDataService {
             ];
 
             // First check if data already exists
-            const existingdata = await this.getLomData();
-            if (existingdata.length > 0) {
-                console.log('lom data already exists in database');
-                return;
-            }
+            //const existingdata = await this.getLomData();
+            //if (existingdata.length > 0) {
+            //    console.log('lom data already exists in database');
+            //    return;
+            //}
 
             // Fetch and transform data
             const responses = await Promise.all(
