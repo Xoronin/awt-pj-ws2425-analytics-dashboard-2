@@ -1,4 +1,3 @@
-import Utility from '../helper/utility';
 import LearnerService from '../services/learner-service';
 
 export interface LearnerProfile {
@@ -15,7 +14,7 @@ export interface LearnerProfile {
 
 type MetricValue = 'very low' | 'low' | 'average' | 'high' | 'very high';
 
-export interface Persona {
+interface Persona {
     id: string;
     type: 'struggler' | 'average' | 'sprinter' | 'gritty' | 'coaster';
     consistency: MetricValue;
@@ -24,7 +23,7 @@ export interface Persona {
     effort: MetricValue;
 }
 
-export interface Outlier {
+interface Outlier {
     id: string;
     type: 'outlierA' | 'outlierB' | 'outlierC' | 'outlierD';
     consistency: {
@@ -49,7 +48,7 @@ export interface Outlier {
     }
 }
 
-export const personas: Persona[] = [
+const personas: Persona[] = [
     {
         id: '1',
         type: 'struggler',
@@ -92,7 +91,7 @@ export const personas: Persona[] = [
     }
 ];
 
-export const outliers: Outlier[] = [
+const outliers: Outlier[] = [
     {
         id: '6',
         type: 'outlierA',
@@ -197,7 +196,6 @@ export const outliers: Outlier[] = [
  * Uses a percentage-based distribution to create a realistic representation of a learning cohort
  */
 class LearnerGenerator {
-    private utility: Utility;
 
     /**
      * Mapping of descriptive values to numerical scores
@@ -235,10 +233,6 @@ class LearnerGenerator {
         'outlierC': 0.01, // High effort but average performance
         'outlierD': 0.01  // Exceptional performance with average effort
     };
-
-    constructor() {
-        this.utility = new Utility();
-    }
 
     /**
      * Generates a random variation around a base value
@@ -361,7 +355,7 @@ class LearnerGenerator {
      * @param outliers - Array of outlier definitions
      * @returns Array of generated learner profiles
      */
-    public generateLearnerProfiles(totalLearners: number): LearnerProfile[] {
+    private generateLearnerProfiles(totalLearners: number): LearnerProfile[] {
         const { personaCounts, outlierCounts } = this.calculateCounts(totalLearners);
         const profiles: LearnerProfile[] = [];
         let profileId = 1;
@@ -404,7 +398,7 @@ class LearnerGenerator {
      * @param profiles - Array of generated learner profiles
      * @returns Object containing count and percentage for each profile type
      */
-    public getDistributionInfo(profiles: LearnerProfile[]): { [key: string]: { count: number, percentage: string } } {
+    getDistributionInfo(profiles: LearnerProfile[]): { [key: string]: { count: number, percentage: string } } {
         const distribution: { [key: string]: { count: number, percentage: string } } = {};
         const total = profiles.length;
 
@@ -428,12 +422,11 @@ class LearnerGenerator {
     * Example usage combining LearnerGenerator and LearnerService
     * Shows the complete flow from generation to storage
     */
-    async generateAndStoreLearners() {
+    async generateAndStoreLearners(totalLearners: number) {
         try {
             const learnerService = new LearnerService();
 
             // Generate learner profiles
-            const totalLearners = 50;
             const learnerProfiles = this.generateLearnerProfiles(totalLearners);
             console.log('Learner profiles: ', learnerProfiles);
 

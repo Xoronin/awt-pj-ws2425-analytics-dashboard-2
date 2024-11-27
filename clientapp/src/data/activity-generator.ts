@@ -3,7 +3,7 @@ import { Activity, CourseStructure } from './course-data-generator';
 import { LearnerProfile } from './learner-generator';
 import { SessionActivity } from './session-generator';
 
-export interface LearningEvent {
+export interface LearningInteraction {
     verb: Verb;
     timestamp: Date;
     result?: {
@@ -63,12 +63,6 @@ const CONFIG: ActivityConfig = {
  * - Progress tracking and scoring
  * - Learning event generation
  * - Session time management
- * 
- * Core responsibilities:
- * 1. Selects appropriate activities based on learner progress
- * 2. Tracks progress through activities
- * 3. Generates standardized learning events
- * 4. Manages completion and scoring logic
  */
 class ActivityGenerator {
     private readonly config: ActivityConfig;
@@ -157,7 +151,7 @@ class ActivityGenerator {
                 endTime: endTime,
                 duration: activityDuration,
                 completed,
-                events: this.generateEvents(
+                interactions: this.generateEvents(
                     currentTime,
                     activityDuration,
                     completed,
@@ -264,8 +258,8 @@ class ActivityGenerator {
         score: number,
         progress: ActivityProgress,
         willScore: boolean
-    ): LearningEvent[] {
-        const events: LearningEvent[] = [];
+    ): LearningInteraction[] {
+        const events: LearningInteraction[] = [];
         let currentTime = new Date(startTime.getTime());
         const activityDuration = duration * 60000;
         const timeStep = Math.floor(activityDuration / 8);

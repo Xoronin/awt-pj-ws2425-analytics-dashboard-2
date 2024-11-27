@@ -1,23 +1,29 @@
 import { Activity, CourseStructure } from './course-data-generator';
 import { LearnerProfile } from './learner-generator';
 import { Verb } from '../services/verb-service'
-import ActivityGenerator, { LearningEvent } from './activity-generator';
+import ActivityGenerator, { LearningInteraction } from './activity-generator';
 
+/**
+ * Represents a single learning session, including the learner ID, activities, session start and end times, and total duration.
+ */
 export interface LearningSession {
-    learnerId: string;
+    learner: LearnerProfile;
     activities: SessionActivity[];
     startTime: Date;
     endTime: Date;
     totalDuration: number;
 }
 
+/**
+ * Represents a single activity within a learning session, including the activity details, start and end times, duration, completion status, and learning interactions.
+ */
 export interface SessionActivity {
     activity: Activity;
     startTime: Date;
     endTime: Date;
     duration: number;
     completed: boolean;
-    events: LearningEvent[];
+    interactions: LearningInteraction[];
 }
 
 /**
@@ -37,7 +43,10 @@ class LearningSessionGenerator {
     }
 
     /**
-     * Generates learning sessions for a learner over specified weeks
+     * Generates learning sessions for a learner over the specified number of weeks.
+     * @param learnerProfile - The profile of the learner for whom the sessions will be generated.
+     * @param startDate - The start date for the course.
+     * @returns An array of learning sessions for the learner.
      */
     public generateLearnerSessions(
         learnerProfile: LearnerProfile,
@@ -57,19 +66,19 @@ class LearningSessionGenerator {
             for (let i = 0; i < sessionsPerWeek; i++) {
                 const session = this.createSession(learnerProfile, weekStart, i, week);
                 sessions.push(session);
-                console.log("Sessions: ", session)
             }
 
-            console.log(`CurrentWeek: ${week}, learner: ${learnerProfile.personaType}`)
-
-
+            //console.log(`CurrentWeek: ${week}, learner: ${learnerProfile.personaType}`)
         }
 
         return sessions;
     }
 
     /**
-     * Determines sessions per week based on effort and randomization
+     * Determines the number of sessions per week based on the learner's effort and consistency metrics.
+     * @param profile - The profile of the learner.
+     * @param currentWeek - The current week of the course.
+     * @returns The number of sessions per week for the learner.
      */
     private getSessionsPerWeek(
         profile: LearnerProfile,
@@ -92,7 +101,12 @@ class LearningSessionGenerator {
     }
 
     /**
-     * Creates a single learning session
+     * Creates a single learning session for the given learner and week.
+     * @param profile - The profile of the learner.
+     * @param weekStart - The start date of the week.
+     * @param dayOffset - The offset from the start of the week (in days) for the session.
+     * @param currentWeek - The current week of the course.
+     * @returns The created learning session.
      */
     private createSession(
         profile: LearnerProfile,
@@ -116,7 +130,7 @@ class LearningSessionGenerator {
         );
 
         return {
-            learnerId: profile.id,
+            learner: profile,
             activities,
             startTime,
             endTime,
@@ -125,7 +139,9 @@ class LearningSessionGenerator {
     }
 
     /**
-     * Gets a reasonable start time for a session
+     * Gets a reasonable start time for a session, between 9 AM and 8 PM with random minutes.
+     * @param date - The date for which the start time should be generated.
+     * @returns The generated start time.
      */
     private getSessionStartTime(date: Date): Date {
         const startTime = new Date(date);
@@ -138,7 +154,10 @@ class LearningSessionGenerator {
     }
 
     /**
-     * Gets session duration for different learner types
+     * Gets the session duration for the given learner profile and current week.
+     * @param profile - The profile of the learner.
+     * @param currentWeek - The current week of the course.
+     * @returns The duration of the session in minutes.
      */
     private getSessionDuration(profile: LearnerProfile, currentWeek: number): number {
         const BASE_DURATION = 60; // Base duration for average metrics
