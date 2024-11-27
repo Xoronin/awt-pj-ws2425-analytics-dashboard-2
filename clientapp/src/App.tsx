@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import GenerateXAPIData from './data/xapi-generator';
 import { Button, Card, CardContent, CardHeader, Typography, Box, LinearProgress, Alert } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
-import LOMDataService from './services/lom-service';
 
 const XAPIGenerator = () => {
     const [generating, setGenerating] = useState(false);
@@ -13,7 +11,6 @@ const XAPIGenerator = () => {
     const [serviceAvailable, setServiceAvailable] = useState<boolean>(false);
 
     const xApiGenerator = new GenerateXAPIData();
-    const lomDataService = new LOMDataService();
 
     useEffect(() => {
         checkService();
@@ -35,19 +32,13 @@ const XAPIGenerator = () => {
             setGenerating(true);
             setError('');
             setProgress(0);
-            setStatus('Initializing...');
 
-            await lomDataService.storeLomDataInMongoDB();
-
-            await xApiGenerator.initialize();
-            setStatus('Generating data...');
-
-            await xApiGenerator.generateAndSaveStatements(10, (progress) => {
+            await xApiGenerator.generateAndSaveStatements(50, 12, (progress) => {
                 setProgress(progress);
                 setStatus(`Generating and saving data: ${progress}%`);
             });
 
-            setStatus('Data generation complete');
+           setStatus('Data generation complete');
         } catch (error) {
             setError(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
             setStatus('Generation failed');

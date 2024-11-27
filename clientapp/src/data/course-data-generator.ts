@@ -1,4 +1,5 @@
 import LOMDataService, { LomData } from "../services/lom-service";
+import { Verb } from "../services/verb-service";
 
 export interface Activity {
     id: string;
@@ -9,12 +10,10 @@ export interface Activity {
     semanticDensity: string;
     typicalLearningTime: string;
     estimatedDuration: number;
-    href?: string;
-    description?: string;
-    type?: string;
-    learningResourceType?: string;
-    competencies?: string[];
-    verb?: string;
+    description: string;
+    learningResourceType: string;
+    href: string;
+    objectType: string;
 }
 
 export interface CourseSection {
@@ -39,33 +38,44 @@ export interface CourseStructure {
     };
 }
 
-export const verbs = {
-    prescribed: 'https://w3id.org/xapi/dod-isd/verbs/prescribed',
-    scored: 'http://adlnet.gov/expapi/verbs/scored',
-    initialized: 'http://adlnet.gov/expapi/verbs/initialized',
-    exited: 'http://adlnet.gov/expapi/verbs/exited',
-    completed: 'http://adlnet.gov/expapi/verbs/completed',
-    achieved: 'https://w3id.org/xapi/dod-isd/verbs/achieved',
-    failed: 'http://adlnet.gov/expapi/verbs/failed',
-    passed: 'http://adlnet.gov/expapi/verbs/passed',
-    rated: 'http://id.tincanapi.com/verb/rated',
-    searched: 'https://w3id.org/xapi/acrossx/verbs/searched',
-    progressed: 'http://adlnet.gov/expapi/verbs/progressed',
-    launched: 'http://adlnet.gov/expapi/verbs/launched'
-};
+export interface XAPITemplate {
+    id: string;
+    type: string;
+    inScheme: string;
+    prefLabel: {
+        en: string;
+    };
+    definition: {
+        en: string;
+    };
+    verb: string;
+    objectActivityType: string;
+    contextExtension?: string[];
+    rules?: Array<{
+        location: string;
+        presence: string;
+    }>;
+}
 
 /**
  * Service for generating structured course data from XML manifests and LOM metadata
  */
 class CourseDataGenerator{
     private lomDataService = new LOMDataService();
+    private templates: Map<string, any>;
+    private verbToActivityType: Map<string, string>;
+
+    constructor() {
+        this.templates = new Map();
+        this.verbToActivityType = new Map();
+    }
 
     /**
      * Parses an XML string into a DOM Document
      * @param xmlString - The XML content to parse
      * @returns Parsed XML Document
      */
-    parseXMLString(xmlString: string): Document {
+    private parseXMLString(xmlString: string): Document {
         const parser = new DOMParser();
         return parser.parseFromString(xmlString, 'application/xml');
     }
@@ -75,7 +85,7 @@ class CourseDataGenerator{
      * @param element - The XML element to extract text from
      * @returns Trimmed text content or empty string
      */
-    getTextContent(element: Element | null): string {
+    private getTextContent(element: Element | null): string {
         return element?.textContent?.trim() || '';
     }
 
@@ -87,55 +97,49 @@ class CourseDataGenerator{
      * @returns Activity object with combined data
      */
     createActivity(item: Element, xmlDoc: Document, lomData: LomData[]): Activity {
-        const id = item.getAttribute('identifierref') || '';
-        const title = this.getTextContent(item.querySelector('title'));
+        const activity: Activity = {} as Activity;
 
-        // Find corresponding resource
-        const resource = xmlDoc.querySelector(`resource[identifier="${id}"]`);
-        const href = resource?.querySelector('file')?.getAttribute('href') || undefined;
-        const type = resource?.getAttribute('type') || undefined;
+        activity.id = item.getAttribute('identifierref') || '';
+        activity.title = this.getTextContent(item.querySelector('title'));
+
+        // Get type and href from XML data 
+        const resource = xmlDoc.querySelector(`resource[identifier="${activity.id}"]`);
+        //const type = resource?.getAttribute('type');
+        //if (type !== null && type !== undefined) {
+        //    activity.type = type;
+        //}
+        const href = resource?.querySelector('file')?.getAttribute('href');
+        if (href !== null && href !== undefined) {
+            activity.href = href;
+        }
 
         // Find matching LOM data
         const matchingLOM = lomData.find(lom => {
             const activityName = lom.classification.taxonPath.taxon.entry.string._;
             return (
-                activityName === title
+                activityName === activity.title
             );
         });
 
-        // Create base activity with default values
-        const baseActivity: Activity = {
-            id,
-            title,
-            difficulty: this.calculateDifficulty(title),
-            interactivityType: 'mixed',
-            interactivityLevel: 'medium',
-            semanticDensity: 'medium',
-            typicalLearningTime: 'PT15M',
-            estimatedDuration: 15,
-            ...(href && { href }),
-            ...(type && { type })
+        // Fill activity data from LOM
+        if (matchingLOM) {
+            activity.difficulty = this.mapLOMDifficultyToNumber(matchingLOM.educational.difficulty.value);
+            activity.interactivityType = matchingLOM.educational.interactivityType.value;
+            activity.interactivityLevel = matchingLOM.educational.interactivityLevel.value;
+            activity.semanticDensity = matchingLOM.educational.semanticDensity.value;
+            activity.typicalLearningTime = matchingLOM.educational.typicalLearningTime.duration;
+            activity.estimatedDuration = this.parseTypicalLearningTime(matchingLOM.educational.typicalLearningTime.duration);
+            activity.learningResourceType = matchingLOM.educational.learningResourceType.value;
+            activity.description = '';
         };
 
-        // If no matching LOM found, return base activity
-        if (!matchingLOM) {
-            console.log(`No matching LOM found for activity ${id}`);
-            return baseActivity;
-        }
+        // Set objectType from templates
+        activity.objectType = item.getAttribute('type') && this.verbToActivityType.get(item.getAttribute('type') || '') ?
+                this.verbToActivityType.get(item.getAttribute('type') || '') || '' :
+                'http://adlnet.gov/expapi/activities/course'
 
         // Return activity with LOM data
-        return {
-            ...baseActivity,
-            difficulty: this.mapLOMDifficultyToNumber(matchingLOM.educational.difficulty.value),
-            interactivityType: matchingLOM.educational.interactivityType.value || baseActivity.interactivityType,
-            interactivityLevel: matchingLOM.educational.interactivityLevel.value || baseActivity.interactivityLevel,
-            semanticDensity: matchingLOM.educational.semanticDensity.value || baseActivity.semanticDensity,
-            typicalLearningTime: matchingLOM.educational.typicalLearningTime.duration || baseActivity.typicalLearningTime,
-            estimatedDuration: this.parseTypicalLearningTime(
-                matchingLOM.educational.typicalLearningTime.duration
-            ) || baseActivity.estimatedDuration,
-            learningResourceType: matchingLOM.educational.learningResourceType.value
-        };
+        return activity;
     }
 
     /**
@@ -184,6 +188,8 @@ class CourseDataGenerator{
      */
     async loadCourseData(): Promise<CourseStructure> {
         try {
+            await this.loadxApiProfileTemplates();
+
             const response = await fetch('https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/course/imsmanifest.xml');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -233,27 +239,43 @@ class CourseDataGenerator{
         }
     }
 
+    private async loadxApiProfileTemplates(): Promise<void> {
+        try {
+            const profile = await fetch('https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/xapi/xapi_profiles.json').then(r => r.json());
+            profile.templates.forEach((template: XAPITemplate) => {
+                this.verbToActivityType.set(
+                    template.verb.split('/').pop() || '',
+                    template.objectActivityType
+                );
+            });
+        } catch (error) {
+            console.error('Error loading xAPI profile:', error);
+            throw error;
+        }
+    }
+
     /**
      * Calculates activity difficulty based on title keywords
      * @param title - Activity title
      * @returns Difficulty value between 0 and 1
      */
-    calculateDifficulty(title: string): number {
-        const lowerTitle = title.toLowerCase();
-        if (lowerTitle.includes('grundlagen')) {
-            return 0.3;
-        }
-        if (lowerTitle.includes('klettern')) {
-            return 0.7;
-        }
-        if (lowerTitle.includes('krankheit') || lowerTitle.includes('gefahr')) {
-            return 0.6;
-        }
-        if (lowerTitle.includes('identifizierung') || lowerTitle.includes('beraten')) {
-            return 0.4;
-        }
-        return 0.5;
-    }
+    //private calculateDifficulty(title: string): number {
+    //    const lowerTitle = title.toLowerCase();
+    //    if (lowerTitle.includes('grundlagen')) {
+    //        return 0.3;
+    //    }
+    //    if (lowerTitle.includes('klettern')) {
+    //        return 0.7;
+    //    }
+    //    if (lowerTitle.includes('krankheit') || lowerTitle.includes('gefahr')) {
+    //        return 0.6;
+    //    }
+    //    if (lowerTitle.includes('identifizierung') || lowerTitle.includes('beraten')) {
+    //        return 0.4;
+    //    }
+    //    return 0.5;
+    //}
+
 
 }
 

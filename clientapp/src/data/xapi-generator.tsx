@@ -1,14 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
-import { LearnerProfile, Persona, personas, outliers } from './learner-generator';
-import LearnerGenerator from './learner-generator';
-import { verbs, Activity, CourseStructure } from './course-data-generator';
-import CourseDataGenerator from './course-data-generator';
+import LearnerGenerator, { LearnerProfile } from './learner-generator';
+import CourseDataGenerator, {Activity, CourseStructure } from './course-data-generator';
+import LearningSessionGenerator, { LearningSession } from './session-generator';
 import { XAPIDataService } from '../services/xapi-service';
-import { LearningSession, Learner, ActivityInteraction } from './session-generator';
-import LearningSessionGenerator from './session-generator';
-import Utility from '../helper/utility';
+import VerbService, { Verb } from '../services/verb-service';
+import LearnerService from '../services/learner-service';
+import { LearningInteraction } from './activity-generator';
 
-// Interfaces for learners, xAPI statements, and sessions
+// Interfaces for xAPI statement
 export interface XAPIStatement {
     actor: {
         mbox: string;
@@ -59,305 +58,85 @@ export interface XAPIStatement {
     };
 }
 
-// Valid verbs for xAPI statements
-type ValidVerb = keyof typeof verbs;
-
 /**
  * Generates xAPI statements from simulated learning sessions and learner profiles
  */
 class GenerateXAPIData {
-    private courseStructure: CourseStructure | null = null;
-    private learners: Learner[] = [];
+    private courseData: CourseStructure | null = null;
+    private verbs: Verb[] | null = null;
+    private learners: LearnerProfile[] = [];
     private statements: XAPIStatement[] = [];
     private dataService: XAPIDataService;
-    private utility: Utility;
+    private sessionGenerator!: LearningSessionGenerator;
+    private courseDataGenerator: CourseDataGenerator;
+    private verbService: VerbService;
+    private learnerService: LearnerService;
     private learnerGenerator: LearnerGenerator;
-    private sessionGenerator: LearningSessionGenerator;
-    private courseDataGenerator: CourseDataGenerator
 
     constructor() {
         this.dataService = new XAPIDataService();
-        this.utility = new Utility();
-        this.learnerGenerator = new LearnerGenerator();
-        this.sessionGenerator = new LearningSessionGenerator();
+        this.learnerService = new LearnerService();
         this.courseDataGenerator = new CourseDataGenerator();
+        this.verbService = new VerbService();
+        this.learnerGenerator = new LearnerGenerator();
     }
 
     /**
-     * Initializes the course structure and generates learner profiles
+     * Generates and saves xAPI statements for multiple learners over a given time period.
+     * @param totalLearners - The total number of learners to generate statements for.
+     * @param numberOfWeeks - The number of weeks to simulate.
+     * @param onProgress - An optional callback function to report the progress of the generation process.
+     * @returns A Promise that resolves when all statements have been generated and saved.
      */
-    async initialize(): Promise<void> {
-        this.courseStructure = await this.courseDataGenerator.loadCourseData();
-        this.generateLearnerProfiles();
-    }
-
-    /**
-     * Creates learner profiles for each predefined persona
-     */
-    private generateLearnerProfiles(): void {
-        const allPersonas = [...personas, ...outliers];
-        for (const persona of allPersonas) {
-            const learner: Learner = {
-                id: uuidv4(),
-                persona,
-                profile: this.learnerGenerator.createLearnerProfile(persona)
-            };
-            this.learners.push(learner);
-        }
-    }
-
-    /**
-     * Creates a learning session for a learner if they're likely to participate
-     * @param learner - Student profile
-     * @param date - Session date
-     * @returns Learning session or null
-     */
-    private generateSession(learner: Learner, date: Date): LearningSession | null {
-        if (!this.courseStructure) {
-            throw new Error('Course structure not initialized');
-        }
-
-        // Only generate a session if the learner is likely to participate
-        if (Math.random() < learner.profile.completionProbability) {
-            return this.sessionGenerator.generateSession(
-                learner,
-                this.courseStructure,
-                date
-            );
-        }
-
-        return null;
-    }
-
-    /**
-     * Converts a learning session into xAPI statements
-     * @param session - Learning session to convert
-     * @returns Array of xAPI statements
-     */
-    private convertSessionToStatements(session: LearningSession): XAPIStatement[] {
-        const statements: XAPIStatement[] = [];
-
-        // Session initialization
-        statements.push(this.createStatement(
-            session.learner,
-            'initialized',
-            session.startTime
-        ));
-
-        // Process each activity and its interactions
-        for (const plannedActivity of session.activities) {
-            for (const interaction of plannedActivity.interactions) {
-                statements.push(this.createStatement(
-                    session.learner,
-                    interaction.verb as ValidVerb,
-                    interaction.timestamp,
-                    plannedActivity.activity,
-                    interaction
-                ));           
-            }
-        }
-
-        // Session termination
-        statements.push(this.createStatement(
-            session.learner,
-            'exited',
-            session.endTime
-        ));
-
-        return statements;
-    }
-
-    /**
-     * Creates an individual xAPI statement
-     * @param learner - Student profile
-     * @param verb - Action verb
-     * @param timestamp - Event time
-     * @param activity - Optional learning activity
-     * @param interaction - Optional interaction details
-     * @returns xAPI statement
-     */
-    private createStatement(
-        learner: Learner,
-        verb: ValidVerb,
-        timestamp: Date,
-        activity?: Activity,
-        interaction?: ActivityInteraction
-    ): XAPIStatement {
-        const defaultObject = {
-            id: this.courseStructure?.id || 'https://example.com/default',
-            objectType: 'Activity',
-            definition: {
-                type: 'http://adlnet.gov/expapi/activities/course',
-                name: {
-                    en: this.courseStructure?.title || 'Default Course'
-                },
-                description: {
-                    en: this.courseStructure?.description || ''
-                }
-            }
-        };
-
-        // Generate result based on interaction or learner profile
-        const result = interaction?.result || this.generateResult(verb, learner.profile);
-
-        const statement: XAPIStatement = {
-            id: uuidv4(),
-            actor: {
-                mbox: `mailto:${learner.id}@example.com`,
-            },
-            verb: {
-                id: verbs[verb],
-                display: {
-                    en: verb
-                }
-            },
-            object: activity ? {
-                id: activity.href || `https://example.com/activities/${activity.id}`,
-                objectType: 'Activity',
-                definition: {
-                    type: activity.type || 'http://adlnet.gov/expapi/activities/module',
-                    name: {
-                        en: activity.title
-                    },
-                    description: activity.description ? {
-                        en: activity.description
-                    } : undefined,
-                    extensions: {
-                        'https://w3id.org/learning-analytics/learning-management-system/external-id': activity.id
-                    }
-                }
-            } : defaultObject,
-            context: {
-                instructor: {
-                    mbox: `mailto:instructor@example.com`,
-                },
-                extensions: {
-                    'https://example.com/activities/extensions/course_id': activity?.id || this.courseStructure?.id || ''
-                }
-            },
-            timestamp: timestamp.toISOString(),
-            version: "1.0.0",
-            ...(result && { result })
-        };
-
-        return statement;
-    }
-
-    /**
-     * Generates result data for specific verbs
-     * @param verb - Action verb
-     * @param profile - Learner profile
-     * @returns Result object for xAPI statement
-     */
-    private generateResult(verb: ValidVerb, profile: LearnerProfile): XAPIStatement['result'] | undefined {
-        switch (verb) {
-            case 'prescribed':
-                return {
-                    score: {
-                        min: 0,
-                        max: 9,
-                        scaled: profile.assessmentPerformance
-                    },
-                };
-            case 'scored':
-                return {
-                    score: {
-                        min: 0,
-                        max: 9,
-                        scaled: profile.assessmentPerformance
-                    },
-                };
-            case 'completed':
-                return {
-                    score: {
-                        raw: Math.round(profile.assessmentPerformance * 100),
-                        min: 0,
-                        max: 100,
-                        scaled: profile.assessmentPerformance
-                    },
-                    completion: true,
-                    success: profile.assessmentPerformance >= 0.7
-                };
-            case 'failed':
-                return {
-                    score: {
-                        raw: Math.round(profile.assessmentPerformance * 100),
-                        min: 0,
-                        max: 100,
-                        scaled: profile.assessmentPerformance
-                    },
-                    completion: true,
-                    success: false,
-                    duration: `PT${Math.round(profile.averageSessionDuration)}M`
-                };
-            case 'passed':
-                return {
-                    score: {
-                        raw: Math.round(profile.assessmentPerformance * 100),
-                        min: 0,
-                        max: 100,
-                        scaled: profile.assessmentPerformance
-                    },
-                    completion: true,
-                    success: true,
-                    duration: `PT${Math.round(profile.averageSessionDuration)}M`
-                };
-            case 'rated':
-                const rating = Math.round(profile.engagementLevel * 5);
-                return {
-                    score: {
-                        raw: rating,
-                        min: 1,
-                        max: 5
-                    }
-                };
-            default:
-                return undefined;
-        }
-    }
-
-    /**
-     * Generates and saves statements for multiple learners over time
-     * @param days - Number of days to simulate
-     * @param onProgress - Progress callback
-     */
-    async generateAndSaveStatements(days: number, onProgress?: (progress: number) => void): Promise<void> {
+    async generateAndSaveStatements(totalLearners: number, numberOfWeeks: number, onProgress?: (progress: number) => void): Promise<void> {
         try {
-            if (!this.courseStructure) {
-                await this.initialize();
-            }
 
-            // Reset statements array
+            // 1. Initialize data
+            await this.InitializeData(totalLearners, numberOfWeeks)
+
+            // 2. Set course start date (e.g., 2 weeks from now)
+            const courseStartDate = new Date(2024, 5, 27);
+            courseStartDate.setDate(courseStartDate.getDate() + 14);
+
+            const sessions = await this.generateAllSessions(totalLearners, numberOfWeeks, courseStartDate);
+            const allLearningSessions = Array.from(sessions.values()).flatMap((sessions) => sessions);
+
             this.statements = [];
             let progressCount = 0;
-            const totalSteps = this.learners.length * days;
+            const totalSteps = allLearningSessions.length;
 
-            for (const learner of this.learners) {
-                for (let day = 0; day < days; day++) {
-                    const date = new Date();
-                    date.setDate(date.getDate() - day);
+            allLearningSessions.forEach((session) => {
 
-                    // Generate session
-                    const session = this.generateSession(learner, date);
-                    if (session) {
-                        const sessionStatements = this.convertSessionToStatements(session);
-                        this.statements.push(...sessionStatements);
-                    }
-
-                    // Update progress
-                    progressCount++;
-                    if (onProgress) {
-                        onProgress((progressCount / totalSteps) * 100);
+                // Process each activity and its events
+                for (const activity of session.activities) {
+                    for (const event of activity.interactions) {
+                        this.statements.push(this.createStatement(
+                            session.learner,
+                            event.timestamp,
+                            event.verb,
+                            event,
+                            activity.activity
+                        ));
                     }
                 }
+                progressCount++;
+            });
+
+            if (onProgress) {
+                onProgress((progressCount / totalSteps) * 100);
             }
 
-            console.log(`Generated ${this.statements.length} statements`);
+            try {
+                // Save all statements in one operation
+                await this.dataService.saveBulkStatements(this.statements);
 
-            // Save all statements in one operation
-            await this.dataService.saveBulkStatements(this.statements);
-            console.log('All statements saved successfully');
+                console.log('All statements saved successfully');
 
+                this.printStatementsStatistics(sessions);
+            } catch (error) {
+                console.error('Error saving statements:', error);
+                throw error;
+            }
         } catch (error) {
             console.error('Error in generate and save process:', error);
             throw error;
@@ -365,8 +144,194 @@ class GenerateXAPIData {
     }
 
     /**
-     * Validates connection to xAPI service
-     * @returns Connection status
+     * Generates learning sessions for all learners and returns them grouped by learner ID.
+     * @param totalLearners - The total number of learners to generate sessions for.
+     * @param numberOfWeeks - The number of weeks to simulate.
+     * @param courseStartDate - The start date of the course.
+     * @returns A Map of learner IDs to their corresponding learning sessions.
+     */
+    private async generateAllSessions(totalLearners: number, numberOfWeeks: number, courseStartDate: Date) {
+        try {
+            // Generate sessions for each learner
+            const allSessions = new Map<string, LearningSession[]>();
+
+            for (const learner of this.learners) {
+                const learnerSessions = this.sessionGenerator.generateLearnerSessions(
+                    learner,
+                    courseStartDate
+                );
+
+                allSessions.set(learner.id, learnerSessions);
+            }
+
+            return allSessions;
+
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+            console.error('Failed to generate sessions:', errorMessage);
+            throw new Error(`Session generation failed: ${errorMessage}`);
+        }
+    }
+
+    /**
+     * Initializes the data required for generating xAPI statements, including course data, verbs, and learner profiles.
+     * @param totalLearners - The total number of learners to initialize data for.
+     * @param numberOfWeeks - The number of weeks to initialize data for.
+     */
+    private async InitializeData(totalLearners: number, numberOfWeeks: number) {
+        try {
+            this.courseData = await this.courseDataGenerator.loadCourseData();
+            this.verbs = await this.verbService.getVerbs();
+            this.sessionGenerator = new LearningSessionGenerator(this.courseData, numberOfWeeks, this.verbs,);
+            //await this.learnerGenerator.generateAndStoreLearners(totalLearners);
+            this.learners = await this.learnerService.getLearnerProfiles();
+
+            console.log('Initialized data for xApi statementes generation');
+        } catch (error) {
+            console.error('Failed to initialize data for xApi statements generation:', error);
+            throw new Error(`Data initialization failed: ${error}`);
+        }
+    }
+
+    /**
+     * Prints statistics about the generated learning sessions and xAPI statements.
+     * @param allSessions - A Map of learner IDs to their corresponding learning sessions.
+     */
+    private printStatementsStatistics(allSessions: Map<string, LearningSession[]>) {
+        let totalSessions = 0;
+        let totalActivities = 0;
+        let totalDuration = 0;
+        let totalStatements = 0;
+        const statementsByType: { [key: string]: number } = {};
+        const statementsByVerb: { [key: string]: number } = {};
+
+        allSessions.forEach((sessions, learnerId) => {
+            totalSessions += sessions.length;
+
+            sessions.forEach(session => {
+                totalActivities += session.activities.length;
+                totalDuration += session.totalDuration;
+
+                for (const activity of session.activities) {
+                    for (const event of activity.interactions) {
+                        const statement = this.createStatement(
+                            session.learner,
+                            event.timestamp,
+                            event.verb,
+                            event,
+                            activity.activity
+                        );
+                        totalStatements++;
+
+                        // Count statements by type
+                        const type = statement.object.definition.type;
+                        statementsByType[type] = (statementsByType[type] || 0) + 1;
+
+                        // Count statements by verb
+                        const verbId = statement.verb.id;
+                        statementsByVerb[verbId] = (statementsByVerb[verbId] || 0) + 1;
+                    }
+                }
+            });
+        });
+
+        console.log('xApi Statements Generation Statistics:');
+        this.learnerGenerator.getDistributionInfo(this.learners);
+
+        console.log(`Total Learners: ${this.learners.length}`);
+        console.log(`Total Sessions: ${totalSessions}`);
+        console.log(`Total Activities: ${totalActivities}`);
+        console.log(`Total Statements: ${totalStatements}`);
+
+        console.log(`Average Sessions per Learner: ${(totalSessions / allSessions.size).toFixed(1)}`);
+        console.log(`Average Activities per Session: ${(totalActivities / totalSessions).toFixed(1)}`);
+        console.log(`Average Session Duration: ${(totalDuration / totalSessions).toFixed(1)} minutes`);
+        console.log(`Average Statements per Session: ${(totalStatements / totalSessions).toFixed(1)}`);
+
+        console.log('\nStatement Types:');
+        for (const [type, count] of Object.entries(statementsByType)) {
+            console.log(`  ${type}: ${count}`);
+        }
+
+        console.log('\nStatement Verbs:');
+        for (const [verbId, count] of Object.entries(statementsByVerb)) {
+            const verbName = this.verbs?.find(v => v.id === verbId)?.prefLabel || 'Unknown';
+            console.log(`  ${verbName}: ${count}`);
+        }
+    }
+
+    /**
+     * Creates an individual xAPI statement based on the provided learner, verb, timestamp, activity, and interaction.
+     * @param learnerId - The ID of the learner.
+     * @param timestamp - The timestamp of the event.
+     * @param verb - The verb associated with the event.
+     * @param interaction - The details of the learning interaction.
+     * @param activity - The learning activity associated with the event.
+     * @returns The generated xAPI statement.
+     */
+    private createStatement(
+        learner: LearnerProfile,
+        timestamp: Date,
+        verb: Verb,
+        interaction: LearningInteraction,
+        activity: Activity,
+    ): XAPIStatement {
+
+
+        // Generate result based on interaction or learner profile
+        try {
+            const result = interaction.result;
+            const statement: XAPIStatement = {
+                actor: {
+                    mbox: learner.email,
+                },
+                timestamp: timestamp.toJSON(),
+                version: "1.0.0",
+                id: uuidv4(),
+                ...(result && { result }),
+                verb: {
+                    id: verb.id,
+                    display: {
+                        en: verb.prefLabel
+                    }
+                },
+                object: {
+                    id: activity.href,
+                    definition: {
+                        type: activity.objectType,
+                        name: {
+                            en: activity.title
+                        },
+                        description: {
+                            en: activity.description
+                        },
+                        extensions: {
+                            'https://w3id.org/learning-analytics/learning-management-system/external-id': activity.id
+                        }
+                    },
+                    objectType: 'Activity'
+                },
+                context: {
+                    instructor: {
+                        mbox: `mailto:instructor@example.com`,
+                    },
+                    extensions: {
+                        'https://example.com/activities/extensions/course_id': activity?.id
+                    }
+                }
+            };
+
+            return statement;
+        } catch (error) {
+            console.error('Error in generating statement', error);
+
+            throw error;
+        }
+    }
+
+    /**
+     * Validates the connection to the xAPI service by attempting to fetch statements.
+     * @returns A Promise that resolves to a boolean indicating whether the service is available.
      */
     async validateService(): Promise<boolean> {
         try {
