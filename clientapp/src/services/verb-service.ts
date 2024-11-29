@@ -1,10 +1,5 @@
+import { Verb } from "../types/types";
 
-export interface Verb {
-    id: string;
-    type: string;
-    prefLabel: string;
-    definition: string;
-}
 
 export const usedVerbs = [
     'prescribed',
@@ -29,63 +24,19 @@ class VerbService {
     private apiUrl = 'http://localhost:5050/api';
 
     /**
- * Loads and processes course data from XML manifest
- * @returns Promise resolving to structured course data
- */
-    private async loadVerbs(): Promise<Verb[]> {
-        try {
-            const response = await fetch('https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/xapi/xapi_profiles.json')
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const json = await response.json();
-            const verbs = this.parseVerbs(json);
-            return verbs;
-        } catch (error) {
-            console.error('Error loading verbs:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Parse verbs from XAPI profile and filter to required ones
-     */
-    private parseVerbs(profileJson: any): Verb[] {
-        const verbs: Verb[] = [];
-
-        profileJson.concepts.forEach((concept: any) => {
-            if (concept.type === 'Verb') {
-                const verbName = concept.prefLabel.en;
-                if (usedVerbs.includes(verbName)) {
-                    verbs.push({
-                        id: concept.id,
-                        type: concept.type,
-                        prefLabel: verbName,
-                        definition: concept.definition.en
-                    });
-                }
-            }
-        });
-
-        return verbs;
-    }
-
-    /**
      * Stores verbs in a MongoDB database after fetching and transforming json data from URL.
      * @returns A `Promise` that resolves when the data is stored successfully.
      * @throws An error if the data cannot be stored.
      */
-    async storeVerbsInMongoDB(): Promise<void> {
+    async storeVerbsInMongoDB(verbs: Verb[]): Promise<void> {
         try {
 
             // First check if data already exists
-            //const existingdata = await this.getVerbs();
-            //if (existingdata.length > 0) {
-            //    console.log('verbs already exists in database');
-            //    return;
-            //}
-
-            const verbs = await this.loadVerbs()
+            const existingdata = await this.getVerbs();
+            if (existingdata.length > 0) {
+                console.log('verbs already exists in database');
+                return;
+            }
 
             // Store in MongoDB
             const response = await fetch(`${this.apiUrl}/verbs`, {

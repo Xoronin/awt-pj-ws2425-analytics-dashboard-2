@@ -1,16 +1,6 @@
 import LearnerService from '../services/learner-service';
+import { LearnerProfile } from '../types/types';
 
-export interface LearnerProfile {
-    id: string;
-    email: string;
-    personaType: 'struggler' | 'average' | 'sprinter' | 'gritty' | 'coaster' | 'outlierA' | 'outlierB' | 'outlierC' | 'outlierD';
-    metrics: {
-        consistency: number | { start: number; middle: number; end: number; };
-        scores: number | { start: number; middle: number; end: number; };
-        duration: number | { start: number; middle: number; end: number; };
-        effort: number | { start: number; middle: number; end: number; };
-    };
-}
 
 type MetricValue = 'very low' | 'low' | 'average' | 'high' | 'very high';
 

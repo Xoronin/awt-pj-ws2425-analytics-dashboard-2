@@ -1,4 +1,4 @@
-import { LearnerProfile } from '../data/learner-generator';
+import { LearnerProfile } from '../types/types';
 
 /**
  * Interface for API response when storing learners

@@ -1,9 +1,9 @@
-import { XAPIStatement } from '../data/xapi-generator';
+import { XAPIStatement } from "../types/types";
 
 /**
  * Service for interacting with xAPI statements collection in database
  */
-export class XAPIDataService {
+export class XAPIService {
     private apiUrl = 'http://localhost:5050/api';
 
     /**
