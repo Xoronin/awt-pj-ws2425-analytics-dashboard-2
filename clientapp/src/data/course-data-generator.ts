@@ -1,67 +1,31 @@
-import LOMDataService, { LomData } from "../services/lom-service";
-import { Verb } from "../services/verb-service";
+import LOMDataService from "../services/lom-service";
+import VerbService from "../services/verb-service";
+import { XMLParser } from 'fast-xml-parser';
+import { CourseData, Verb, Activity, LomData, CourseSection, XAPITemplate } from '../types/types';
 
-export interface Activity {
-    id: string;
-    title: string;
-    difficulty: number;
-    interactivityType: string;
-    interactivityLevel: string;
-    semanticDensity: string;
-    typicalLearningTime: string;
-    estimatedDuration: number;
-    description: string;
-    learningResourceType: string;
-    href: string;
-    objectType: string;
-}
 
-export interface CourseSection {
-    title: string;
-    activities: Activity[];
-}
+export const usedVerbs = [
+    'prescribed',
+    'scored',
+    'initialized',
+    'exited',
+    'completed',
+    'achieved',
+    'failed',
+    'passed',
+    'rated',
+    'searched',
+    'progressed',
+    'launched'
+];
 
-export interface CourseStructure {
-    id: string;
-    title: string;
-    description: string;
-    sections: CourseSection[];
-    defaultObject?: {
-        id: string;
-        objectType: string;
-        definition?: {
-            type: string;
-            name: {
-                en: string;
-            };
-        };
-    };
-}
-
-export interface XAPITemplate {
-    id: string;
-    type: string;
-    inScheme: string;
-    prefLabel: {
-        en: string;
-    };
-    definition: {
-        en: string;
-    };
-    verb: string;
-    objectActivityType: string;
-    contextExtension?: string[];
-    rules?: Array<{
-        location: string;
-        presence: string;
-    }>;
-}
 
 /**
  * Service for generating structured course data from XML manifests and LOM metadata
  */
 class CourseDataGenerator{
     private lomDataService = new LOMDataService();
+    private verbService = new VerbService();
     private templates: Map<string, any>;
     private verbToActivityType: Map<string, string>;
 
@@ -186,7 +150,7 @@ class CourseDataGenerator{
      * Loads and processes course data from XML manifest
      * @returns Promise resolving to structured course data
      */
-    async loadCourseData(): Promise<CourseStructure> {
+    async loadCourseData(): Promise<CourseData> {
         try {
             await this.loadxApiProfileTemplates();
 
@@ -205,7 +169,7 @@ class CourseDataGenerator{
             const titleElement = xmlDoc.querySelector('lomimscc\\:title lomimscc\\:string, title string');
             const descriptionElement = xmlDoc.querySelector('lomimscc\\:description lomimscc\\:string, description string');
 
-            const courseStructure: CourseStructure = {
+            const courseStructure: CourseData = {
                 id: manifestId,
                 title: this.getTextContent(titleElement),
                 description: this.getTextContent(descriptionElement),
@@ -239,6 +203,7 @@ class CourseDataGenerator{
         }
     }
 
+
     private async loadxApiProfileTemplates(): Promise<void> {
         try {
             const profile = await fetch('https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/xapi/xapi_profiles.json').then(r => r.json());
@@ -259,23 +224,198 @@ class CourseDataGenerator{
      * @param title - Activity title
      * @returns Difficulty value between 0 and 1
      */
-    //private calculateDifficulty(title: string): number {
-    //    const lowerTitle = title.toLowerCase();
-    //    if (lowerTitle.includes('grundlagen')) {
-    //        return 0.3;
-    //    }
-    //    if (lowerTitle.includes('klettern')) {
-    //        return 0.7;
-    //    }
-    //    if (lowerTitle.includes('krankheit') || lowerTitle.includes('gefahr')) {
-    //        return 0.6;
-    //    }
-    //    if (lowerTitle.includes('identifizierung') || lowerTitle.includes('beraten')) {
-    //        return 0.4;
-    //    }
-    //    return 0.5;
-    //}
 
+    /**
+     * Loads and processes course data from XML manifest
+     * @returns Promise resolving to structured course data
+     */
+    async loadVerbs(): Promise<Verb[]> {
+        try {
+            const response = await fetch('https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/xapi/xapi_profiles.json')
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const json = await response.json();
+            const verbs = this.parseVerbs(json);
+            await this.verbService.storeVerbsInMongoDB(verbs);
+
+            return verbs;
+        } catch (error) {
+            console.error('Error loading verbs:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Parse verbs from XAPI profile and filter to required ones
+     */
+    private parseVerbs(profileJson: any): Verb[] {
+        const verbs: Verb[] = [];
+
+        profileJson.concepts.forEach((concept: any) => {
+            if (concept.type === 'Verb') {
+                const verbName = concept.prefLabel.en;
+                if (usedVerbs.includes(verbName)) {
+                    verbs.push({
+                        id: concept.id,
+                        type: concept.type,
+                        prefLabel: verbName,
+                        definition: concept.definition.en
+                    });
+                }
+            }
+        });
+
+        return verbs;
+    }
+
+    /**
+     * Parses an XML string into a JavaScript object using `fast-xml-parser`.
+     * @param xmlText - The XML string to be parsed.
+     * @returns A parsed JavaScript object representing the XML structure.
+     */
+    parseLOMXMLString(xmlText: string): any {
+        const parser = new XMLParser({
+            ignoreAttributes: false,
+            attributeNamePrefix: "",
+            textNodeName: "value",
+            parseAttributeValue: true,
+            removeNSPrefix: true,
+            parseTagValue: true,
+            trimValues: true
+        });
+        return parser.parse(xmlText);
+    }
+
+    /**
+     * Transforms a parsed XML object into a structured `LomData` object.
+     * @param parsedXml - The parsed XML object.
+     * @returns A `LomData` object or `null` if the XML structure is invalid.
+     */
+    async loadLOM(parsedXml: any): Promise<LomData[]> {
+        try {
+            const manifestUrls = [
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/11.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/04.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/07.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/09.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/06.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/03.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/10.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/05.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/08.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/01.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/02.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/15.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/14.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/12.xml",
+                "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/13.xml"
+            ];
+
+            // Fetch and transform data
+            const responses = await Promise.all(
+                manifestUrls.map(url =>
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.text();
+                        })
+                )
+            );
+
+            const lomData = await Promise.all(
+                responses.map(async xmlText => {
+                    const parsedData = await this.parseXMLString(xmlText);
+                    return this.parseLOM(parsedData);
+                })
+            );
+
+            return lomData
+        } catch (error) {
+            console.error('Error loading lom:', error);
+            throw error;
+        }
+    }
+
+
+    /**
+     * Parse LOM from LOM files
+     */
+    private parseLOM(parsedXml: any): LomData {
+        const lomData: LomData = {
+            general: {
+                identifier: {
+                    entry: this.extractValue(parsedXml.lom, 'general.identifier.entry')
+                },
+                title: {
+                    string: {
+                        _: this.extractValue(parsedXml.lom, 'general.title.string.value')
+                    }
+                },
+                description: {
+                    string: {
+                        _: this.extractValue(parsedXml.lom, 'general.description.string.value')
+                    }
+                }
+            },
+            educational: {
+                difficulty: {
+                    value: this.extractValue(parsedXml.lom, 'educational.difficulty.value') || 'medium'
+                },
+                interactivityType: {
+                    value: this.extractValue(parsedXml.lom, 'educational.interactivityType.value')
+                },
+                learningResourceType: {
+                    value: this.extractValue(parsedXml.lom, 'educational.learningResourceType.value')
+                },
+                interactivityLevel: {
+                    value: this.extractValue(parsedXml.lom, 'educational.interactivityLevel.value')
+                },
+                semanticDensity: {
+                    value: this.extractValue(parsedXml.lom, 'educational.semanticDensity.value')
+                },
+                typicalLearningTime: {
+                    duration: 'PT30M0S' //this.extractValue(parsedXml.lom, 'educational.typicalLearningTime.duration')
+                }
+            },
+            classification: {
+                taxonPath: {
+                    taxon: {
+                        entry: {
+                            string: {
+                                _: this.extractValue(parsedXml.lom, 'classification.taxonPath.taxon.entry.string.value')
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        return lomData;
+    }
+
+    /**
+     * Extracts a value from a nested object using a dot-separated path.
+     * @param obj - The object to extract the value from.
+     * @param path - The dot-separated path to the desired value.
+     * @returns The extracted value or `null` if the path is invalid.
+     */
+    private extractValue(obj: any, path: string) {
+        const keys = path.split('.');
+        let current = obj;
+        for (const key of keys) {
+            if (!current[key]) return null;
+            current = current[key];
+        }
+
+        // If the target is an object with nested "value", return its text
+        if (current[0].value) {
+            return current[0].value;
+        }
+        return current._ || current;
+    }
 
 }
 

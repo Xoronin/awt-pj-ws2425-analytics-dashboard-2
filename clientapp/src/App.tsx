@@ -1,16 +1,35 @@
 import { useState, useEffect } from 'react';
-import GenerateXAPIData from './data/xapi-generator';
+import XAPIGenerator from './data/xapi-generator';
 import { Button, Card, CardContent, CardHeader, Typography, Box, LinearProgress, Alert } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
+import LearnerService from './services/learner-service';
+import LearnerGenerator from './data/learner-generator';
+import LearnerDistribution from './components/learner-distribution';
+import VerbService from './services/verb-service';
+import { Verb, LearnerProfile, XAPIStatement, LearningSession, CourseData } from './types/types';
+import { XAPIService } from './services/xapi-service';
+import XAPIStatistics from './components/xapi-statistics';
+import CourseDataGenerator from './data/course-data-generator';
 
-const XAPIGenerator = () => {
+
+
+const App = () => {
     const [generating, setGenerating] = useState(false);
     const [progress, setProgress] = useState(0);
     const [status, setStatus] = useState<string>('');
     const [error, setError] = useState<string>('');
     const [serviceAvailable, setServiceAvailable] = useState<boolean>(false);
+    const [learnerProfiles, setLearnerProfiles] = useState<LearnerProfile[]>([]);
+    const [sessions, setSessions] = useState<Map<string, LearningSession[]>>(new Map());
+    const [statements, setStatements] = useState<XAPIStatement[]>([]);
+    const [verbs, setVerbs] = useState<Verb[]>([]);
+    const [courseData, setCourseData] = useState<CourseData | null>(null);
 
-    const xApiGenerator = new GenerateXAPIData();
+    const learnerService = new LearnerService();
+    const learnerGenerator = new LearnerGenerator();
+    const verbService = new VerbService();
+    const xApiService = new XAPIService();
+    const courseDataGenerator = new CourseDataGenerator();
 
     useEffect(() => {
         checkService();
@@ -18,7 +37,7 @@ const XAPIGenerator = () => {
 
     const checkService = async () => {
         try {
-            const isAvailable = await xApiGenerator.validateService();
+            const isAvailable = await await xApiService.getStatements().then(() => true).catch(() => false);
             setServiceAvailable(isAvailable);
             setStatus(isAvailable ? 'Service connected' : 'Service unavailable');
         } catch (error) {
@@ -33,10 +52,36 @@ const XAPIGenerator = () => {
             setError('');
             setProgress(0);
 
-            await xApiGenerator.generateAndSaveStatements(50, 12, (progress) => {
+            // Get the course data
+            const courseData = await courseDataGenerator.loadCourseData();
+            setCourseData(courseData);
+
+
+            // Get the learners
+            const learners = await learnerService.getLearnerProfiles();
+            setLearnerProfiles(learners);
+
+            // Get the verbs
+            const verbs = await verbService.getVerbs();
+            setVerbs(verbs);
+
+            // Generate xAPI data
+            const xApiGenerator = new XAPIGenerator(courseData, verbs, learners);
+
+            const result = await xApiGenerator.generateAndSaveStatements(50, 12, (progress) => {
                 setProgress(progress);
                 setStatus(`Generating and saving data: ${progress}%`);
             });
+
+            // Set the sessions and statements
+            setSessions(result.sessions);
+            setStatements(result.statements);
+
+            //// Get xApi statements
+            //const statements = await xApiService.getStatements();
+            //setStatements(statements);
+
+            //await learnerGenerator.getDistributionInfo(learners);
 
            setStatus('Data generation complete');
         } catch (error) {
@@ -51,7 +96,7 @@ const XAPIGenerator = () => {
         <Box sx={{ maxWidth: 800, margin: 'auto', p: 2 }}>
             <Card>
                 <CardHeader
-                    title="xAPI Data Generator"
+                    title="xAPI Statements Generator"
                     sx={{ backgroundColor: 'primary.main', color: 'primary.contrastText' }}
                 />
                 <CardContent>
@@ -100,8 +145,21 @@ const XAPIGenerator = () => {
                     </Box>
                 </CardContent>
             </Card>
+
+            {learnerProfiles.length > 0 && (
+                <LearnerDistribution learnerProfiles={learnerProfiles} />
+            )}
+
+            {sessions.size > 0 && statements.length > 0 && verbs.length > 0 && courseData && (
+                <XAPIStatistics
+                    sessions={sessions}
+                    statements={statements}
+                    verbs={verbs}
+                    courseData={courseData}
+                />
+            )}
         </Box>
     );
 };
 
-export default XAPIGenerator;
+export default App;

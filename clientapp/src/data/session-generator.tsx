@@ -1,41 +1,17 @@
-import { Activity, CourseStructure } from './course-data-generator';
-import { LearnerProfile } from './learner-generator';
-import { Verb } from '../services/verb-service'
-import ActivityGenerator, { LearningInteraction } from './activity-generator';
+import ActivityGenerator from './activity-generator';
+import { CourseData, Verb, LearnerProfile, LearningSession } from '../types/types';
 
-/**
- * Represents a single learning session, including the learner ID, activities, session start and end times, and total duration.
- */
-export interface LearningSession {
-    learner: LearnerProfile;
-    activities: SessionActivity[];
-    startTime: Date;
-    endTime: Date;
-    totalDuration: number;
-}
-
-/**
- * Represents a single activity within a learning session, including the activity details, start and end times, duration, completion status, and learning interactions.
- */
-export interface SessionActivity {
-    activity: Activity;
-    startTime: Date;
-    endTime: Date;
-    duration: number;
-    completed: boolean;
-    interactions: LearningInteraction[];
-}
 
 /**
  * Generates simulated learning sessions with realistic student interactions
  */
 class LearningSessionGenerator {
-    private readonly courseData: CourseStructure;
+    private readonly courseData: CourseData;
     private readonly numberOfWeeks: number;
     private readonly verbs: Verb[];
     private activityGenerator: ActivityGenerator;
 
-    constructor(courseData: CourseStructure, numberOfWeeks: number, verbs: Verb[]) {
+    constructor(courseData: CourseData, numberOfWeeks: number, verbs: Verb[]) {
         this.courseData = courseData;
         this.numberOfWeeks = numberOfWeeks;
         this.verbs = verbs;

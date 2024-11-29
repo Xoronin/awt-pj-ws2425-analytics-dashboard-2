@@ -1,24 +1,4 @@
-﻿import { Verb } from '../services/verb-service';
-import { Activity, CourseStructure } from './course-data-generator';
-import { LearnerProfile } from './learner-generator';
-import { SessionActivity } from './session-generator';
-
-export interface LearningInteraction {
-    verb: Verb;
-    timestamp: Date;
-    result?: {
-        score?: {
-            raw?: number;
-            min?: number;
-            max?: number;
-            scaled?: number;
-        };
-        success?: boolean;
-        completion?: boolean;
-        duration?: string;
-        progress?: number;
-    };
-}
+﻿import { CourseData, Verb, LearnerProfile, LearningInteraction, Activity, SessionActivity } from '../types/types';
 
 interface ActivityProgress {
     currentProgress: number;
@@ -68,11 +48,11 @@ class ActivityGenerator {
     private readonly config: ActivityConfig;
     private currentActivities: Map<string, string> = new Map();
     private activityProgress: Map<string, Map<string, ActivityProgress>> = new Map();
-    private courseData: CourseStructure;
+    private courseData: CourseData;
     private verbs: Verb[];
     private numberOfWeeks: number;
 
-    constructor(courseData: CourseStructure, verbs: Verb[], numberOfWeeks: number, config: ActivityConfig = CONFIG,) {
+    constructor(courseData: CourseData, verbs: Verb[], numberOfWeeks: number, config: ActivityConfig = CONFIG,) {
         this.courseData = courseData;
         this.verbs = verbs;
         this.numberOfWeeks = numberOfWeeks;
@@ -462,10 +442,10 @@ class ActivityGenerator {
     ): number {
         const progress = this.getActivityProgress(profile.id, activity.id);
         const baseScore = this.getMetricValue(profile, 'scores', currentWeek) * 100;
-        const difficultyImpact = (1 - activity.difficulty) * 20;
-        const attemptBonus = (progress.attempts - 1) * 15;
+        const difficultyImpact = (1 - activity.difficulty) * 30;
+        const attemptBonus = (progress.attempts - 1) * 20;
         const consistency = this.getMetricValue(profile, 'consistency', currentWeek);
-        const variation = Math.floor(Math.random() * ((1 - consistency) * 20)) - ((1 - consistency) * 10);
+        const variation = Math.floor(Math.random() * ((1 - consistency) * 15)) - ((1 - consistency) * 7.5);
 
         return Math.round(Math.min(100, Math.max(0, baseScore + difficultyImpact + attemptBonus + variation)));
     }

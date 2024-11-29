@@ -1,84 +1,28 @@
 import { v4 as uuidv4 } from 'uuid';
-import LearnerGenerator, { LearnerProfile } from './learner-generator';
-import CourseDataGenerator, {Activity, CourseStructure } from './course-data-generator';
-import LearningSessionGenerator, { LearningSession } from './session-generator';
-import { XAPIDataService } from '../services/xapi-service';
-import VerbService, { Verb } from '../services/verb-service';
+import LearnerGenerator from './learner-generator';
+import CourseDataGenerator from './course-data-generator';
+import LearningSessionGenerator from './session-generator';
+import { XAPIService } from '../services/xapi-service';
+import VerbService from '../services/verb-service';
 import LearnerService from '../services/learner-service';
-import { LearningInteraction } from './activity-generator';
-
-// Interfaces for xAPI statement
-export interface XAPIStatement {
-    actor: {
-        mbox: string;
-    };
-    timestamp: string;
-    version: string;
-    id: string;
-    result?: {
-        score?: {
-            scaled?: number;
-            min?: number;
-            max?: number;
-            raw?: number;
-        };
-        completion?: boolean;
-        success?: boolean;
-        duration?: string;
-    };
-    verb: {
-        id: string;
-        display: {
-            en: string;
-        };
-    };
-    object: {
-        id: string;
-        objectType: string;
-        definition: {
-            type: string;
-            name: {
-                en: string;
-            };
-            description?: {
-                en: string;
-            };
-            extensions?: {
-                [key: string]: string;
-            };
-        };
-    };
-    context: {
-        instructor?: {
-            mbox: string;
-        };
-        extensions?: {
-            [key: string]: string;
-        };
-    };
-}
+import { CourseData, Verb, LearnerProfile, XAPIStatement, LearningSession, LearningInteraction, Activity } from '../types/types';
 
 /**
  * Generates xAPI statements from simulated learning sessions and learner profiles
  */
-class GenerateXAPIData {
-    private courseData: CourseStructure | null = null;
-    private verbs: Verb[] | null = null;
+class XAPIGenerator {
+    private courseData: CourseData;
+    private verbs: Verb[];
     private learners: LearnerProfile[] = [];
     private statements: XAPIStatement[] = [];
-    private dataService: XAPIDataService;
+    private dataService: XAPIService;
     private sessionGenerator!: LearningSessionGenerator;
-    private courseDataGenerator: CourseDataGenerator;
-    private verbService: VerbService;
-    private learnerService: LearnerService;
-    private learnerGenerator: LearnerGenerator;
 
-    constructor() {
-        this.dataService = new XAPIDataService();
-        this.learnerService = new LearnerService();
-        this.courseDataGenerator = new CourseDataGenerator();
-        this.verbService = new VerbService();
-        this.learnerGenerator = new LearnerGenerator();
+    constructor(courseData: CourseData, verbs: Verb[], learners: LearnerProfile[]) {
+        this.dataService = new XAPIService();
+        this.courseData = courseData;
+        this.verbs = verbs;
+        this.learners = learners;
     }
 
     /**
@@ -88,11 +32,14 @@ class GenerateXAPIData {
      * @param onProgress - An optional callback function to report the progress of the generation process.
      * @returns A Promise that resolves when all statements have been generated and saved.
      */
-    async generateAndSaveStatements(totalLearners: number, numberOfWeeks: number, onProgress?: (progress: number) => void): Promise<void> {
+    async generateAndSaveStatements(totalLearners: number, numberOfWeeks: number, onProgress?: (progress: number) => void): Promise<{
+        sessions: Map<string, LearningSession[]>;
+        statements: XAPIStatement[];
+    }> {
         try {
 
             // 1. Initialize data
-            await this.InitializeData(totalLearners, numberOfWeeks)
+            this.sessionGenerator = new LearningSessionGenerator(this.courseData, numberOfWeeks, this.verbs,);
 
             // 2. Set course start date (e.g., 2 weeks from now)
             const courseStartDate = new Date(2024, 5, 27);
@@ -132,7 +79,12 @@ class GenerateXAPIData {
 
                 console.log('All statements saved successfully');
 
-                this.printStatementsStatistics(sessions);
+                //this.printStatementsStatistics(sessions);
+
+                return {
+                    sessions,
+                    statements: this.statements
+                };
             } catch (error) {
                 console.error('Error saving statements:', error);
                 throw error;
@@ -150,7 +102,7 @@ class GenerateXAPIData {
      * @param courseStartDate - The start date of the course.
      * @returns A Map of learner IDs to their corresponding learning sessions.
      */
-    private async generateAllSessions(totalLearners: number, numberOfWeeks: number, courseStartDate: Date) {
+    async generateAllSessions(totalLearners: number, numberOfWeeks: number, courseStartDate: Date) {
         try {
             // Generate sessions for each learner
             const allSessions = new Map<string, LearningSession[]>();
@@ -178,20 +130,20 @@ class GenerateXAPIData {
      * @param totalLearners - The total number of learners to initialize data for.
      * @param numberOfWeeks - The number of weeks to initialize data for.
      */
-    private async InitializeData(totalLearners: number, numberOfWeeks: number) {
-        try {
-            this.courseData = await this.courseDataGenerator.loadCourseData();
-            this.verbs = await this.verbService.getVerbs();
-            this.sessionGenerator = new LearningSessionGenerator(this.courseData, numberOfWeeks, this.verbs,);
-            //await this.learnerGenerator.generateAndStoreLearners(totalLearners);
-            this.learners = await this.learnerService.getLearnerProfiles();
+    //private async InitializeData(totalLearners: number, numberOfWeeks: number) {
+    //    try {
+    //        this.courseData = await this.courseDataGenerator.loadCourseData();
+    //        this.verbs = await this.verbService.getVerbs();
+    //        this.sessionGenerator = new LearningSessionGenerator(this.courseData, numberOfWeeks, this.verbs,);
+    //        //await this.learnerGenerator.generateAndStoreLearners(totalLearners);
+    //        this.learners = await this.learnerService.getLearnerProfiles();
 
-            console.log('Initialized data for xApi statementes generation');
-        } catch (error) {
-            console.error('Failed to initialize data for xApi statements generation:', error);
-            throw new Error(`Data initialization failed: ${error}`);
-        }
-    }
+    //        console.log('Initialized data for xApi statementes generation');
+    //    } catch (error) {
+    //        console.error('Failed to initialize data for xApi statements generation:', error);
+    //        throw new Error(`Data initialization failed: ${error}`);
+    //    }
+    //}
 
     /**
      * Prints statistics about the generated learning sessions and xAPI statements.
@@ -235,8 +187,8 @@ class GenerateXAPIData {
             });
         });
 
-        console.log('xApi Statements Generation Statistics:');
-        this.learnerGenerator.getDistributionInfo(this.learners);
+        //console.log('xApi Statements Generation Statistics:');
+        //this.learnerGenerator.getDistributionInfo(this.learners);
 
         console.log(`Total Learners: ${this.learners.length}`);
         console.log(`Total Sessions: ${totalSessions}`);
@@ -345,4 +297,4 @@ class GenerateXAPIData {
     }
 }
 
-export default GenerateXAPIData;
+export default XAPIGenerator;
