@@ -147,6 +147,7 @@ class ActivityGenerator {
 
             // Only get next activity if current one is completed AND there's enough time left
             if (completed) {
+                progress.completed = true
                 this.currentActivities.delete(profile.id);
                 // Get next activity immediately if there's enough time
                 if (remainingTime >= this.config.minSessionTime) {
@@ -186,9 +187,22 @@ class ActivityGenerator {
 
         if (eligibleActivities.length === 0) return undefined;
 
-        const randomActivity = eligibleActivities[Math.floor(Math.random() * eligibleActivities.length)];
-        this.currentActivities.set(profile.id, randomActivity.id);
-        return randomActivity;
+        // Calculate total probability of eligible activities
+        const totalProbability = eligibleActivities.reduce((sum, activity) =>
+            sum + activity.probability, 0);
+
+        // Get random value scaled to total probability of eligible activities
+        const random = Math.random() * totalProbability;
+        let cumulativeProbability = 0;
+
+        // Select activity based on weighted probability
+        for (const activity of eligibleActivities) {
+            cumulativeProbability += activity.probability;
+            if (random <= cumulativeProbability) {
+                this.currentActivities.set(profile.id, activity.id);
+                return activity;
+            }
+        }
     }
 
     /**

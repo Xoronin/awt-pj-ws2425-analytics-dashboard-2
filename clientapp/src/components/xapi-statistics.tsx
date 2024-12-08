@@ -235,7 +235,7 @@ const XAPIStatistics = ({ sessions, statements, verbs, courseData }: StatisticsP
     return (
         <Card sx={{ mt: 4 }}>
             <CardHeader
-                title="Learning Analytics Dashboard"
+                title="xApi Statements Statistics"
                 sx={{ bgcolor: 'grey.100', borderBottom: 1, borderColor: 'grey.300' }}
             />
             <CardContent>
