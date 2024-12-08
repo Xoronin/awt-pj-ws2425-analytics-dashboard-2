@@ -1,6 +1,24 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, Typography, Box, Grid, Divider } from '@mui/material';
+import React, { useState } from 'react';
 import { LearningSession, Verb, XAPIStatement, CourseData } from '../types/types';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    Typography,
+    Box,
+    Grid,
+    Tabs,
+    Tab,
+    Paper,
+    LinearProgress,
+} from '@mui/material';
+import {
+    BarChart as BarChartIcon,
+    Timeline as TimelineIcon,
+    School as SchoolIcon,
+    Book as BookIcon,
+    SvgIconComponent,
+} from '@mui/icons-material';
 
 interface StatisticsProps {
     sessions: Map<string, LearningSession[]>;
@@ -9,7 +27,25 @@ interface StatisticsProps {
     courseData: CourseData;
 }
 
+type TabValue = 'overview' | 'activities' | 'engagement';
+
+interface StatCardProps {
+    icon: SvgIconComponent;
+    title: string;
+    value: string | number;
+    description: string;
+}
+
+interface UsageListProps {
+    data: Record<string, number>;
+    getLabel: (key: string) => string;
+    getDescription?: (key: string) => string;
+    maxItems?: number;
+}
+
 const XAPIStatistics = ({ sessions, statements, verbs, courseData }: StatisticsProps) => {
+    const [activeTab, setActiveTab] = useState<TabValue>('overview');
+
     const calculateStatistics = () => {
         let totalSessions = 0;
         let totalActivities = 0;
@@ -23,48 +59,6 @@ const XAPIStatistics = ({ sessions, statements, verbs, courseData }: StatisticsP
         let averageActivitiesPerSession: number[] = [];
         let verbUsage: Record<string, number> = {};
 
-
-        //sessions.forEach((learnerSessions) => {
-        //    totalSessions += learnerSessions.length;
-
-        //    learnerSessions.forEach(session => {
-        //        totalDuration += session.totalDuration;
-        //        averageActivitiesPerSession.push(session.activities.length);
-
-        //        session.activities.forEach(activity => {
-        //            totalActivities++;
-        //            if (activity.completed) completedActivities++;
-
-        //            // Track scores from scored interactions
-        //            activity.interactions.forEach(interaction => {
-        //                if (interaction.result?.score?.raw !== undefined) {
-        //                    totalScores += interaction.result.score.raw;
-        //                    scoredActivities++;
-        //                }
-        //            });
-
-        //            // Track activity usage
-        //            const activityId = activity.activity.id;
-        //            activityUsage[activityId] = (activityUsage[activityId] || 0) + 1;
-
-        //            // Track section usage
-        //            const section = courseData.sections.find(s =>
-        //                s.activities.some(a => a.id === activityId)
-        //            );
-        //            if (section) {
-        //                sectionUsage[section.title] = (sectionUsage[section.title] || 0) + 1;
-        //            }
-
-        //            // Track verb usage
-        //            activity.interactions.forEach(interaction => {
-        //                const verbId = interaction.verb.id;
-        //                verbUsage[verbId] = (verbUsage[verbId] || 0) + 1;
-        //            });
-        //        });
-        //    });
-        //});
-
-        // Initialize activity usage tracking for each learner
         sessions.forEach((_, learnerId) => {
             activityUsageByLearner.set(learnerId, new Set());
             sectionUsageByLearner.set(learnerId, new Set());
@@ -112,22 +106,35 @@ const XAPIStatistics = ({ sessions, statements, verbs, courseData }: StatisticsP
             });
         });
 
-        // Convert activity usage per learner to total unique usage counts
+        // Initialize activity and section usage with zeros for all possible items
         const activityUsage: Record<string, number> = {};
+        const sectionUsage: Record<string, number> = {};
+
+        // Initialize all sections and activities with 0 usage
+        courseData.sections.forEach(section => {
+            sectionUsage[section.title] = 0;
+            section.activities.forEach(activity => {
+                activityUsage[activity.id] = 0;
+            });
+        });
+
+        // Add the actual usage counts from learners for activities
         activityUsageByLearner.forEach((activitySet) => {
             activitySet.forEach((activityId) => {
-                activityUsage[activityId] = (activityUsage[activityId] || 0) + 1;
+                if (activityId in activityUsage) {  // Check if it's a valid activity
+                    activityUsage[activityId] += 1;
+                }
             });
         });
 
-        // Convert section usage per learner to total unique usage counts
-        const sectionUsage: Record<string, number> = {};
+        // Add the actual usage counts from learners for sections
         sectionUsageByLearner.forEach((sectionSet) => {
             sectionSet.forEach((sectionTitle) => {
-                sectionUsage[sectionTitle] = (sectionUsage[sectionTitle] || 0) + 1;
+                if (sectionTitle in sectionUsage) {  // Check if it's a valid section
+                    sectionUsage[sectionTitle] += 1;
+                }
             });
         });
-
         const avgSessionDuration = totalDuration / totalSessions;
         const avgActivitiesPerSession = averageActivitiesPerSession.reduce((a, b) => a + b, 0) / averageActivitiesPerSession.length;
         const averageScore = scoredActivities > 0 ? totalScores / scoredActivities : 0;
@@ -155,67 +162,49 @@ const XAPIStatistics = ({ sessions, statements, verbs, courseData }: StatisticsP
 
     const stats = calculateStatistics();
 
-    const StatBlock = ({ title, value, unit = '' }: { title: string; value: number | string; unit?: string }) => (
-        <Box sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 1, boxShadow: 1 }}>
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 1, fontSize: '0.875rem' }}>
-                {title}
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 500 }}>
-                {typeof value === 'number' ? value.toLocaleString('en-US', { maximumFractionDigits: 1 }) : value}
-                {unit}
-            </Typography>
-        </Box>
+    const StatCard = ({ icon: Icon, title, value, description }: StatCardProps) => (
+        <Paper elevation={1} sx={{ p: 2, height: '100%' }}>
+            <Box display="flex" flexDirection="column">
+                <Box display="flex" alignItems="center" mb={1}>
+                    <Icon sx={{ mr: 1, color: 'text.secondary' }} />
+                    <Typography variant="subtitle2" color="text.secondary">
+                        {title}
+                    </Typography>
+                </Box>
+                <Typography variant="h4" component="div" sx={{ mb: 0.5 }}>
+                    {value}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    {description}
+                </Typography>
+            </Box>
+        </Paper>
     );
 
-    const UsageList = ({
-        title,
-        data,
-        getLabel,
-        getDescription
-    }: {
-        title: string;
-        data: Record<string, number>;
-        getLabel: (key: string) => string;
-        getDescription?: (key: string) => string;
-    }) => (
-        <Box sx={{ mt: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>{title}</Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                {Object.entries(data)
-                    .sort(([, a], [, b]) => b - a)
-                    .map(([key, count]) => (
-                        <Box key={key} sx={{ display: 'flex', flexDirection: 'column' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                                    {getLabel(key)}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {count} uses
-                                </Typography>
-                            </Box>
-                            {getDescription && (
-                                <Typography variant="body2" color="text.secondary">
-                                    {getDescription(key)}
-                                </Typography>
-                            )}
-                            <Box sx={{
-                                width: '100%',
-                                height: 4,
-                                bgcolor: 'grey.200',
-                                mt: 1,
-                                borderRadius: 2,
-                                overflow: 'hidden'
-                            }}>
-                                <Box sx={{
-                                    height: '100%',
-                                    width: `${(count / Math.max(...Object.values(data))) * 100}%`,
-                                    bgcolor: 'primary.main',
-                                    borderRadius: 2
-                                }} />
-                            </Box>
+    const UsageList = ({ data, getLabel, getDescription}: UsageListProps) => (
+        <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
+            {Object.entries(data)
+                .sort(([, a], [, b]) => b - a)
+                .map(([key, count]) => (
+                    <Box key={key} sx={{ mb: 2 }}>
+                        <Box display="flex" justifyContent="space-between" mb={0.5}>
+                            <Typography variant="body1">{getLabel(key)}</Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                {count} uses
+                            </Typography>
                         </Box>
-                    ))}
-            </Box>
+                        {getDescription && (
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                {getDescription(key)}
+                            </Typography>
+                        )}
+                        <LinearProgress
+                            variant="determinate"
+                            value={(count / Math.max(...Object.values(data))) * 100}
+                            sx={{ height: 6, borderRadius: 1 }}
+                        />
+                    </Box>
+                ))}
         </Box>
     );
 
@@ -232,62 +221,136 @@ const XAPIStatistics = ({ sessions, statements, verbs, courseData }: StatisticsP
         return { name: activityId, description: 'Unknown Activity' };
     };
 
+    const renderContent = () => {
+        switch (activeTab) {
+            case 'overview':
+                return (
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={3}>
+                            <StatCard
+                                icon={BarChartIcon}
+                                title="Total Statements"
+                                value={stats.totalStatements.toLocaleString()}
+                                description="Total xAPI statements recorded"
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={3}>
+                            <StatCard
+                                icon={TimelineIcon}
+                                title="Average Score"
+                                value={`${stats.averageScore.toFixed(1)}%`}
+                                description="Average score across all activities"
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={3}>
+                            <StatCard
+                                icon={SchoolIcon}
+                                title="Average Activity Completion"
+                                value={`${((stats.avgCompletedPerLearner / 15) * 100).toFixed(1)}%`}
+                                description="Percentage of activities completed per learner"
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={3}>
+                            <StatCard
+                                icon={BookIcon}
+                                title="Avg. Session Duration"
+                                value={`${stats.avgSessionDuration.toFixed(1)}min`}
+                                description="Average time per learning session"
+                            />
+                        </Grid>
+                    </Grid>
+                );
+            case 'activities':
+                return (
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={6}>
+                            <Paper elevation={1} sx={{ p: 2 }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Activitiy Usage
+                                </Typography>
+                                <UsageList
+                                    data={stats.activityUsage}
+                                    getLabel={(id) => getActivityDetails(id).name}
+                                    getDescription={(id) => getActivityDetails(id).description}
+                                    maxItems={undefined}
+                                />
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <Paper elevation={1} sx={{ p: 2 }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Section Usage
+                                </Typography>
+                                <UsageList
+                                    data={stats.sectionUsage}
+                                    getLabel={(title) => title}
+                                />
+                            </Paper>
+                        </Grid>
+                    </Grid>
+                );
+            case 'engagement':
+                return (
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={6}>
+                            <Paper elevation={1} sx={{ p: 2 }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Learning Actions
+                                </Typography>
+                                <UsageList
+                                    data={stats.verbUsage}
+                                    getLabel={(id) => verbs.find(v => v.id === id)?.prefLabel || id}
+                                    getDescription={(id) => verbs.find(v => v.id === id)?.definition || ''}
+                                />
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <Paper elevation={1} sx={{ p: 2 }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Learner Statistics
+                                </Typography>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                    <StatCard
+                                        icon={BarChartIcon}
+                                        title="Average Sessions per Learner"
+                                        value={stats.avgSessionsPerLearner.toFixed(1)}
+                                        description="Typical number of sessions per user"
+                                    />
+                                    <StatCard
+                                        icon={TimelineIcon}
+                                        title="Average Completed Activities"
+                                        value={stats.avgCompletedPerLearner.toFixed(1)}
+                                        description="Activities completed per learner"
+                                    />
+                                </Box>
+                            </Paper>
+                        </Grid>
+                    </Grid>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
-        <Card sx={{ mt: 4 }}>
+        <Card>
             <CardHeader
-                title="xApi Statements Statistics"
-                sx={{ bgcolor: 'grey.100', borderBottom: 1, borderColor: 'grey.300' }}
+                title="xAPI Statements Statistics"
+                sx={{ bgcolor: 'grey.50', borderBottom: 1, borderColor: 'divider' }}
             />
             <CardContent>
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={3}>
-                        <StatBlock title="Total xAPI Statements" value={stats.totalStatements} />
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <StatBlock title="Total Learning Sessions" value={stats.totalSessions} />
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <StatBlock title="Average Session Duration" value={stats.avgSessionDuration} unit=" min" />
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <StatBlock title="Average Score" value={stats.averageScore} unit="%" />
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <StatBlock title="Average Statements per Learner" value={stats.statementsPerLearner} />
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <StatBlock title="Average Sessions per Learner" value={stats.avgSessionsPerLearner} />
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <StatBlock title="Average Completed Activities per Learner" value={stats.avgCompletedPerLearner} />
-                    </Grid>
-                </Grid>
-
-                <Grid container spacing={4} sx={{ mt: 2 }}>
-                    <Grid item xs={12} md={4}>
-                        <UsageList
-                            title="Course Sections Usage"
-                            data={stats.sectionUsage}
-                            getLabel={(title) => title}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <UsageList
-                            title="Most Used Activities"
-                            data={stats.activityUsage}
-                            getLabel={(id) => getActivityDetails(id).name}
-                            getDescription={(id) => getActivityDetails(id).description}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <UsageList
-                            title="Learning Actions Distribution"
-                            data={stats.verbUsage}
-                            getLabel={(id) => verbs.find(v => v.id === id)?.prefLabel || id}
-                            getDescription={(id) => verbs.find(v => v.id === id)?.definition || ''}
-                        />
-                    </Grid>
-                </Grid>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                    <Tabs
+                        value={activeTab}
+                        onChange={(_, newValue: TabValue) => setActiveTab(newValue)}
+                        aria-label="dashboard sections"
+                    >
+                        <Tab value="overview" label="Overview" />
+                        <Tab value="activities" label="Activities" />
+                        <Tab value="engagement" label="Engagement" />
+                    </Tabs>
+                </Box>
+                {renderContent()}
             </CardContent>
         </Card>
     );
