@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LearningSession, Verb, XAPIStatement, CourseData } from '../types/types';
+import { LearningSession, Verb, XAPIStatement, CourseData, LearnerProfile } from '../types/types';
 import {
     Card,
     CardContent,
@@ -19,15 +19,17 @@ import {
     Book as BookIcon,
     SvgIconComponent,
 } from '@mui/icons-material';
+import LearnerDistribution from './learner-distribution';
 
 interface StatisticsProps {
+    learnerProfiles: LearnerProfile[];
     sessions: Map<string, LearningSession[]>;
     statements: XAPIStatement[];
     verbs: Verb[];
     courseData: CourseData;
 }
 
-type TabValue = 'overview' | 'activities' | 'engagement';
+type TabValue = 'learners' | 'overview' | 'activities' | 'engagement';
 
 interface StatCardProps {
     icon: SvgIconComponent;
@@ -43,8 +45,8 @@ interface UsageListProps {
     maxItems?: number;
 }
 
-const XAPIStatistics = ({ sessions, statements, verbs, courseData }: StatisticsProps) => {
-    const [activeTab, setActiveTab] = useState<TabValue>('overview');
+const XAPIStatistics = ({ learnerProfiles, sessions, statements, verbs, courseData }: StatisticsProps) => {
+    const [activeTab, setActiveTab] = useState<TabValue>('learners');
 
     const calculateStatistics = () => {
         let totalSessions = 0;
@@ -223,6 +225,16 @@ const XAPIStatistics = ({ sessions, statements, verbs, courseData }: StatisticsP
 
     const renderContent = () => {
         switch (activeTab) {
+            case 'learners':
+                return (
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={12}>
+                            {learnerProfiles.length > 0 && (
+                                <LearnerDistribution learnerProfiles={learnerProfiles} />
+                            )}
+                        </Grid>
+                    </Grid>
+                );
             case 'overview':
                 return (
                     <Grid container spacing={3}>
@@ -334,10 +346,6 @@ const XAPIStatistics = ({ sessions, statements, verbs, courseData }: StatisticsP
 
     return (
         <Card>
-            <CardHeader
-                title="xAPI Statements Statistics"
-                sx={{ bgcolor: 'grey.50', borderBottom: 1, borderColor: 'divider' }}
-            />
             <CardContent>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
                     <Tabs
@@ -345,6 +353,7 @@ const XAPIStatistics = ({ sessions, statements, verbs, courseData }: StatisticsP
                         onChange={(_, newValue: TabValue) => setActiveTab(newValue)}
                         aria-label="dashboard sections"
                     >
+                        <Tab value="learners" label="Learner Distribution" />
                         <Tab value="overview" label="Overview" />
                         <Tab value="activities" label="Activities" />
                         <Tab value="engagement" label="Engagement" />
