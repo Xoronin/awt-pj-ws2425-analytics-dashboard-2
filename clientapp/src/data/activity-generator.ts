@@ -147,6 +147,7 @@ class ActivityGenerator {
 
             // Only get next activity if current one is completed AND there's enough time left
             if (completed) {
+                progress.completed = true
                 this.currentActivities.delete(profile.id);
                 // Get next activity immediately if there's enough time
                 if (remainingTime >= this.config.minSessionTime) {
@@ -186,9 +187,22 @@ class ActivityGenerator {
 
         if (eligibleActivities.length === 0) return undefined;
 
-        const randomActivity = eligibleActivities[Math.floor(Math.random() * eligibleActivities.length)];
-        this.currentActivities.set(profile.id, randomActivity.id);
-        return randomActivity;
+        // Calculate total probability of eligible activities
+        const totalProbability = eligibleActivities.reduce((sum, activity) =>
+            sum + activity.probability, 0);
+
+        // Get random value scaled to total probability of eligible activities
+        const random = Math.random() * totalProbability;
+        let cumulativeProbability = 0;
+
+        // Select activity based on weighted probability
+        for (const activity of eligibleActivities) {
+            cumulativeProbability += activity.probability;
+            if (random <= cumulativeProbability) {
+                this.currentActivities.set(profile.id, activity.id);
+                return activity;
+            }
+        }
     }
 
     /**
@@ -217,6 +231,14 @@ class ActivityGenerator {
 
         return learnerProgress.get(activityId)!;
     }
+
+    // Calculate the duration for each event from start time
+    private getDuration = (start: Date, current: Date): string => {
+        const durationMs = current.getTime() - start.getTime();
+        const minutes = Math.floor(durationMs / 60000);
+        const seconds = Math.floor((durationMs % 60000) / 1000);
+        return `PT${minutes}M${seconds}S`;
+    };
 
     /**
      * Generates standardized learning events for an activity session.
@@ -266,7 +288,7 @@ class ActivityGenerator {
                     result: {
                         success: true,
                         completion: false,
-                        progress: 0
+                        progress: 0,
                     }
                 });
                 progress.initialized = true;
@@ -287,7 +309,8 @@ class ActivityGenerator {
                     verb: getVerb(EventType.PROGRESSED),
                     timestamp: new Date(currentTime),
                     result: {
-                        progress: progress.currentProgress
+                        progress: progress.currentProgress,
+                        completion: false
                     }
                 });
                 currentTime = new Date(currentTime.getTime() + timeStep);
@@ -323,7 +346,8 @@ class ActivityGenerator {
                                 max: 100,
                                 scaled: score / 100
                             },
-                            success: true
+                            success: true,
+                            completion: true
                         }
                     });
                     lastVerb = EventType.PASSED;
@@ -334,7 +358,8 @@ class ActivityGenerator {
                             timestamp: new Date(currentTime),
                             result: {
                                 completion: true,
-                                success: true
+                                success: true,
+                                duration: this.getDuration(startTime, currentTime)
                             }
                         });
                         lastVerb = EventType.COMPLETED;
@@ -350,7 +375,9 @@ class ActivityGenerator {
                                     min: 0,
                                     max: 100,
                                     scaled: score / 100
-                                }
+                                },
+                                completion: true,
+                                success: true
                             }
                         });
                         lastVerb = EventType.RATED;
@@ -366,7 +393,8 @@ class ActivityGenerator {
                                 max: 100,
                                 scaled: score / 100
                             },
-                            success: false
+                            success: false,
+                            completion: false
                         }
                     });
                     lastVerb = EventType.FAILED;
@@ -378,7 +406,9 @@ class ActivityGenerator {
                 events.push({
                     verb: getVerb(EventType.EXITED),
                     timestamp: new Date(currentTime),
-                    result: undefined
+                    result: {
+                        duration: this.getDuration(startTime, currentTime)
+                    }
                 });
                 lastVerb = EventType.EXITED;
             }

@@ -111,6 +111,7 @@ export interface Activity {
     learningResourceType: string;
     href: string;
     objectType: string;
+    probability: number;
 }
 
 /**

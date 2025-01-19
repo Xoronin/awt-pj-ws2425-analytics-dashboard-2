@@ -1,163 +1,199 @@
 import { useState, useEffect } from 'react';
-import XAPIGenerator from './data/xapi-generator';
-import { Button, Card, CardContent, CardHeader, Typography, Box, LinearProgress, Alert } from '@mui/material';
-import CircleIcon from '@mui/icons-material/Circle';
-import LearnerService from './services/learner-service';
-import LearnerGenerator from './data/learner-generator';
-import LearnerDistribution from './components/learner-distribution';
-import VerbService from './services/verb-service';
-import { Verb, LearnerProfile, XAPIStatement, LearningSession, CourseData } from './types/types';
+import {
+    Box,
+    Tabs,
+    Tab,
+    Typography,
+    CardContent,
+    CardHeader,
+    Container,
+    Paper,
+    useTheme
+} from '@mui/material';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import LearnerDashboard from './components/learner-dashboard';
+import EducatorDashboard from './components/educator-dashboard';
+import ContentCreatorDashboard from './components/content-creator-dashboard';
+import { Verb, LearnerProfile, XAPIStatement, CourseData } from './types/types';
 import { XAPIService } from './services/xapi-service';
-import XAPIStatistics from './components/xapi-statistics';
+import LearnerService from './services/learner-service';
+import VerbService from './services/verb-service';
 import CourseDataGenerator from './data/course-data-generator';
+import LearnerGenerator from './data/learner-generator';
+import XAPIStatistics from './components/xapi-statistics';
+import XAPIGenerator from './data/xapi-generator';
 
+interface TabPanelProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
+}
 
+const TabPanel = (props: TabPanelProps) => {
+    const { children, value, index, ...other } = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`role-tabpanel-${index}`}
+            aria-labelledby={`role-tab-${index}`}
+            style={{ height: '100%' }}
+            {...other}
+        >
+            {value === index && (
+                <Box sx={{ height: '100%', py: 3 }}>
+                    {children}
+                </Box>
+            )}
+        </div>
+    );
+};
 
 const App = () => {
-    const [generating, setGenerating] = useState(false);
-    const [progress, setProgress] = useState(0);
-    const [status, setStatus] = useState<string>('');
+    const theme = useTheme();
+    const [currentTab, setCurrentTab] = useState(0);
     const [error, setError] = useState<string>('');
-    const [serviceAvailable, setServiceAvailable] = useState<boolean>(false);
     const [learnerProfiles, setLearnerProfiles] = useState<LearnerProfile[]>([]);
-    const [sessions, setSessions] = useState<Map<string, LearningSession[]>>(new Map());
     const [statements, setStatements] = useState<XAPIStatement[]>([]);
     const [verbs, setVerbs] = useState<Verb[]>([]);
     const [courseData, setCourseData] = useState<CourseData | null>(null);
 
-    const learnerService = new LearnerService();
-    const learnerGenerator = new LearnerGenerator();
-    const verbService = new VerbService();
-    const xApiService = new XAPIService();
-    const courseDataGenerator = new CourseDataGenerator();
+    const services = {
+        learner: new LearnerService(),
+        learnerGenerator: new LearnerGenerator(),
+        verb: new VerbService(),
+        xApi: new XAPIService(),
+        courseData: new CourseDataGenerator(),
+    };
 
     useEffect(() => {
-        checkService();
+        loadData();
     }, []);
 
-    const checkService = async () => {
+    const loadData = async () => {
         try {
-            const isAvailable = await await xApiService.getStatements().then(() => true).catch(() => false);
-            setServiceAvailable(isAvailable);
-            setStatus(isAvailable ? 'Service connected' : 'Service unavailable');
+            setError('');
+
+            const courseData = await services.courseData.loadCourseData();
+            setCourseData(courseData);
+
+            const learners = await services.learner.getLearnerProfiles();
+            setLearnerProfiles(learners);
+
+            const verbs = await services.verb.getVerbs();
+            setVerbs(verbs);
+
+            //const xApiGenerator = new XAPIGenerator(courseData, verbs, learners);
+            //const result = await xApiGenerator.generateAndSaveStatements(50, 12);
+            //setStatements(result.statements);
+
+            const statements = await services.xApi.getStatements();
+            setStatements(statements);
+
+            await services.learnerGenerator.getDistributionInfo(learners);
+
         } catch (error) {
-            setServiceAvailable(false);
-            setStatus('Error connecting to service');
+            setError(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     };
 
-    const generateData = async () => {
-        try {
-            setGenerating(true);
-            setError('');
-            setProgress(0);
+    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+        setCurrentTab(newValue);
+    };
 
-            // Get the course data
-            const courseData = await courseDataGenerator.loadCourseData();
-            setCourseData(courseData);
-
-
-            // Get the learners
-            const learners = await learnerService.getLearnerProfiles();
-            setLearnerProfiles(learners);
-
-            // Get the verbs
-            const verbs = await verbService.getVerbs();
-            setVerbs(verbs);
-
-            // Generate xAPI data
-            const xApiGenerator = new XAPIGenerator(courseData, verbs, learners);
-
-            const result = await xApiGenerator.generateAndSaveStatements(50, 12, (progress) => {
-                setProgress(progress);
-                setStatus(`Generating and saving data: ${progress}%`);
-            });
-
-            // Set the sessions and statements
-            setSessions(result.sessions);
-            setStatements(result.statements);
-
-            //// Get xApi statements
-            //const statements = await xApiService.getStatements();
-            //setStatements(statements);
-
-            //await learnerGenerator.getDistributionInfo(learners);
-
-           setStatus('Data generation complete');
-        } catch (error) {
-            setError(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-            setStatus('Generation failed');
-        } finally {
-            setGenerating(false);
-        }
+    const dashboardProps = {
+        learnerProfiles,
+        statements,
+        verbs,
+        courseData
     };
 
     return (
-        <Box sx={{ maxWidth: 800, margin: 'auto', p: 2 }}>
-            <Card>
+        <Box
+            sx={{
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                bgcolor: theme.palette.background.default
+            }}
+        >
+            <Paper
+                elevation={3}
+                sx={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRadius: 0  
+                }}
+            >
                 <CardHeader
-                    title="xAPI Statements Generator"
-                    sx={{ backgroundColor: 'primary.main', color: 'primary.contrastText' }}
-                />
-                <CardContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        {/* Status Indicator */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <CircleIcon
-                                sx={{
-                                    fontSize: 12,
-                                    color: serviceAvailable ? 'success.main' : 'error.main'
-                                }}
-                            />
-                            <Typography variant="body2">{status}</Typography>
+                    title={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <DashboardIcon sx={{ fontSize: 32 }} />
+                            <Typography variant="h5" component="h1">
+                                Learning Analytics Dashboard
+                            </Typography>
                         </Box>
-
-                        {/* Generate Button */}
-                        <Button
-                            variant="contained"
-                            onClick={generateData}
-                            disabled={generating || !serviceAvailable}
-                            sx={{ alignSelf: 'flex-start' }}
+                    }
+                    sx={{
+                        backgroundColor: theme.palette.primary.main,
+                        color: theme.palette.primary.contrastText,
+                        py: 2,
+                        borderRadius: 0 
+                    }}
+                />
+                <CardContent
+                    sx={{
+                        p: 0,
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflow: 'hidden',
+                        '&:last-child': { pb: 0 }
+                    }}
+                >
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        <Tabs
+                            value={currentTab}
+                            onChange={handleTabChange}
+                            variant="fullWidth"
+                            sx={{
+                                '& .MuiTab-root': {
+                                    py: 2,
+                                    fontSize: '1rem',
+                                }
+                            }}
                         >
-                            {generating ? 'Generating...' : 'Generate xAPI Data'}
-                        </Button>
+                            <Tab label="Data Statistics" />
+                            <Tab label="Learner Dashboard" />
+                            <Tab label="Educator Dashboard" />
+                            <Tab label="Content Creator Dashboard" />
+                        </Tabs>
+                    </Box>
 
-                        {/* Progress Indicator */}
-                        {generating && (
-                            <Box sx={{ width: '100%' }}>
-                                <LinearProgress
-                                    variant="determinate"
-                                    value={progress}
-                                    sx={{ mb: 1 }}
-                                />
-                                <Typography variant="body2" color="text.secondary">
-                                    Progress: {progress}%
-                                </Typography>
-                            </Box>
-                        )}
-
-                        {/* Error Message */}
-                        {error && (
-                            <Alert severity="error" sx={{ mt: 2 }}>
-                                {error}
-                            </Alert>
-                        )}
+                    <Box sx={{
+                        px: 2,
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflow: 'hidden'
+                    }}>
+                        <TabPanel value={currentTab} index={0}>
+                            {courseData && <XAPIStatistics {...dashboardProps} courseData={courseData} />}
+                        </TabPanel>
+                        <TabPanel value={currentTab} index={1}>
+                            <LearnerDashboard {...dashboardProps} />
+                        </TabPanel>
+                        <TabPanel value={currentTab} index={2}>
+                            <EducatorDashboard {...dashboardProps} />
+                        </TabPanel>
+                        <TabPanel value={currentTab} index={3}>
+                            <ContentCreatorDashboard {...dashboardProps} />
+                        </TabPanel>
                     </Box>
                 </CardContent>
-            </Card>
-
-            {learnerProfiles.length > 0 && (
-                <LearnerDistribution learnerProfiles={learnerProfiles} />
-            )}
-
-            {sessions.size > 0 && statements.length > 0 && verbs.length > 0 && courseData && (
-                <XAPIStatistics
-                    sessions={sessions}
-                    statements={statements}
-                    verbs={verbs}
-                    courseData={courseData}
-                />
-            )}
+            </Paper>
         </Box>
     );
 };

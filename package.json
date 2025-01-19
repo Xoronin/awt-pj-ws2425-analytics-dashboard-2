@@ -1,0 +1,15 @@
+{
+  "name": "awt-pj-ws2425-analytics-dashboard-2",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && nodemon index.mjs",
+    "client": "cd clientapp && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

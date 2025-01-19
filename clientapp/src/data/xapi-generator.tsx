@@ -32,7 +32,7 @@ class XAPIGenerator {
      * @param onProgress - An optional callback function to report the progress of the generation process.
      * @returns A Promise that resolves when all statements have been generated and saved.
      */
-    async generateAndSaveStatements(totalLearners: number, numberOfWeeks: number, onProgress?: (progress: number) => void): Promise<{
+    async generateAndSaveStatements(totalLearners: number, numberOfWeeks: number ): Promise<{
         sessions: Map<string, LearningSession[]>;
         statements: XAPIStatement[];
     }> {
@@ -68,10 +68,6 @@ class XAPIGenerator {
                 }
                 progressCount++;
             });
-
-            if (onProgress) {
-                onProgress((progressCount / totalSteps) * 100);
-            }
 
             try {
                 // Save all statements in one operation

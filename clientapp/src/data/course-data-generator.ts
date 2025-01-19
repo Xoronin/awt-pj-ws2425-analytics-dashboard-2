@@ -19,6 +19,29 @@ export const usedVerbs = [
     'launched'
 ];
 
+type ActivityId =
+    | 'I_A8531FEB' | 'I_3DFBBC79' | 'I_80934D41' | 'I_02429027' | 'I_6FC50F13'
+    | 'I_F53A47AD' | 'I_9A5F5D33' | 'I_FD36D805' | 'I_6EED8747' | 'I_018EF56F'
+    | 'I_D459AF40' | 'I_0CDA34DA' | 'I_938103FA' | 'I_D48D1B23' | 'I_30C2727A';
+
+// Define the probability mapping with the specific type
+const usageProbability: Record<ActivityId, number> = {
+    'I_A8531FEB': 0.49,  // Bäume schützen
+    'I_3DFBBC79': 0.05,  // Bäume kappen
+    'I_80934D41': 0.05,  // Bäume ausdünnen
+    'I_02429027': 0.05,  // über Fragen zu Bäumen beraten
+    'I_6FC50F13': 0.05,  // Grünpflanzen pflanzen
+    'I_F53A47AD': 0.05,  // auf Bäume klettern
+    'I_9A5F5D33': 0.05,  // Gefahren im Umgang mit Bäumen mindern
+    'I_FD36D805': 0.05,  // Kettensäge bedienen
+    'I_6EED8747': 0.05,  // bei der Baumidentifizierung assistieren
+    'I_018EF56F': 0.02,  // Baumkonservierung
+    'I_D459AF40': 0.02,  // Krankheits- und Schädlingsbekämpfung durchführen
+    'I_0CDA34DA': 0.02,  // Baumkrankheiten bekämpfen
+    'I_938103FA': 0.02,  // forstwirtschaftliche Ausrüstung instand halten
+    'I_D48D1B23': 0.02,  // Sicherheitsverfahren bei der Arbeit in großen Höhen befolgen
+    'I_30C2727A': 0.01   // mit Seilausrüstung Bäume erklettern
+};
 
 /**
  * Service for generating structured course data from XML manifests and LOM metadata
@@ -60,10 +83,11 @@ class CourseDataGenerator{
      * @param lomData - Array of LOM metadata objects
      * @returns Activity object with combined data
      */
-    createActivity(item: Element, xmlDoc: Document, lomData: LomData[]): Activity {
+    private createActivity(item: Element, xmlDoc: Document, lomData: LomData[]): Activity {
         const activity: Activity = {} as Activity;
 
-        activity.id = item.getAttribute('identifierref') || '';
+        const identifier = item.getAttribute('identifier') || '';
+        activity.id = identifier;
         activity.title = this.getTextContent(item.querySelector('title'));
 
         // Get type and href from XML data 
@@ -101,6 +125,11 @@ class CourseDataGenerator{
         activity.objectType = item.getAttribute('type') && this.verbToActivityType.get(item.getAttribute('type') || '') ?
                 this.verbToActivityType.get(item.getAttribute('type') || '') || '' :
                 'http://adlnet.gov/expapi/activities/course'
+
+        // map probability for each activity
+        activity.probability = (identifier in usageProbability)
+            ? usageProbability[identifier as ActivityId]
+            : 0.01;
 
         // Return activity with LOM data
         return activity;
