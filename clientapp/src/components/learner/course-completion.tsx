@@ -1,36 +1,42 @@
 import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Box, Typography, useTheme } from '@mui/material';
-import { XAPIStatement, CourseData, LearnerProfile, Activity, LearningSession } from '../../types/types';
+import { XAPIStatement, CourseData, LearnerProfile } from '../../types/types';
 
 interface CourseCompletionProps {
     statements: XAPIStatement[];
     courseData: CourseData;
     learner: LearnerProfile;
-    sessions: Map<string, LearningSession[]>;
 }
 
 const CourseCompletion: React.FC<CourseCompletionProps> = ({
     statements,
     courseData,
-    learner,
-    sessions
+    learner
 }) => {
     const theme = useTheme();
 
     const completionData = useMemo(() => {
-        // Get learner's sessions
-        const learnerSessions = sessions.get(learner.id) || [];
-
-        // Get completed activities from sessions
+        // Get completed activities from xAPI statements for this learner
         const completedActivities = new Set<string>();
-        learnerSessions.forEach(session => {
-            session.activities.forEach(activity => {
-                if (activity.completed) {
-                    completedActivities.add(activity.activity.id);
+
+        statements
+            .filter(statement => statement.actor.mbox === learner.email)
+            .forEach(statement => {
+                // Extract activity ID from the extensions
+                const activityId = statement.object.definition.extensions?.[
+                    'https://w3id.org/learning-analytics/learning-management-system/external-id'
+                ];
+
+                // Check for completion either through verb or result field
+                const isCompleted =
+                    (statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') ||
+                    (statement.result?.completion === true);
+
+                if (isCompleted && activityId) {
+                    completedActivities.add(activityId);
                 }
             });
-        });
 
         // Get total activities count
         const totalActivities = courseData.sections.reduce((acc, section) =>
@@ -42,7 +48,7 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
             { name: 'Completed', value: completedCount },
             { name: 'Remaining', value: totalActivities - completedCount }
         ];
-    }, [sessions, courseData, learner.id]);
+    }, [statements, courseData]);
 
     const COLORS = [theme.palette.success.main, theme.palette.grey[300]];
 
@@ -61,8 +67,8 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
                         startAngle={90}
                         endAngle={-270}
                         labelLine={false}
-                        outerRadius={120}
-                        innerRadius={90}
+                        outerRadius="80%"
+                        innerRadius="60%"
                         fill="#8884d8"
                         dataKey="value"
                     >
@@ -90,7 +96,7 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
                     textAlign: 'center',
-                    pointerEvents: 'none' 
+                    pointerEvents: 'none'
                 }}
             >
                 <Typography variant="h4" sx={{ color: theme.palette.success.main }}>

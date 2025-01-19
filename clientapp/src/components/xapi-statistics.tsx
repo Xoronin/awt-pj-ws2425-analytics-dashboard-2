@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import { LearningSession, Verb, XAPIStatement, CourseData, LearnerProfile } from '../types/types';
+import React, { useState, useMemo } from 'react';
+import { Verb, XAPIStatement, CourseData, LearnerProfile } from '../types/types';
 import {
     Card,
     CardContent,
-    CardHeader,
     Typography,
     Box,
     Grid,
@@ -23,7 +22,6 @@ import LearnerDistribution from './learner-distribution';
 
 interface StatisticsProps {
     learnerProfiles: LearnerProfile[];
-    sessions: Map<string, LearningSession[]>;
     statements: XAPIStatement[];
     verbs: Verb[];
     courseData: CourseData;
@@ -45,72 +43,17 @@ interface UsageListProps {
     maxItems?: number;
 }
 
-const XAPIStatistics = ({ learnerProfiles, sessions, statements, verbs, courseData }: StatisticsProps) => {
+const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: StatisticsProps) => {
     const [activeTab, setActiveTab] = useState<TabValue>('learners');
 
-    const calculateStatistics = () => {
-        let totalSessions = 0;
-        let totalActivities = 0;
-        let totalDuration = 0;
-        let totalScores = 0;
-        let scoredActivities = 0;
-        let activityUsageByLearner: Map<string, Set<string>> = new Map();
-        let completedActivitiesByLearner: Map<string, Set<string>> = new Map();
-        let sectionUsageByLearner: Map<string, Set<string>> = new Map();
-        let sessionsPerLearner: Map<string, number> = new Map();
-        let averageActivitiesPerSession: number[] = [];
-        let verbUsage: Record<string, number> = {};
-
-        sessions.forEach((_, learnerId) => {
-            activityUsageByLearner.set(learnerId, new Set());
-            sectionUsageByLearner.set(learnerId, new Set());
-            completedActivitiesByLearner.set(learnerId, new Set());
-        });
-
-        sessions.forEach((learnerSessions, learnerId) => {
-            totalSessions += learnerSessions.length;
-            sessionsPerLearner.set(learnerId, learnerSessions.length);
-            const learnerActivitySet = activityUsageByLearner.get(learnerId)!;
-            const learnerSectionSet = sectionUsageByLearner.get(learnerId)!;
-            const learnerCompletedSet = completedActivitiesByLearner.get(learnerId)!;
-
-            learnerSessions.forEach(session => {
-                totalDuration += session.totalDuration;
-                averageActivitiesPerSession.push(session.activities.length);
-
-                session.activities.forEach(activity => {
-                    totalActivities++;
-                    if (activity.completed) {
-                        learnerCompletedSet.add(activity.activity.id);
-                    }
-
-                    activity.interactions.forEach(interaction => {
-                        if (interaction.result?.score?.raw !== undefined) {
-                            totalScores += interaction.result.score.raw;
-                            scoredActivities++;
-                        }
-                    });
-
-                    learnerActivitySet.add(activity.activity.id);
-
-                    const section = courseData.sections.find(s =>
-                        s.activities.some(a => a.id === activity.activity.id)
-                    );
-                    if (section) {
-                        learnerSectionSet.add(section.title);
-                    }
-
-                    activity.interactions.forEach(interaction => {
-                        const verbId = interaction.verb.id;
-                        verbUsage[verbId] = (verbUsage[verbId] || 0) + 1;
-                    });
-                });
-            });
-        });
-
-        // Initialize activity and section usage with zeros for all possible items
+    const stats = useMemo(() => {
+        // Initialize tracking structures
         const activityUsage: Record<string, number> = {};
         const sectionUsage: Record<string, number> = {};
+        const verbUsage: Record<string, number> = {};
+        const completedActivities = new Map<string, Set<string>>(); 
+        const learnerScores = new Map<string, number[]>(); 
+        const learnerDurations = new Map<string, number>();
 
         // Initialize all sections and activities with 0 usage
         courseData.sections.forEach(section => {
@@ -120,49 +63,101 @@ const XAPIStatistics = ({ learnerProfiles, sessions, statements, verbs, courseDa
             });
         });
 
-        // Add the actual usage counts from learners for activities
-        activityUsageByLearner.forEach((activitySet) => {
-            activitySet.forEach((activityId) => {
-                if (activityId in activityUsage) {  // Check if it's a valid activity
-                    activityUsage[activityId] += 1;
+        // Process each statement
+        statements.forEach(statement => {
+            // Track verb usage
+            const verbId = statement.verb.id;
+            verbUsage[verbId] = (verbUsage[verbId] || 0) + 1;
+
+            // Get activity ID
+            const activityId = statement.object.definition.extensions?.[
+                'https://w3id.org/learning-analytics/learning-management-system/external-id'
+            ];
+            if (!activityId) return;
+
+            // Track activity usage
+            activityUsage[activityId] = (activityUsage[activityId] || 0) + 1;
+
+            // Find section for activity and track usage
+            const section = courseData.sections.find(s =>
+                s.activities.some(a => a.id === activityId)
+            );
+            if (section) {
+                sectionUsage[section.title] = (sectionUsage[section.title] || 0) + 1;
+            }
+
+            // Track completions
+            if (statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
+                const learnerEmail = statement.actor.mbox;
+                if (!completedActivities.has(learnerEmail)) {
+                    completedActivities.set(learnerEmail, new Set());
                 }
-            });
+                completedActivities.get(learnerEmail)!.add(activityId);
+            }
+
+            // Track scores
+            if (statement.result?.score?.raw !== undefined) {
+                if (!learnerScores.has(activityId)) {
+                    learnerScores.set(activityId, []);
+                }
+                learnerScores.get(activityId)!.push(statement.result.score.raw);
+            }
+
+            // Track durations
+            if (statement.result?.duration) {
+                const duration = parseDuration(statement.result.duration);
+                const learnerEmail = statement.actor.mbox;
+                learnerDurations.set(
+                    learnerEmail,
+                    (learnerDurations.get(learnerEmail) || 0) + duration
+                );
+            }
         });
 
-        // Add the actual usage counts from learners for sections
-        sectionUsageByLearner.forEach((sectionSet) => {
-            sectionSet.forEach((sectionTitle) => {
-                if (sectionTitle in sectionUsage) {  // Check if it's a valid section
-                    sectionUsage[sectionTitle] += 1;
-                }
-            });
-        });
-        const avgSessionDuration = totalDuration / totalSessions;
-        const avgActivitiesPerSession = averageActivitiesPerSession.reduce((a, b) => a + b, 0) / averageActivitiesPerSession.length;
-        const averageScore = scoredActivities > 0 ? totalScores / scoredActivities : 0;
-        const avgCompletedPerLearner = Array.from(completedActivitiesByLearner.values())
-            .reduce((acc, set) => acc + set.size, 0) / sessions.size;
-        const avgSessionsPerLearner = totalSessions / sessions.size;
+        // Calculate averages and totals
+        const totalActivities = courseData.sections.reduce(
+            (acc, section) => acc + section.activities.length,
+            0
+        );
+
+        const avgCompletedPerLearner =
+            Array.from(completedActivities.values())
+                .reduce((acc, set) => acc + set.size, 0) /
+            Math.max(completedActivities.size, 1);
+
+        const averageScore =
+            Array.from(learnerScores.values())
+                .reduce((acc, scores) => acc + scores.reduce((a, b) => a + b, 0) / scores.length, 0) /
+            Math.max(learnerScores.size, 1);
+
+        const avgDuration =
+            Array.from(learnerDurations.values())
+                .reduce((acc, duration) => acc + duration, 0) /
+            Math.max(learnerDurations.size, 1) / 60; 
 
         return {
-            totalSessions,
-            totalActivities,
-            avgSessionDuration,
-            avgActivitiesPerSession,
-            averageScore,
             activityUsage,
-            verbUsage,
             sectionUsage,
+            verbUsage,
             totalStatements: statements.length,
-            uniqueLearners: sessions.size,
-            statementsPerLearner: statements.length / sessions.size,
-            scoredActivities,
+            uniqueLearners: learnerProfiles.length,
+            statementsPerLearner: statements.length / learnerProfiles.length,
+            averageScore,
             avgCompletedPerLearner,
-            avgSessionsPerLearner
+            avgDuration,
+            totalActivities
         };
-    };
+    }, [statements, courseData, learnerProfiles]);
 
-    const stats = calculateStatistics();
+    // Helper function to parse ISO 8601 duration
+    const parseDuration = (duration: string): number => {
+        const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+        if (!matches) return 0;
+        const hours = parseInt(matches[1] || '0');
+        const minutes = parseInt(matches[2] || '0');
+        const seconds = parseInt(matches[3] || '0');
+        return hours * 3600 + minutes * 60 + seconds;
+    };
 
     const StatCard = ({ icon: Icon, title, value, description }: StatCardProps) => (
         <Paper elevation={1} sx={{ p: 2, height: '100%' }}>
@@ -183,7 +178,7 @@ const XAPIStatistics = ({ learnerProfiles, sessions, statements, verbs, courseDa
         </Paper>
     );
 
-    const UsageList = ({ data, getLabel, getDescription}: UsageListProps) => (
+    const UsageList = ({ data, getLabel, getDescription }: UsageListProps) => (
         <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
             {Object.entries(data)
                 .sort(([, a], [, b]) => b - a)
@@ -258,16 +253,16 @@ const XAPIStatistics = ({ learnerProfiles, sessions, statements, verbs, courseDa
                             <StatCard
                                 icon={SchoolIcon}
                                 title="Average Activity Completion"
-                                value={`${((stats.avgCompletedPerLearner / 15) * 100).toFixed(1)}%`}
+                                value={`${((stats.avgCompletedPerLearner / stats.totalActivities) * 100).toFixed(1)}%`}
                                 description="Percentage of activities completed per learner"
                             />
                         </Grid>
                         <Grid item xs={12} md={3}>
                             <StatCard
                                 icon={BookIcon}
-                                title="Avg. Session Duration"
-                                value={`${stats.avgSessionDuration.toFixed(1)}min`}
-                                description="Average time per learning session"
+                                title="Avg. Learning Duration"
+                                value={`${stats.avgDuration.toFixed(1)}min`}
+                                description="Average time spent learning per learner"
                             />
                         </Grid>
                     </Grid>
@@ -278,13 +273,12 @@ const XAPIStatistics = ({ learnerProfiles, sessions, statements, verbs, courseDa
                         <Grid item xs={12} md={6}>
                             <Paper elevation={1} sx={{ p: 2 }}>
                                 <Typography variant="h6" gutterBottom>
-                                    Activitiy Usage
+                                    Activity Usage
                                 </Typography>
                                 <UsageList
                                     data={stats.activityUsage}
                                     getLabel={(id) => getActivityDetails(id).name}
                                     getDescription={(id) => getActivityDetails(id).description}
-                                    maxItems={undefined}
                                 />
                             </Paper>
                         </Grid>
@@ -324,9 +318,9 @@ const XAPIStatistics = ({ learnerProfiles, sessions, statements, verbs, courseDa
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     <StatCard
                                         icon={BarChartIcon}
-                                        title="Average Sessions per Learner"
-                                        value={stats.avgSessionsPerLearner.toFixed(1)}
-                                        description="Typical number of sessions per user"
+                                        title="Statements per Learner"
+                                        value={stats.statementsPerLearner.toFixed(1)}
+                                        description="Average statements generated per learner"
                                     />
                                     <StatCard
                                         icon={TimelineIcon}

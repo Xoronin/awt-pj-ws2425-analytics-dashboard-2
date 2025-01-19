@@ -12,11 +12,10 @@ import {
     Box
 } from '@mui/material';
 import CourseCompletion from './learner/course-completion';
-import { Verb, LearnerProfile, XAPIStatement, LearningSession, CourseData } from '../types/types';
+import { Verb, LearnerProfile, XAPIStatement, CourseData } from '../types/types';
 
 interface LearnerDashboardProps {
     learnerProfiles: LearnerProfile[];
-    sessions: Map<string, LearningSession[]>;
     statements: XAPIStatement[];
     verbs: Verb[];
     courseData: CourseData | null;
@@ -24,7 +23,6 @@ interface LearnerDashboardProps {
 
 const ContentCreatorsDashboard: React.FC<LearnerDashboardProps> = ({
     learnerProfiles,
-    sessions,
     statements,
     verbs,
     courseData
@@ -43,10 +41,9 @@ const ContentCreatorsDashboard: React.FC<LearnerDashboardProps> = ({
         return {
             statements: statements.filter(statement =>
                 statement.actor.mbox === learnerProfiles.find(l => l.id === selectedLearnerId)?.email
-            ),
-            learnerSessions: sessions.get(selectedLearnerId) || []
+            )
         };
-    }, [selectedLearnerId, statements, sessions, learnerProfiles]);
+    }, [selectedLearnerId, statements, learnerProfiles]);
 
     const handleLearnerChange = (event: SelectChangeEvent) => {
         setSelectedLearnerId(event.target.value);
@@ -55,129 +52,148 @@ const ContentCreatorsDashboard: React.FC<LearnerDashboardProps> = ({
     return (
         <Box
             sx={{
-                height: 'calc(100vh - 48px)', // Adjust based on your layout
+                height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 2,
-                p: 2
+                overflow: 'hidden'
             }}
         >
-            {/* Learner Selector */}
-            <FormControl sx={{ minHeight: 'auto' }}>
-                <InputLabel id="learner-select-label">Select Learner</InputLabel>
-                <Select
-                    labelId="learner-select-label"
-                    id="learner-select"
-                    value={selectedLearnerId}
-                    label="Select Learner"
-                    onChange={handleLearnerChange}
-                >
-                    {[...learnerProfiles]
-                        .sort((a, b) => {
-                            const numA = parseInt(a.email.match(/\d+/)?.[0] || '0');
-                            const numB = parseInt(b.email.match(/\d+/)?.[0] || '0');
-                            return numA - numB;
-                        })
-                        .map((learner) => (
-                            <MenuItem key={learner.id} value={learner.id}>
-                                {learner.email} ({learner.personaType})
-                            </MenuItem>
-                        ))}
-                </Select>
-            </FormControl>
+            <Box sx={{ p: 2, pb: 0 }}>
+                <FormControl fullWidth>
+                    <InputLabel id="learner-select-label">Select Learner</InputLabel>
+                    <Select
+                        labelId="learner-select-label"
+                        id="learner-select"
+                        value={selectedLearnerId}
+                        label="Select Learner"
+                        onChange={handleLearnerChange}
+                    >
+                        {[...learnerProfiles]
+                            .sort((a, b) => {
+                                const numA = parseInt(a.email.match(/\d+/)?.[0] || '0');
+                                const numB = parseInt(b.email.match(/\d+/)?.[0] || '0');
+                                return numA - numB;
+                            })
+                            .map((learner) => (
+                                <MenuItem key={learner.id} value={learner.id}>
+                                    {learner.email} ({learner.personaType})
+                                </MenuItem>
+                            ))}
+                    </Select>
+                </FormControl>
+            </Box>
 
-            {/* Main Content */}
-            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, minHeight: 0 }}>
-                {/* Learning Progress */}
-                <Card sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-                    <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 2 }}>
+            <Box
+                sx={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 0,
+                    '& .MuiCard-root': {
+                        height: '300px',
+                        mb: 2,
+                        '&:last-child': {
+                            mb: 0
+                        }
+                    },
+                    '& .MuiCardContent-root': {
+                        height: '100%',
+                        p: 2,
+                        '&:last-child': {
+                            pb: 2
+                        }
+                    }
+                }}
+            >
+                <Card>
+                    <CardContent>
                         <Typography variant="h6" gutterBottom>
                             Learning Progress
                         </Typography>
-                        <Grid container spacing={2} sx={{ flex: 1, minHeight: 0 }}>
-                            <Grid item xs={12} md={6}>
-                                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                    <CourseCompletion
-                                        sessions={new Map([[selectedLearnerId, filteredData.learnerSessions]])}
-                                        statements={filteredData.statements}
-                                        courseData={courseData}
-                                        learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                    />
-                                )}
+                        <Box sx={{ height: 'calc(100% - 32px)' }}>
+                            <Grid container spacing={2} sx={{ height: '100%' }}>
+                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <CourseCompletion
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
+                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <CourseCompletion
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
                             </Grid>
-                            <Grid item xs={12} md={6}>
-                                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                    <CourseCompletion
-                                        sessions={new Map([[selectedLearnerId, filteredData.learnerSessions]])}
-                                        statements={filteredData.statements}
-                                        courseData={courseData}
-                                        learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                    />
-                                )}
-                            </Grid>
-                        </Grid>
+                        </Box>
                     </CardContent>
                 </Card>
 
-                {/* Module Performance */}
-                <Card sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-                    <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 2 }}>
+                <Card>
+                    <CardContent>
                         <Typography variant="h6" gutterBottom>
                             Module Performance
                         </Typography>
-                        <Grid container spacing={2} sx={{ flex: 1, minHeight: 0 }}>
-                            <Grid item xs={12} md={6}>
-                                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                    <CourseCompletion
-                                        sessions={new Map([[selectedLearnerId, filteredData.learnerSessions]])}
-                                        statements={filteredData.statements}
-                                        courseData={courseData}
-                                        learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                    />
-                                )}
+                        <Box sx={{ height: 'calc(100% - 32px)' }}>
+                            <Grid container spacing={2} sx={{ height: '100%' }}>
+                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <CourseCompletion
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
+                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <CourseCompletion
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
                             </Grid>
-                            <Grid item xs={12} md={6}>
-                                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                    <CourseCompletion
-                                        sessions={new Map([[selectedLearnerId, filteredData.learnerSessions]])}
-                                        statements={filteredData.statements}
-                                        courseData={courseData}
-                                        learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                    />
-                                )}
-                            </Grid>
-                        </Grid>
+                        </Box>
                     </CardContent>
                 </Card>
 
-                {/* Community Comparison */}
-                <Card sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-                    <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 2 }}>
+                <Card>
+                    <CardContent>
                         <Typography variant="h6" gutterBottom>
                             Community Comparison
                         </Typography>
-                        <Grid container spacing={2} sx={{ flex: 1, minHeight: 0 }}>
-                            <Grid item xs={12} md={6}>
-                                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                    <CourseCompletion
-                                        sessions={new Map([[selectedLearnerId, filteredData.learnerSessions]])}
-                                        statements={filteredData.statements}
-                                        courseData={courseData}
-                                        learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                    />
-                                )}
+                        <Box sx={{ height: 'calc(100% - 32px)' }}>
+                            <Grid container spacing={2} sx={{ height: '100%' }}>
+                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <CourseCompletion
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
+                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <CourseCompletion
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
                             </Grid>
-                            <Grid item xs={12} md={6}>
-                                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                    <CourseCompletion
-                                        sessions={new Map([[selectedLearnerId, filteredData.learnerSessions]])}
-                                        statements={filteredData.statements}
-                                        courseData={courseData}
-                                        learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                    />
-                                )}
-                            </Grid>
-                        </Grid>
+                        </Box>
                     </CardContent>
                 </Card>
             </Box>
