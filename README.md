@@ -16,9 +16,6 @@ cd server
 ```
 npm install
 ```
-```
-npm start
-```
 Frontend clientapp
 
 ```
@@ -27,6 +24,8 @@ cd clientapp
 ```
 npm install
 ```
+Run client and server in root directory:
+
 ```
 npm start
 ```
