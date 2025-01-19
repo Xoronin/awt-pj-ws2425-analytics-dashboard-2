@@ -46,14 +46,34 @@ interface UsageListProps {
 const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: StatisticsProps) => {
     const [activeTab, setActiveTab] = useState<TabValue>('learners');
 
+    // Helper function to parse ISO 8601 duration
+    const parseDuration = (duration: string): number => {
+        // Parse ISO 8601 duration format (e.g., "PT1H30M" or "PT45M")
+        const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+        if (!matches) return 15; // default to 15 minutes
+
+        const [, hours, minutes, seconds] = matches;
+        return (
+            (parseInt(hours || '0') * 60) +
+            parseInt(minutes || '0') +
+            Math.ceil(parseInt(seconds || '0') / 60)
+        );
+    };
+
     const stats = useMemo(() => {
         // Initialize tracking structures
         const activityUsage: Record<string, number> = {};
         const sectionUsage: Record<string, number> = {};
         const verbUsage: Record<string, number> = {};
-        const completedActivities = new Map<string, Set<string>>(); 
+        const completedActivities = new Map<string, Set<string>>();
         const learnerScores = new Map<string, number[]>(); 
         const learnerDurations = new Map<string, number>();
+
+        // Initialize for all learners
+        learnerProfiles.forEach(learner => {
+            completedActivities.set(learner.email, new Set());
+            learnerDurations.set(learner.email, 0);
+        });
 
         // Initialize all sections and activities with 0 usage
         courseData.sections.forEach(section => {
@@ -65,6 +85,8 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
 
         // Process each statement
         statements.forEach(statement => {
+
+            const learnerEmail = statement.actor.mbox;
             // Track verb usage
             const verbId = statement.verb.id;
             verbUsage[verbId] = (verbUsage[verbId] || 0) + 1;
@@ -86,14 +108,15 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
                 sectionUsage[section.title] = (sectionUsage[section.title] || 0) + 1;
             }
 
-            // Track completions
-            if (statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
-                const learnerEmail = statement.actor.mbox;
-                if (!completedActivities.has(learnerEmail)) {
-                    completedActivities.set(learnerEmail, new Set());
-                }
+            // Check for completion either through verb or result field
+            const isCompleted =
+                (statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') ||
+                (statement.result?.completion === true);
+
+            if (isCompleted) {
                 completedActivities.get(learnerEmail)!.add(activityId);
             }
+
 
             // Track scores
             if (statement.result?.score?.raw !== undefined) {
@@ -106,10 +129,11 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
             // Track durations
             if (statement.result?.duration) {
                 const duration = parseDuration(statement.result.duration);
-                const learnerEmail = statement.actor.mbox;
+                const currentDuration = learnerDurations.get(learnerEmail) || 0;
+                const newDuration = currentDuration + duration;
                 learnerDurations.set(
                     learnerEmail,
-                    (learnerDurations.get(learnerEmail) || 0) + duration
+                    newDuration
                 );
             }
         });
@@ -120,20 +144,19 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
             0
         );
 
-        const avgCompletedPerLearner =
-            Array.from(completedActivities.values())
-                .reduce((acc, set) => acc + set.size, 0) /
-            Math.max(completedActivities.size, 1);
+        const avgCompletedPerLearner = completedActivities.size > 0
+            ? Array.from(completedActivities.values())
+                .reduce((acc, set) => acc + set.size, 0) / completedActivities.size
+            : 0;
 
         const averageScore =
             Array.from(learnerScores.values())
                 .reduce((acc, scores) => acc + scores.reduce((a, b) => a + b, 0) / scores.length, 0) /
             Math.max(learnerScores.size, 1);
 
-        const avgDuration =
-            Array.from(learnerDurations.values())
-                .reduce((acc, duration) => acc + duration, 0) /
-            Math.max(learnerDurations.size, 1) / 60; 
+        const totalDuration = Array.from(learnerDurations.values())
+            .reduce((acc, duration) => acc + duration, 0);
+        const avgDuration = totalDuration / Math.max(learnerDurations.size, 1);
 
         return {
             activityUsage,
@@ -149,15 +172,6 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
         };
     }, [statements, courseData, learnerProfiles]);
 
-    // Helper function to parse ISO 8601 duration
-    const parseDuration = (duration: string): number => {
-        const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-        if (!matches) return 0;
-        const hours = parseInt(matches[1] || '0');
-        const minutes = parseInt(matches[2] || '0');
-        const seconds = parseInt(matches[3] || '0');
-        return hours * 3600 + minutes * 60 + seconds;
-    };
 
     const StatCard = ({ icon: Icon, title, value, description }: StatCardProps) => (
         <Paper elevation={1} sx={{ p: 2, height: '100%' }}>

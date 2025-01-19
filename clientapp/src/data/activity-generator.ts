@@ -232,6 +232,14 @@ class ActivityGenerator {
         return learnerProgress.get(activityId)!;
     }
 
+    // Calculate the duration for each event from start time
+    private getDuration = (start: Date, current: Date): string => {
+        const durationMs = current.getTime() - start.getTime();
+        const minutes = Math.floor(durationMs / 60000);
+        const seconds = Math.floor((durationMs % 60000) / 1000);
+        return `PT${minutes}M${seconds}S`;
+    };
+
     /**
      * Generates standardized learning events for an activity session.
      * Events follow xAPI verb patterns: initialized → launched → progressed → 
@@ -280,7 +288,7 @@ class ActivityGenerator {
                     result: {
                         success: true,
                         completion: false,
-                        progress: 0
+                        progress: 0,
                     }
                 });
                 progress.initialized = true;
@@ -301,7 +309,8 @@ class ActivityGenerator {
                     verb: getVerb(EventType.PROGRESSED),
                     timestamp: new Date(currentTime),
                     result: {
-                        progress: progress.currentProgress
+                        progress: progress.currentProgress,
+                        completion: false
                     }
                 });
                 currentTime = new Date(currentTime.getTime() + timeStep);
@@ -337,7 +346,8 @@ class ActivityGenerator {
                                 max: 100,
                                 scaled: score / 100
                             },
-                            success: true
+                            success: true,
+                            completion: true
                         }
                     });
                     lastVerb = EventType.PASSED;
@@ -348,7 +358,8 @@ class ActivityGenerator {
                             timestamp: new Date(currentTime),
                             result: {
                                 completion: true,
-                                success: true
+                                success: true,
+                                duration: this.getDuration(startTime, currentTime)
                             }
                         });
                         lastVerb = EventType.COMPLETED;
@@ -364,7 +375,9 @@ class ActivityGenerator {
                                     min: 0,
                                     max: 100,
                                     scaled: score / 100
-                                }
+                                },
+                                completion: true,
+                                success: true
                             }
                         });
                         lastVerb = EventType.RATED;
@@ -380,7 +393,8 @@ class ActivityGenerator {
                                 max: 100,
                                 scaled: score / 100
                             },
-                            success: false
+                            success: false,
+                            completion: false
                         }
                     });
                     lastVerb = EventType.FAILED;
@@ -392,7 +406,9 @@ class ActivityGenerator {
                 events.push({
                     verb: getVerb(EventType.EXITED),
                     timestamp: new Date(currentTime),
-                    result: undefined
+                    result: {
+                        duration: this.getDuration(startTime, currentTime)
+                    }
                 });
                 lastVerb = EventType.EXITED;
             }
