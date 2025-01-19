@@ -27,5 +27,8 @@ npm install
 Run client and server in root directory:
 
 ```
+npm install
+```
+```
 npm start
 ```
