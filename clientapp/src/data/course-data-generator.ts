@@ -142,15 +142,15 @@ class CourseDataGenerator{
      */
     private mapLOMDifficultyToNumber(difficulty: string): number {
         switch (difficulty.toLowerCase()) {
-            case 'very easy':
+            case 'very low':
                 return 0.2;
-            case 'easy':
+            case 'low':
                 return 0.4;
             case 'medium':
                 return 0.6;
-            case 'difficult':
+            case 'high':
                 return 0.8;
-            case 'very difficult':
+            case 'very high':
                 return 1.0;
             default:
                 return 0.5;

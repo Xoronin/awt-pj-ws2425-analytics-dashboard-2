@@ -38,11 +38,10 @@ const TabPanel = (props: TabPanelProps) => {
             hidden={value !== index}
             id={`role-tabpanel-${index}`}
             aria-labelledby={`role-tab-${index}`}
-            style={{ height: '100%' }}
-            {...other}
+            style={{ height: 'calc(100vh - 120px)' }}
         >
             {value === index && (
-                <Box sx={{ height: '100%', py: 3 }}>
+                <Box sx={{ height: '100%' }}>
                     {children}
                 </Box>
             )}
@@ -84,6 +83,7 @@ const App = () => {
             const verbs = await services.verb.getVerbs();
             setVerbs(verbs);
 
+            // Generate new xApi Statements
             //const xApiGenerator = new XAPIGenerator(courseData, verbs, learners);
             //const result = await xApiGenerator.generateAndSaveStatements(50, 12);
             //setStatements(result.statements);
@@ -132,7 +132,7 @@ const App = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                             <DashboardIcon sx={{ fontSize: 32 }} />
                             <Typography variant="h5" component="h1">
-                                Learning Analytics Dashboard
+                                Adaptive Learning Analytics Dashboard
                             </Typography>
                         </Box>
                     }

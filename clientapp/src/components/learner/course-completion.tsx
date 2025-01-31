@@ -99,7 +99,7 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
                     pointerEvents: 'none'
                 }}
             >
-                <Typography variant="h4" sx={{ color: theme.palette.success.main }}>
+                <Typography variant="h5" sx={{ color: theme.palette.success.main }}>
                     {completionPercentage}%
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
