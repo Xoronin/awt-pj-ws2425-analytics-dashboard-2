@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import {
     Grid,
     Card,
@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import CourseCompletion from './learner/course-completion';
 import { Verb, LearnerProfile, XAPIStatement, CourseData } from '../types/types';
+import RecommendationService from '../services/recommendation-service';
 
 interface LearnerDashboardProps {
     learnerProfiles: LearnerProfile[];
@@ -110,7 +111,7 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                 <Card>
                     <CardContent>
                         <Typography variant="h6" gutterBottom>
-                            Learning Progress
+                            📖 Learning Progress
                         </Typography>
                         <Box sx={{ height: 'calc(100% - 32px)' }}>
                             <Grid container spacing={2} sx={{ height: '100%' }}>
@@ -140,7 +141,7 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                 <Card>
                     <CardContent>
                         <Typography variant="h6" gutterBottom>
-                            Module Performance
+                            📊 Module Performance
                         </Typography>
                         <Box sx={{ height: 'calc(100% - 32px)' }}>
                             <Grid container spacing={2} sx={{ height: '100%' }}>
@@ -170,7 +171,7 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                 <Card>
                     <CardContent>
                         <Typography variant="h6" gutterBottom>
-                            Community Comparison
+                            🌍 Community Comparison
                         </Typography>
                         <Box sx={{ height: 'calc(100% - 32px)' }}>
                             <Grid container spacing={2} sx={{ height: '100%' }}>
@@ -192,6 +193,27 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                                         />
                                     )}
                                 </Grid>
+                            </Grid>
+                        </Box>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                            🎯 Activity Recommendations
+                        </Typography>
+                        <Box sx={{ height: 'calc(100% - 32px)' }}>
+                            <Grid container spacing={2} sx={{ height: '100%' }}>
+                                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                    <Grid item xs={12} sx={{ height: '100%' }}>
+                                        <RecommendationService
+                                            learnerProfile={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                        />
+                                    </Grid>
+                                )}
                             </Grid>
                         </Box>
                     </CardContent>
