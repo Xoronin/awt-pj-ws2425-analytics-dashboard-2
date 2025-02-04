@@ -5,12 +5,12 @@ import {
     CardContent,
     Typography,
     Box,
-    Grid,
     Tabs,
     Tab,
     Paper,
     LinearProgress,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import {
     BarChart as BarChartIcon,
     Timeline as TimelineIcon,
@@ -237,7 +237,7 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
             case 'learners':
                 return (
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={12}>
+                        <Grid size={{ xs: 12, md: 12 }}>
                             {learnerProfiles.length > 0 && (
                                 <LearnerDistribution learnerProfiles={learnerProfiles} />
                             )}
@@ -247,7 +247,7 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
             case 'overview':
                 return (
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{ xs: 12, md: 3 }}>
                             <StatCard
                                 icon={BarChartIcon}
                                 title="Total Statements"
@@ -255,7 +255,7 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
                                 description="Total xAPI statements recorded"
                             />
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{ xs: 12, md: 3 }}>
                             <StatCard
                                 icon={TimelineIcon}
                                 title="Average Score"
@@ -263,7 +263,7 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
                                 description="Average score across all activities"
                             />
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{ xs: 12, md: 3 }}>
                             <StatCard
                                 icon={SchoolIcon}
                                 title="Average Activity Completion"
@@ -271,20 +271,20 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
                                 description="Percentage of activities completed per learner"
                             />
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{ xs: 12, md: 3 }}>
                             <StatCard
                                 icon={BookIcon}
                                 title="Avg. Learning Duration"
                                 value={`${stats.avgDuration.toFixed(1)}min`}
                                 description="Average time spent learning per learner"
                             />
-                        </Grid>
+                            </Grid>
                     </Grid>
                 );
             case 'activities':
                 return (
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <Paper elevation={1} sx={{ p: 2 }}>
                                 <Typography variant="h6" gutterBottom>
                                     Activity Usage
@@ -296,7 +296,7 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
                                 />
                             </Paper>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <Paper elevation={1} sx={{ p: 2 }}>
                                 <Typography variant="h6" gutterBottom>
                                     Section Usage
@@ -312,7 +312,7 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
             case 'engagement':
                 return (
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <Paper elevation={1} sx={{ p: 2 }}>
                                 <Typography variant="h6" gutterBottom>
                                     Learning Actions
@@ -324,7 +324,7 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
                                 />
                             </Paper>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <Paper elevation={1} sx={{ p: 2 }}>
                                 <Typography variant="h6" gutterBottom>
                                     Learner Statistics
@@ -355,7 +355,7 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
     return (
         <Card>
             <CardContent>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                <Box sx={{ borderBottom: 2, borderColor: 'divider', mb: 3 }}>
                     <Tabs
                         value={activeTab}
                         onChange={(_, newValue: TabValue) => setActiveTab(newValue)}

@@ -6,7 +6,6 @@ import {
     Typography,
     CardContent,
     CardHeader,
-    Container,
     Paper,
     useTheme
 } from '@mui/material';
@@ -30,7 +29,7 @@ interface TabPanelProps {
 }
 
 const TabPanel = (props: TabPanelProps) => {
-    const { children, value, index, ...other } = props;
+    const { children, value, index } = props;
 
     return (
         <div
@@ -52,7 +51,6 @@ const TabPanel = (props: TabPanelProps) => {
 const App = () => {
     const theme = useTheme();
     const [currentTab, setCurrentTab] = useState(0);
-    const [error, setError] = useState<string>('');
     const [learnerProfiles, setLearnerProfiles] = useState<LearnerProfile[]>([]);
     const [statements, setStatements] = useState<XAPIStatement[]>([]);
     const [verbs, setVerbs] = useState<Verb[]>([]);
@@ -72,8 +70,6 @@ const App = () => {
 
     const loadData = async () => {
         try {
-            setError('');
-
             const courseData = await services.courseData.loadCourseData();
             setCourseData(courseData);
 
@@ -94,7 +90,7 @@ const App = () => {
             await services.learnerGenerator.getDistributionInfo(learners);
 
         } catch (error) {
-            setError(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            console.log(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     };
 
