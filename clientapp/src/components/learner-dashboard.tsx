@@ -13,6 +13,13 @@ import {
     useTheme
 } from '@mui/material';
 import CourseCompletion from './learner/course-completion';
+import LearningTimeProps from './learner/learning-time';
+import LearningTimePerSection from './learner/average-time-per-module';
+import LearningAttempts from './learner/attempts-to-pass';
+import LearningAttemptsCommunity from './learner/attempts-to-pass-community';
+import AverageScorePerModule from './learner/average-score-per-module';
+import AverageScoreChart from './learner/average-score';
+import AverageScoreChartCommunity from './learner/average-score-community';
 import { Verb, LearnerProfile, XAPIStatement, CourseData } from '../types/types';
 
 interface LearnerDashboardProps {
@@ -54,7 +61,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
     return (
         <Box
             sx={{
-                height: '100%',
+                minHeight: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden'
@@ -94,18 +101,16 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                     flexDirection: 'column',
                     gap: 0,
                     '& .MuiCard-root': {
-                        height: '300px',
-                        mb: 2,
-                        '&:last-child': {
-                            mb: 0
-                        }
+                        minHeight: '300px', 
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column'
                     },
                     '& .MuiCardContent-root': {
-                        height: '100%',
-                        p: 2,
-                        '&:last-child': {
-                            pb: 2
-                        }
+                        flex: 1, 
+                        display: 'flex',
+                        flexDirection: 'column',
+                        p: 2
                     }
                 }}
             >
@@ -114,7 +119,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                         <Typography variant="h6" gutterBottom>
                             Learning Progress
                         </Typography>
-                        <Box sx={{ height: 'calc(100% - 32px)' }}>
+                        <Box sx={{ height: '100%' }}>
                             <Grid container spacing={2} sx={{ height: '100%' }}>
                                 <Grid item xs={12} md={6} sx={{ height: '100%' }}>
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
@@ -127,7 +132,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                                 </Grid>
                                 <Grid item xs={12} md={6} sx={{ height: '100%' }}>
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
+                                        <LearningTimeProps
                                             statements={filteredData.statements}
                                             courseData={courseData}
                                             learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
@@ -144,23 +149,23 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                         <Typography variant="h6" gutterBottom>
                             Module Performance
                         </Typography>
-                        <Box sx={{ height: 'calc(100% - 32px)' }}>
+                        <Box sx={{ height: '1000' }}>
                             <Grid container spacing={2} sx={{ height: '100%' }}>
                                 <Grid item xs={12} md={6} sx={{ height: '100%' }}>
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
+                                        <LearningTimePerSection
                                             statements={filteredData.statements}
                                             courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                            learnerProfile={learnerProfiles.find(l => l.id === selectedLearnerId)!}
                                         />
                                     )}
                                 </Grid>
                                 <Grid item xs={12} md={6} sx={{ height: '100%' }}>
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
+                                        <AverageScorePerModule
                                             statements={filteredData.statements}
                                             courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                            learnerProfile={learnerProfiles.find(l => l.id === selectedLearnerId)!}
                                         />
                                     )}
                                 </Grid>
@@ -169,33 +174,51 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardContent>
+                <Card sx={{ height: '100%' }}>
+                    <CardContent sx={{ height: '100%', p: 2 }}>
                         <Typography variant="h6" gutterBottom>
                             Community Comparison
                         </Typography>
-                        <Box sx={{ height: 'calc(100% - 32px)' }}>
+                        <Box sx={{ flex: 1, overflowY: 'auto', p: 2, display: 'flex', flexDirection: 'column' }}>
                             <Grid container spacing={2} sx={{ height: '100%' }}>
-                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
+                                <Grid item xs={12} md={3} sx={{ height: 'auto' }}>
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
+                                        <AverageScoreChart
+                                            statements={filteredData.statements}
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
+                                <Grid item xs={12} md={3} sx={{ height: 'auto' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <AverageScoreChartCommunity
+                                            statements={statements}
+                                            learners={learnerProfiles}
+                                        />
+                                    )}
+                                </Grid>
+                        
+                                <Grid item xs={12} md={3} sx={{ height: 'auto' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <LearningAttempts
                                             statements={filteredData.statements}
                                             courseData={courseData}
                                             learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
                                         />
                                     )}
                                 </Grid>
-                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
+                                <Grid item xs={12} md={3} sx={{ height: 'auto' }}>
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
-                                            statements={filteredData.statements}
+                                        <LearningAttemptsCommunity
+                                            statements={statements}
                                             courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                            learners={learnerProfiles}
                                         />
                                     )}
                                 </Grid>
                             </Grid>
                         </Box>
+                       
                     </CardContent>
                 </Card>
             </Box>
