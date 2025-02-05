@@ -17,6 +17,7 @@
     "@types/react-dom": "^18.3.1",
     "@types/recharts": "^1.8.29",
     "@types/uuid": "^10.0.0",
+    "dayjs": "^1.11.13",
     "fast-xml-parser": "^4.5.0",
     "fs": "^0.0.1-security",
     "mongodb": "^6.10.0",
