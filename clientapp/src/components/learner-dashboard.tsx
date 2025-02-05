@@ -1,6 +1,5 @@
 ﻿import React, { useState, useMemo } from 'react';
 import {
-    Grid,
     Card,
     CardContent,
     Typography,
@@ -9,12 +8,19 @@ import {
     Select,
     SelectChangeEvent,
     MenuItem,
-    Box,
-    useTheme
+    Box
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import CourseCompletion from './learner/course-completion';
 import { Verb, LearnerProfile, XAPIStatement, CourseData } from '../types/types';
 import RecommendationService from '../services/recommendation-service';
+import LearningTimeChart from './learner/learning-time';
+import LearningTimePerSection from './learner/average-time-per-module';
+import LearningAttempts from './learner/attempts-to-pass';
+import LearningAttemptsCommunity from './learner/attempts-to-pass-community';
+import AverageScorePerModule from './learner/average-score-per-module';
+import AverageScoreChart from './learner/average-score';
+import AverageScoreChartCommunity from './learner/average-score-community';
 
 interface LearnerDashboardProps {
     learnerProfiles: LearnerProfile[];
@@ -29,7 +35,6 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
     verbs,
     courseData
 }) => {
-    const theme = useTheme();
     const [selectedLearnerId, setSelectedLearnerId] = useState<string>('');
 
     React.useEffect(() => {
@@ -52,6 +57,8 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
         setSelectedLearnerId(event.target.value);
     };
 
+
+
     return (
         <Box
             sx={{
@@ -61,8 +68,8 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                 overflow: 'hidden'
             }}
         >
-            <Box sx={{ p: 2, pb: 0 }}>
-                <FormControl fullWidth>
+            <Box sx={{ flex: 1, display: 'flex',height: '100%', pt: 1.5, pb: 1 }}>
+                <FormControl fullWidth size="small">
                     <InputLabel id="learner-select-label">Select Learner</InputLabel>
                     <Select
                         labelId="learner-select-label"
@@ -70,6 +77,15 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                         value={selectedLearnerId}
                         label="Select Learner"
                         onChange={handleLearnerChange}
+                        MenuProps={{
+                            PaperProps: {
+                                style: {
+                                    maxHeight: 400,
+                                    backgroundColor: '#f8f9fa',
+                                    borderRadius: '10px',
+                                },
+                            },
+                        }}
                     >
                         {[...learnerProfiles]
                             .sort((a, b) => {
@@ -86,130 +102,167 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                 </FormControl>
             </Box>
 
-            <Box
-                sx={{
-                    flex: 1,
-                    overflowY: 'auto',
-                    p: 2,
-                    display: 'flex',
-                    gridTemplateRows: 'repeat(4, 330px)',
-                    flexDirection: 'column',
-                    gap: 0,
-                    '& .MuiCard-root': {
-                        height: '330px',
-                        mb: 2,
-                        '&:last-child': {
-                            mb: 0
-                        }
-                    },
-                    '& .MuiCardContent-root': {
-                        height: '100%',
-                        p: 2,
-                        '&:last-child': {
-                            pb: 2
-                        }
-                    }
-                }}
-            >
-                <Card>
-                    <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                            📖 Learning Progress
-                        </Typography>
-                        <Box sx={{ height: 'calc(100% - 32px)' }}>
-                            <Grid container spacing={2} sx={{ height: '100%' }}>
-                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
-                                            statements={filteredData.statements}
-                                            courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                        />
-                                    )}
-                                </Grid>
-                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
-                                            statements={filteredData.statements}
-                                            courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                        />
-                                    )}
-                                </Grid>
-                            </Grid>
-                        </Box>
-                    </CardContent>
-                </Card>
+            <Box sx={{ flex: 1, display: 'flex', gap: 2, height: 'calc(100% - 80px)', '&:last-child': { pb: 2 } }}>
 
-                <Card>
-                    <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                            📊 Module Performance
-                        </Typography>
-                        <Box sx={{ height: 'calc(100% - 32px)' }}>
-                            <Grid container spacing={2} sx={{ height: '100%' }}>
-                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
-                                            statements={filteredData.statements}
-                                            courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                        />
-                                    )}
-                                </Grid>
-                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
-                                            statements={filteredData.statements}
-                                            courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                        />
-                                    )}
-                                </Grid>
-                            </Grid>
-                        </Box>
-                    </CardContent>
-                </Card>
+                {/* Left Column */}
+                <Box sx={{ flex: '0 0 75%', display: 'flex', flexDirection: 'column', gap: 2, height: '100%' }}>
 
-                <Card>
-                    <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                            🌍 Community Comparison
-                        </Typography>
-                        <Box sx={{ height: 'calc(100% - 32px)' }}>
-                            <Grid container spacing={2} sx={{ height: '100%' }}>
-                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
-                                            statements={filteredData.statements}
-                                            courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                        />
-                                    )}
-                                </Grid>
-                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
-                                            statements={filteredData.statements}
-                                            courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                        />
-                                    )}
-                                </Grid>
-                            </Grid>
-                        </Box>
-                    </CardContent>
-                </Card>
+                    {/* Learning Progress Card */}
+                    <Card style={{ color: 'black', backgroundColor: '#eaeaea' }} sx={{ height: 'calc(33.333% - 11px)', border: '1px solid', borderColor: 'divider' }}>
+                        <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2}}>
+                            <Grid container spacing={3} sx={{ height: '100%' }}>
 
-                <Card>
+                                {/* Card Title */}
+                                <Grid size={{ xs: 12, md: 2 }} sx={{ height: '100%', p: 0.5 }}>
+                                <Typography variant="h6" sx={{ flex: '0 0 auto' }}>
+                                    📖 Learning Progress
+                                    </Typography>
+                                </Grid>
+
+                                {/* Course Completion Pie Chart */}
+                                <Grid size={{ xs: 12, md: 3 }} sx={{ height: '100%', p: 0.5 }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <CourseCompletion
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
+
+                                {/* Learning Time Chart */}
+                                <Grid size={{ xs: 12, md: 7 }} sx={{ height: '100%',  p: 0.5}}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <LearningTimeChart
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
+
+                            </Grid>
+                        </CardContent>
+                    </Card>
+
+                    {/* Module Performance Card */}
+                    <Card style={{ color: 'black', backgroundColor: '#eaeaea' }} sx={{ height: 'calc(33.333% - 11px)', border: '1px solid', borderColor: 'divider' }}>
+                        <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2}}>
+                            <Grid container spacing={1} sx={{ height: '100%' }}>
+
+                                {/* Card Title */}
+                                <Grid size={{ xs: 12, md: 2 }} sx={{ height: '100%', p: 0.5 }}>
+                                    <Typography variant="h6" sx={{ flex: '0 0 auto' }}>
+                                        📊 Module Performance
+                                        </Typography>
+                                    </Grid>
+
+                                {/* Learning Time Per Section Diagram */}
+                                <Grid size={{ xs: 12, md: 5 }} sx={{ height: '100%' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <LearningTimePerSection
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                            learnerProfile={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
+
+                                {/* Average Score Per Module Diagram */}
+                                <Grid size={{ xs: 12, md: 5 }} sx={{ height: '100%' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <AverageScorePerModule
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                            learnerProfile={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
+
+                            </Grid>
+                        </CardContent>
+                    </Card>
+
+                    {/* Community Comparison Card */}
+                    <Card style={{ color: 'black', backgroundColor: '#eaeaea' }} sx={{ height: 'calc(33.333% - 11px)', border: '1px solid', borderColor: 'divider' }}>
+                        <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2}}>
+                            <Grid container spacing={1} sx={{ height: '100%' }}>
+
+                                {/* Card Title */}
+                                <Grid size={{ xs: 12, md: 2 }} sx={{ height: '100%', p: 0.5 }}>
+                                    <Typography variant="h6" sx={{ flex: '0 0 auto' }}>
+                                        🌍 Community Comparison
+                                    </Typography>
+                                </Grid>
+
+                                {/* Average Score Chart */}
+                                <Grid size={{ xs: 12, md: 2.5 }} sx={{ height: '100%' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <AverageScoreChart
+                                            statements={filteredData.statements}
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
+
+                                {/* Average Score Chart Community */}
+                                <Grid size={{ xs: 12, md: 2.5 }} sx={{ height: '100%' }}>
+                                    {statements.length > 0 && courseData && selectedLearnerId && (
+                                        <AverageScoreChartCommunity
+                                            courseData={courseData}
+                                            statements={statements}
+                                            learners={learnerProfiles} />
+                                    )}
+                                </Grid>
+
+                                {/* Learning Attempts Chart */}
+                                <Grid size={{ xs: 12, md: 2.5 }} sx={{ height: '100%' }}>
+                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                        <LearningAttempts
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        />
+                                    )}
+                                </Grid>
+
+                                {/* Learning Attempts Chart Community */}
+                                <Grid size={{ xs: 12, md: 2.5 }} sx={{ height: '100%' }}>
+                                    {statements.length > 0 && courseData && selectedLearnerId && (
+                                        <LearningAttemptsCommunity
+                                            statements={statements}
+                                            courseData={courseData}
+                                            learners={learnerProfiles}
+                                        />
+                                    )}
+                                </Grid>
+
+                            </Grid>
+                        </CardContent>
+                    </Card>  
+                    
+                </Box>
+
+                {/* Right Column - Recommendations */}
+                <Card style={{ color: 'black', backgroundColor: '#eaeaea' }}
+                    sx={{
+                    flex: '0 0 25%',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    height: '100%'
+                }}>
                     <CardContent>
+
+                        {/* Card Title */}
                         <Typography variant="h6" gutterBottom>
                             🎯 Activity Recommendations
                         </Typography>
+
+                        {/* Recommendation Service */}
                         <Box sx={{ height: 'calc(100% - 32px)' }}>
-                            <Grid container spacing={2} sx={{ height: '100%' }}>
+                            <Grid container sx={{ height: '100%' }}>
                                 {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                    <Grid item xs={12} sx={{ height: '100%' }}>
+                                    <Grid size={{ xs: 12 }} sx={{ height: '100%' }}>
                                         <RecommendationService
                                             learnerProfile={learnerProfiles.find(l => l.id === selectedLearnerId)!}
                                             statements={filteredData.statements}

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, Label } from 'recharts';
 import { Box, Typography, useTheme } from '@mui/material';
 import { XAPIStatement, CourseData, LearnerProfile } from '../../types/types';
 
@@ -50,14 +50,19 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
         ];
     }, [statements, courseData]);
 
-    const COLORS = [theme.palette.success.main, theme.palette.grey[300]];
+    const COLORS = [theme.palette.success.main, theme.palette.grey[500]];
 
     const completionPercentage = Math.round(
         (completionData[0].value / (completionData[0].value + completionData[1].value)) * 100
     );
 
     return (
-        <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
+        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+            <Typography variant="body1" gutterBottom>
+                Course Completion
+            </Typography>
+
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie
@@ -67,45 +72,20 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
                         startAngle={90}
                         endAngle={-270}
                         labelLine={false}
-                        outerRadius="80%"
-                        innerRadius="60%"
-                        fill="#8884d8"
+                        innerRadius={80}
+                        outerRadius={100}
+                        fill={theme.palette.primary.main}
                         dataKey="value"
                     >
+                        <Label value={`${completionData[0].value}/${completionData[0].value + completionData[1].value}`} position="center" fontSize={20} fontWeight="bold" fill="000000" />
                         {completionData.map((entry, index) => (
-                            <Cell
-                                key={`cell-${index}`}
-                                fill={COLORS[index % COLORS.length]}
-                            />
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                     </Pie>
-                    <Tooltip
-                        formatter={(value, name) => [`${value} Activities`, name]}
-                    />
-                    <Legend
-                        verticalAlign="bottom"
-                        height={36}
-                    />
+                    <Tooltip formatter={(value, name) => [`${value} Activities`, name]} />
+                    <Legend verticalAlign="bottom" height={56} />
                 </PieChart>
             </ResponsiveContainer>
-            {/* Centered percentage */}
-            <Box
-                sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    textAlign: 'center',
-                    pointerEvents: 'none'
-                }}
-            >
-                <Typography variant="h5" sx={{ color: theme.palette.success.main }}>
-                    {completionPercentage}%
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    {completionData[0].value}/{completionData[0].value + completionData[1].value}
-                </Typography>
-            </Box>
         </Box>
     );
 };

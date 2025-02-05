@@ -21,7 +21,6 @@ type PersonaWeights = {
 
 type RecommendedActivity = Activity & {
     score: number;
-    isReview?: boolean;
 };
 
 const RecommendationService: React.FC<RecommendationServiceProps> = ({
@@ -80,84 +79,35 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
         learner: LearnerProfile,
         history: Record<string, ActivityHistory>
     ): number => {
-        const metrics = {
-            consistency: getMetricValue(learner.metrics.consistency),
-            effort: getMetricValue(learner.metrics.effort),
-            scores: getMetricValue(learner.metrics.scores),
-            duration: getMetricValue(learner.metrics.duration)
-        };
+        // Get learner's average performance from history
+        const avgScore = Object.values(history).reduce((sum, h) =>
+            sum + (h.scores.length ? h.scores.reduce((a, b) => a + b, 0) / h.scores.length : 0), 0)
+            / Math.max(Object.keys(history).length, 1);
 
-        // Base scores (0-1 range)
-        const baseScores = {
-            // Match difficulty to learner performance
-            performanceMatch: 1 - Math.abs(metrics.scores / 100 - activity.difficulty),
+        // Get learner's average duration
+        const avgDuration = Object.values(history).reduce((sum, h) => sum + h.avgTime, 0)
+            / Math.max(Object.keys(history).length, 1);
 
-            // Match effort level to interactivity
-            effortMatch: 1 - Math.abs(metrics.effort / 100 -
-                (activity.interactivityLevel === 'high' ? 0.8 :
-                    activity.interactivityLevel === 'medium' ? 0.5 : 0.3)
-            ),
+        // Calculate difficulty match (prefers slightly more challenging activities)
+        const targetDifficulty = Math.min(avgScore + 0.2, 1);
+        const difficultyMatch = 1 - Math.abs(targetDifficulty - activity.difficulty);
 
-            // Match estimated duration to learner's typical duration
-            timeMatch: 1 - Math.min(1, Math.abs(activity.estimatedDuration - metrics.duration) / 60)
-        };
+        // Calculate duration match
+        const durationMatch = 1 - Math.min(1, Math.abs(activity.estimatedDuration - avgDuration) / 60);
 
-        // Apply persona-specific weightings
-        let finalScore = 0;
+        // Apply persona-specific scoring
         switch (learner.personaType) {
             case 'struggler':
-                finalScore = (
-                    baseScores.performanceMatch * 0.5 +
-                    baseScores.effortMatch * 0.3 +
-                    baseScores.timeMatch * 0.2
-                );
-                break;
+                return difficultyMatch * 0.7 + durationMatch * 0.3;
             case 'sprinter':
-                finalScore = (
-                    baseScores.performanceMatch * 0.3 +
-                    baseScores.effortMatch * 0.2 +
-                    baseScores.timeMatch * 0.5
-                );
-                break;
+                return difficultyMatch * 0.4 + durationMatch * 0.6;
             case 'gritty':
-                finalScore = (
-                    baseScores.performanceMatch * 0.4 +
-                    baseScores.effortMatch * 0.4 +
-                    baseScores.timeMatch * 0.2
-                );
-                break;
+                return difficultyMatch * 0.8 + durationMatch * 0.2;
             case 'coaster':
-                finalScore = (
-                    baseScores.performanceMatch * 0.2 +
-                    baseScores.effortMatch * 0.5 +
-                    baseScores.timeMatch * 0.3
-                );
-                break;
+                return difficultyMatch * 0.5 + durationMatch * 0.5;
             default: // average
-                finalScore = (
-                    baseScores.performanceMatch * 0.33 +
-                    baseScores.effortMatch * 0.33 +
-                    baseScores.timeMatch * 0.34
-                );
+                return difficultyMatch * 0.6 + durationMatch * 0.4;
         }
-
-        // Apply difficulty adjustment based on persona
-        const difficultyAdjustment = getPersonaWeight(learner.personaType, activity.difficulty);
-        finalScore = finalScore * difficultyAdjustment;
-
-        // Ensure score is between 0 and 1
-        return Math.max(0, Math.min(1, finalScore));
-    };
-
-    const getPersonaWeight = (persona: string, difficulty: number): number => {
-        const weights: PersonaWeights = {
-            'struggler': 1 - difficulty,
-            'average': 1 - Math.abs(0.5 - difficulty),
-            'sprinter': difficulty < 0.7 ? 1 : 0.5,
-            'gritty': 1,
-            'coaster': difficulty < 0.3 ? 1 : 0.3
-        };
-        return weights[persona as keyof PersonaWeights] || 0.5;
     };
 
     const generateRecommendations = (): RecommendedActivity[] => {
@@ -176,6 +126,10 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                     'https://w3id.org/learning-analytics/learning-management-system/external-id'])
         );
 
+        if (completedActivityIds.size >= allActivities.length) {
+            return [];
+        }
+
         const availableActivities = allActivities.filter(activity =>
             !completedActivityIds.has(activity.id)
         );
@@ -185,8 +139,7 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                 .filter(activity => activity.difficulty > 0.7)
                 .map(activity => ({
                     ...activity,
-                    score: calculateActivityScore(activity, learnerProfile, history),
-                    isReview: true
+                    score: calculateActivityScore(activity, learnerProfile, history)
                 }))
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 5);
@@ -202,7 +155,6 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
             .sort((a, b) => b.score - a.score)
             .slice(0, 5);
     };
-
 
     const mapActivityDifficultyToString = (difficulty: number): string => {
         switch (difficulty) {
@@ -237,15 +189,16 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
             maxHeight: '100%',
             pb: 2
         }}>
-            {recommendations.slice(0, 4).map((rec, index) => (
+            {recommendations.length > 0 ? (
+                recommendations.map((rec, index) => (
                 <Box
                     key={index}
                     sx={{
                         p: 1,
-                        bgcolor: rec.isReview ? 'info.lighter' : 'primary.lighter',
+                        bgcolor: 'primary.lighter',
                         borderRadius: 2,
                         border: '1px solid',
-                        borderColor: rec.isReview ? 'info.light' : 'primary.light',
+                        borderColor:'primary.light',
                         transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
                         display: 'flex',
                         flexDirection: 'column',
@@ -257,7 +210,7 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                             cursor: 'pointer'
                         },
                         '&:last-child': {
-                            mb: 2
+                            mb: 4
                         },
                         '&:first-child': {
                             mt: 1
@@ -336,7 +289,22 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                         </Box>
                     </Box>
                 </Box>
-            ))}
+                ))
+            ) : (
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%',
+                    color: 'text.secondary',
+                    textAlign: 'center',
+                    p: 2
+                }}>
+                    <Typography>
+                        🎉 Great job! You've completed all available activities.
+                    </Typography>
+                </Box>
+            )}
         </Box>
     );
 };
