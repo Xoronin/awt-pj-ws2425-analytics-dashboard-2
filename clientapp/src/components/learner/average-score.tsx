@@ -26,12 +26,20 @@ const AverageScoreChart: React.FC<AverageScoreProps> = ({ statements, learner })
         { name: 'Achieved Score', value: averageScore },
         { name: 'Remaining', value: 100 - averageScore }
     ];
-    const COLORS = [theme.palette.success.main, theme.palette.grey[500]];
+    const COLORS = ['#7B1FA2', '#BA68C8'];
 
     return (
         <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
-            <Typography variant="body1" sx={{ textAlign: 'center' }}>
+            <Typography
+                sx={{
+                    fontSize: '1rem',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: '#7B1FA2',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                }}
+            >
                 Your Average Score
             </Typography>
 
@@ -51,7 +59,7 @@ const AverageScoreChart: React.FC<AverageScoreProps> = ({ statements, learner })
                         labelLine={false}
                     >
                         {/* Absolute Zahl im Zentrum anzeigen */}
-                        <Label value={`${averageScore.toFixed(1) }%`} position="center" fontSize={20} fontWeight="bold" fill="#000000" />
+                        <Label value={`${averageScore.toFixed(1)}%`} position="center" fontSize={20} fontWeight="bold" fill="#7B1FA2" />
                         {chartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index]} />
                         ))}

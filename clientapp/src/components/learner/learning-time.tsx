@@ -39,11 +39,19 @@ const LearningTimeChart: React.FC<LearningTimeProps> = ({ statements, learner })
     return (
         <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-            <Typography variant="body1" gutterBottom>
+            <Typography
+                sx={{
+                    fontSize: '1rem',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: '#1565C0',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                }}
+            >
                 Learning Time per Day
             </Typography>
 
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={learningData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" tickFormatter={(tick) => dayjs(tick).format('DD.MM')} />

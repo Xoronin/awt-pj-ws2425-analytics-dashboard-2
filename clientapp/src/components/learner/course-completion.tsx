@@ -50,7 +50,7 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
         ];
     }, [statements, courseData]);
 
-    const COLORS = [theme.palette.success.main, theme.palette.grey[500]];
+    const COLORS = ['#1565C0', '#90CAF9 '];
 
     const completionPercentage = Math.round(
         (completionData[0].value / (completionData[0].value + completionData[1].value)) * 100
@@ -59,7 +59,15 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
     return (
         <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-            <Typography variant="body1" gutterBottom>
+            <Typography
+                sx={{
+                    fontSize: '1rem',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: '#1565C0',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                }}
+            >
                 Course Completion
             </Typography>
 
@@ -77,7 +85,7 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
                         fill={theme.palette.primary.main}
                         dataKey="value"
                     >
-                        <Label value={`${completionData[0].value}/${completionData[0].value + completionData[1].value}`} position="center" fontSize={20} fontWeight="bold" fill="000000" />
+                        <Label value={`${completionData[0].value}/${completionData[0].value + completionData[1].value}`} position="center" fontSize={20} fontWeight="bold" fill="#1565C0" />
                         {completionData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}

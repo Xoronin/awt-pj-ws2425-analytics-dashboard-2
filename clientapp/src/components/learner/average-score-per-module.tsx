@@ -21,121 +21,108 @@ interface AverageScorePerModuleProps {
     courseData: CourseData;
 }
 
+const FIXED_SECTIONS = [
+    "Grundlagen der Baumpflege",
+    "Grundlagen der Instandhaltung",
+    "Grundlagen des Kletterns"
+];
+
 const parseScore = (score: any): number => {
     // Falls kein Score vorhanden ist, default auf 0
     return score?.raw ?? 0;
 };
 
 const AverageScorePerModule: React.FC<AverageScorePerModuleProps> = ({ learnerProfile, statements, courseData }) => {
-    // Wir speichern den letzten Score pro Aktivität
-    const sectionScores: Record<string, { totalScore: number; activityCount: number; seenActivities: Set<string> }> = {}; // Score pro Section, Aktivitätsanzahl und bereits betrachtete Aktivitäten
+    const sectionScores = FIXED_SECTIONS.reduce((acc, section) => {
+        const sectionData = statements
+            .filter(s =>
+                s.actor.mbox === learnerProfile.email &&
+                s.result?.score &&
+                courseData.sections.find(cs =>
+                    cs.title === section &&
+                    cs.activities.some(a =>
+                        a.id === s.object.definition.extensions?.['https://w3id.org/learning-analytics/learning-management-system/external-id']
+                    )
+                )
+            );
 
-    // Berechne den totalen Score und die Aktivitätsanzahl pro Modul für den Lernenden
-    statements.forEach((statement) => {
-        if (statement.actor.mbox === learnerProfile.email && statement.result?.score) {
-            const score = parseScore(statement.result.score); // Hole den Score der Aktivität
-
-            const activityId = statement.object.definition.extensions?.[
-                'https://w3id.org/learning-analytics/learning-management-system/external-id'
-            ];
-            if (!activityId) return;
-
-            // Finde das Modul, zu dem diese Aktivität gehört
-            for (const section of courseData.sections) {
-                const activity = section.activities.find((a: Activity) => a.id === activityId); // Type activity
-                if (activity) {
-                    if (!sectionScores[section.title]) {
-                        sectionScores[section.title] = { totalScore: 0, activityCount: 0, seenActivities: new Set() };
-                    }
-
-                    // Wir fügen den Score nur einmal pro Aktivität hinzu (den letzten Score)
-                    if (!sectionScores[section.title].seenActivities.has(activityId)) {
-                        sectionScores[section.title].totalScore += score;
-                        sectionScores[section.title].activityCount += 1;
-                        sectionScores[section.title].seenActivities.add(activityId); // Markiere die Aktivität als gesehen
-                    }
-                }
-            }
+        if (sectionData.length > 0) {
+            const totalScore = sectionData.reduce((sum, s) => sum + parseScore(s.result!.score), 0);
+            acc[section] = {
+                averageScore: totalScore / sectionData.length,
+                hasData: true
+            };
+        } else {
+            acc[section] = { averageScore: 0, hasData: false };
         }
-    });
-
-    // Berechne den Durchschnitt der Scores pro Modul
-    const sectionScoreData = useMemo(() => {
-        return Object.entries(sectionScores).map(([sectionTitle, { totalScore, activityCount }]) => ({
-            section: sectionTitle,
-            averageScore: activityCount > 0 ? totalScore / activityCount : 0, // Durchschnitts-Score pro Modul
-        }));
-    }, [sectionScores]);
+        return acc;
+    }, {} as Record<string, { averageScore: number; hasData: boolean }>);
 
     return (
-        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
-            <Typography variant="body1" gutterBottom>
+            <Typography
+                sx={{
+                    fontSize: '1rem',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: '#2E7D32',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                }}
+            >
                 Average Score per Module
             </Typography>
 
-            <Grid container sx={{ width: '100%', height: '100%' }}>
-                <Grid size={{ xs: 12, md: 12 }} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {sectionScoreData.slice(0, Math.ceil(sectionScoreData.length / 3)).map(({ section, averageScore }) => (
-                        <Paper style={{ color: 'black', backgroundColor: '#eaeaea' }} key={section} elevation={1}
-                            sx={{
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                p: 1, minHeight: '60px'
+            <Grid container spacing={1} sx={{
+                width: '100%',
+                height: '100%',
+                px: 1
+            }}>
+                {FIXED_SECTIONS.map(section => (
+                    <Grid size={{ xs: 12, md: 12 }} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }} key={section}>
+                        <Paper sx={{
+                            backgroundColor: '#E8F5E9',
+                            border: '1px solid',
+                            borderColor: '#81C784',
+                            p: 1,
+                            minHeight: '70px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 1
+                        }}>
+                            <Typography variant="body1" sx={{
+                                fontSize: '1.1rem',
+                                fontWeight: 500,
+                                color: '#2E7D32'  
                             }}>
-                            <Typography variant="body1" sx={{ fontSize: '0.95rem' }}>{section}</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {Math.round(averageScore)}%
+                                {section}
+                            </Typography>
+                            <Typography variant="body2" sx={{
+                                fontSize: '1rem',
+                                color: '#1B5E20',
+                                fontWeight: 500
+                            }}>
+                                {sectionScores[section]?.hasData ?
+                                    `${Math.round(sectionScores[section].averageScore)}%` :
+                                    'No data available'}
                             </Typography>
                             <LinearProgress
                                 variant="determinate"
-                                value={averageScore}
-                                sx={{ height: 4, borderRadius: 1 }}
+                                value={sectionScores[section]?.averageScore || 0}
+                                sx={{
+                                    height: 8,
+                                    borderRadius: 2,
+                                    opacity: sectionScores[section]?.hasData ? 1 : 0.4,
+                                    '& .MuiLinearProgress-bar': {
+                                        backgroundColor: '#2E7D32' 
+                                    },
+                                    backgroundColor: '#A5D6A7',
+                                    mt: 'auto'
+                                }}
                             />
                         </Paper>
-                    ))}
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 12 }} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {sectionScoreData.slice(Math.ceil(sectionScoreData.length / 3), Math.ceil(2 * sectionScoreData.length / 3)).map(({ section, averageScore }) => (
-                        <Paper style={{ color: 'black', backgroundColor: '#eaeaea' }} key={section} elevation={1}
-                            sx={{
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                p: 1, minHeight: '60px'
-                            }}>                            <Typography variant="body1" sx={{ fontSize: '0.95rem' }}>{section}</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {Math.round(averageScore)}%
-                            </Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={averageScore}
-                                sx={{ height: 4, borderRadius: 1 }}
-                            />
-                        </Paper>
-                    ))}
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 12 }} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {sectionScoreData.slice(Math.ceil(2 * sectionScoreData.length / 3)).map(({ section, averageScore }) => (
-                        <Paper style={{ color: 'black', backgroundColor: '#eaeaea' }} key={section} elevation={1}
-                            sx={{
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                p: 1, minHeight: '60px'
-                            }}>                            <Typography variant="body1" sx={{ fontSize: '0.95rem' }}>{section}</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {Math.round(averageScore)}%
-                            </Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={averageScore}
-                                sx={{ height: 4, borderRadius: 1 }}
-                            />
-                        </Paper>
-                    ))}
-                </Grid>
-
+                    </Grid>
+                ))}
             </Grid>
         </Box>
     );

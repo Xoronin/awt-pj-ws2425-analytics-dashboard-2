@@ -12,7 +12,7 @@ interface LearningAttemptsCommunity {
 const LearningAttemptsCommunity: React.FC<LearningAttemptsCommunity> = ({ statements, learners, courseData }) => {
     const theme = useTheme();
 
-    const COLORS = [theme.palette.success.main, theme.palette.grey[500]];
+    const COLORS = ['#5E35B1', '#D1C4E9'];
 
     const attemptsData = useMemo(() => {
         const attemptsMap: Record<string, { failed: number; passed: number }> = {};
@@ -70,7 +70,15 @@ const LearningAttemptsCommunity: React.FC<LearningAttemptsCommunity> = ({ statem
     return (
         <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
-            <Typography variant="body1" sx={{ textAlign: 'center' }}>
+            <Typography
+                sx={{
+                    fontSize: '1rem',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: '#5E35B1',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                }}
+            >
                 Community's Attempts to Pass
             </Typography>
 
@@ -89,13 +97,13 @@ const LearningAttemptsCommunity: React.FC<LearningAttemptsCommunity> = ({ statem
                         fill={theme.palette.primary.main}
                         labelLine={false}
                     >
-                        <Label value={`${passPercentage.toFixed(1)}%`} position="center" fontSize={20} fontWeight="bold" fill="000000" />
+                        <Label value={`${passPercentage.toFixed(1)}%`} position="center" fontSize={20} fontWeight="bold" fill="#5E35B1" />
                         {chartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index]} />
                         ))}
                     </Pie>
                     <Tooltip />
-                    <Legend verticalAlign="bottom" height={56} />
+                    <Legend verticalAlign="bottom" height={80} />
                 </PieChart>
             </ResponsiveContainer>
 
