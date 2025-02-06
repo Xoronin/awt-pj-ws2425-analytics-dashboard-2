@@ -32,109 +32,106 @@ const parseDuration = (duration: string): number => {
     );
 };
 
+const FIXED_SECTIONS = [
+    "Grundlagen der Baumpflege",
+    "Grundlagen der Instandhaltung",
+    "Grundlagen des Kletterns"
+];
+
 const AverageTimePerModule: React.FC<AverageTimePerModuleProps> = ({ learnerProfile, statements, courseData }) => {
-    const sectionTimes: Record<string, { totalTime: number; activityCount: number }> = {}; // Time per Section and Activity Count
 
-    // Calculate total time and count of activities per section for the given learner
-    statements.forEach((statement) => {
-        if (statement.actor.mbox === learnerProfile.email && statement.result?.duration) {
-            const duration = parseDuration(statement.result.duration);
+    const sectionTimes = FIXED_SECTIONS.reduce((acc, section) => {
+        const sectionData = statements
+            .filter(s =>
+                s.actor.mbox === learnerProfile.email &&
+                s.result?.duration &&
+                courseData.sections.find(cs =>
+                    cs.title === section &&
+                    cs.activities.some(a =>
+                        a.id === s.object.definition.extensions?.['https://w3id.org/learning-analytics/learning-management-system/external-id']
+                    )
+                )
+            );
 
-            const activityId = statement.object.definition.extensions?.[
-                'https://w3id.org/learning-analytics/learning-management-system/external-id'
-            ];
-            if (!activityId) return;
-
-            // Find the section for this activity
-            for (const section of courseData.sections) {
-                const activity = section.activities.find((a: Activity) => a.id === activityId); // Type activity
-                if (activity) {
-                    if (!sectionTimes[section.title]) {
-                        sectionTimes[section.title] = { totalTime: 0, activityCount: 0 };
-                    }
-                    sectionTimes[section.title].totalTime += duration;
-                    sectionTimes[section.title].activityCount += 1;
-                }
-            }
+        if (sectionData.length > 0) {
+            const totalTime = sectionData.reduce((sum, s) => sum + parseDuration(s.result?.duration || 'PT0M'), 0);
+            acc[section] = {
+                averageTime: totalTime / sectionData.length,
+                hasData: true
+            };
+        } else {
+            acc[section] = { averageTime: 0, hasData: false };
         }
-    });
+        return acc;
+    }, {} as Record<string, { averageTime: number; hasData: boolean }>);
 
-    // Transform sectionTimes into a format that can be rendered in the UI, calculating the average time per section
-    const sectionTimeData = useMemo(() => {
-        return Object.entries(sectionTimes).map(([sectionTitle, { totalTime, activityCount }]) => ({
-            section: sectionTitle,
-            averageTime: activityCount > 0 ? totalTime / activityCount : 0, // Calculate the average time per activity
-        }));
-    }, [sectionTimes]);
+    const maxTime = Math.max(...Object.values(sectionTimes).map(t => t.averageTime));
 
     return (
-        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
-            <Typography variant="body1" gutterBottom>
+            <Typography
+                sx={{
+                    fontSize: '1rem',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: '#2E7D32',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                }}
+            >
                 Average Learning Time per Module
             </Typography>
 
-            <Grid container sx={{ width: '100%', height: '100%' }}>
-                <Grid size={{ xs: 12, md: 12 }} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {sectionTimeData.slice(0, Math.ceil(sectionTimeData.length / 3)).map(({ section, averageTime }) => (
-                        <Paper style={{ color: 'black', backgroundColor: '#eaeaea' }} key={section} elevation={1}
-                            sx={{
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                p: 1, minHeight: '60px'
-                            }}>                            <Typography variant="body1" sx={{ fontSize: '0.95rem' }}>{section}</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {Math.round(averageTime)} min
+            <Grid container spacing={1} sx={{
+                width: '100%',
+                height: '100%',
+                px: 1
+            }}>
+                {FIXED_SECTIONS.map(section => (
+                    <Grid size={{ xs: 12, md: 12 }} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }} key={section}>
+                        <Paper sx={{
+                            backgroundColor: '#E8F5E9',
+                            border: '1px solid',
+                            borderColor: '#81C784',
+                            p: 1,
+                            minHeight: '70px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 1
+                        }}>
+                            <Typography variant="body1" sx={{
+                                fontSize: '1.1rem',
+                                fontWeight: 500,
+                                color: '#2E7D32'  
+                            }}>
+                                {section}
+                            </Typography>
+                            <Typography variant="body2" sx={{
+                                fontSize: '1rem',
+                                color: '#1B5E20',
+                                fontWeight: 500
+                            }}>
+                                {sectionTimes[section]?.hasData ?
+                                    `${Math.round(sectionTimes[section].averageTime)} min` :
+                                    'No data available'}
                             </Typography>
                             <LinearProgress
                                 variant="determinate"
-                                value={(averageTime / Math.max(...sectionTimeData.map((item) => item.averageTime))) * 100}
-                                sx={{ height: 4, borderRadius: 1 }}
+                                value={sectionTimes[section]?.averageTime || 0}
+                                sx={{
+                                    height: 8,
+                                    borderRadius: 2,
+                                    opacity: sectionTimes[section]?.hasData ? 1 : 0.4,
+                                    '& .MuiLinearProgress-bar': {
+                                        backgroundColor: '#2E7D32'
+                                    },
+                                    backgroundColor: '#A5D6A7',
+                                    mt: 'auto'
+                                }}
                             />
                         </Paper>
-                    ))}
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 12 }} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {sectionTimeData.slice(Math.ceil(sectionTimeData.length / 3), Math.ceil(2 * sectionTimeData.length / 3)).map(({ section, averageTime }) => (
-                        <Paper style={{ color: 'black', backgroundColor: '#eaeaea' }} key={section} elevation={1}
-                            sx={{
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                p: 1, minHeight: '60px'
-                            }}>                            <Typography variant="body1" sx={{ fontSize: '0.95rem' }}>{section}</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {Math.round(averageTime)} min
-                            </Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={(averageTime / Math.max(...sectionTimeData.map((item) => item.averageTime))) * 100}
-                                sx={{ height: 4, borderRadius: 1 }}
-                            />
-                        </Paper>
-                    ))}
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 12 }} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {sectionTimeData.slice(Math.ceil(2 * sectionTimeData.length / 3)).map(({ section, averageTime }) => (
-                        <Paper style={{ color: 'black', backgroundColor: '#eaeaea' }} key={section} elevation={1}
-                            sx={{
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                p: 1, minHeight: '60px'
-                            }}>                            <Typography variant="body1" sx={{ fontSize: '0.95rem' }}>{section}</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {Math.round(averageTime)} min
-                            </Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={(averageTime / Math.max(...sectionTimeData.map((item) => item.averageTime))) * 100}
-                                sx={{ height: 4, borderRadius: 1 }}
-                            />
-                        </Paper>
-                    ))}
-                </Grid>
-
+                    </Grid>
+                ))}
             </Grid>
         </Box>
     );

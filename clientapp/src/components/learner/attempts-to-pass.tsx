@@ -12,7 +12,7 @@ interface LearningAttempts {
 const LearningAttempts: React.FC<LearningAttempts> = ({ statements, learner }) => {
     const theme = useTheme();
 
-    const COLORS = [theme.palette.success.main, theme.palette.grey[500]];
+    const COLORS = ['#7B1FA2', '#BA68C8'];
 
     const attemptsData = useMemo(() => {
         const attemptsMap: Record<string, { failed: number; passed: number }> = {};
@@ -62,7 +62,15 @@ const LearningAttempts: React.FC<LearningAttempts> = ({ statements, learner }) =
     return (
         <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
-            <Typography variant="body1" sx={{ textAlign: 'center' }}>
+            <Typography
+                sx={{
+                    fontSize: '1rem',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: '#7B1FA2',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                }}
+            >
                 Your Attempts to Pass
             </Typography>
 
@@ -84,10 +92,10 @@ const LearningAttempts: React.FC<LearningAttempts> = ({ statements, learner }) =
                         {chartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index]} />
                         ))}
-                        <Label value={`${passedPercentage}%`} fontSize={20} fontWeight="bold" position="center" fill="000000" />
+                        <Label value={`${passedPercentage}%`} fontSize={20} fontWeight="bold" position="center" fill="#7B1FA2" />
                     </Pie>
                     <Tooltip />
-                    <Legend verticalAlign="bottom" height={56} />
+                    <Legend verticalAlign="bottom" height={80} />
                 </PieChart>
             </ResponsiveContainer>
 

@@ -95,6 +95,9 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
         // Calculate duration match
         const durationMatch = 1 - Math.min(1, Math.abs(activity.estimatedDuration - avgDuration) / 60);
 
+
+        //Learner rausnhemen
+        // vorherige aktivitäten, durations, noten und kurse nach reihenfolge
         // Apply persona-specific scoring
         switch (learner.personaType) {
             case 'struggler':
@@ -191,47 +194,43 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
         }}>
             {recommendations.length > 0 ? (
                 recommendations.map((rec, index) => (
-                <Box
-                    key={index}
-                    sx={{
-                        p: 1,
-                        bgcolor: 'primary.lighter',
-                        borderRadius: 2,
-                        border: '1px solid',
-                        borderColor:'primary.light',
-                        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        flex: '0 0 auto',
-                        minHeight: '30px',
-                        '&:hover': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: 2,
-                            cursor: 'pointer'
-                        },
-                        '&:last-child': {
-                            mb: 4
-                        },
-                        '&:first-child': {
-                            mt: 1
-                        }
-                    }}
-                >
+                    <Box
+                        key={index}
+                        sx={{
+                            p: 1,
+                            bgcolor: '#FFF3E0', 
+                            borderRadius: 2,
+                            border: '1px solid',
+                            borderColor: '#FFB74D', 
+                            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            flex: '0 0 auto',
+                            minHeight: '30px',
+                            '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: 2,
+                                cursor: 'pointer',
+                                bgcolor: '#FFE0B2' 
+                            }
+                        }}
+                    >
                     <Box sx={{
                         display: 'flex',
                         justifyContent: 'space-between',
-                        alignItems: 'flex-start',
+                        alignItems: 'center',
+                        gap: 1,
                         mb: 1
                     }}>
                         <Typography
                             variant="subtitle1"
                             sx={{
-                                fontSize: '0.95rem',
-                                fontWeight: 500,
+                                fontSize: '1.1rem',
+                                fontWeight: 600,
+                                color: '#E65100',
+                                flex: 1,
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                maxWidth: '70%'
                             }}
                         >
                             {rec.title}
@@ -239,14 +238,16 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                         <Typography
                             variant="body2"
                             sx={{
-                                px: 1,
-                                py: 0.5,
-                                bgcolor: rec.score >= 0.8 ? 'success.main' :
-                                    rec.score >= 0.6 ? 'primary.main' : 'warning.main',
+                                px: 1.5,
+                                py: 1.5,
+                                bgcolor: rec.score >= 0.8 ? '#2E7D32' :  
+                                    rec.score >= 0.6 ? '#F57C00' :      
+                                        '#D32F2F',                          
                                 color: 'white',
                                 borderRadius: 1,
-                                fontSize: '0.75rem',
-                                fontWeight: 500
+                                fontSize: '0.9rem',
+                                fontWeight: 500,
+                                lineHeight: 1
                             }}
                         >
                             {(rec.score * 100).toFixed(0)}% Match
@@ -261,12 +262,12 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                             display: 'flex',
                             alignItems: 'center',
                             gap: 0.5,
-                            bgcolor: 'background.paper',
+                            bgcolor: '#FFF8E1',
                             px: 0.75,
                             py: 0.25,
                             borderRadius: 1,
                             border: '1px solid',
-                            borderColor: 'divider'
+                            borderColor: '#FFB74D'
                         }}>
                             <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
                                 ⚡ {mapActivityDifficultyToString(rec.difficulty)}
@@ -276,12 +277,12 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                             display: 'flex',
                             alignItems: 'center',
                             gap: 0.5,
-                            bgcolor: 'background.paper',
+                            bgcolor: '#FFF8E1',
                             px: 0.75,
                             py: 0.25,
                             borderRadius: 1,
                             border: '1px solid',
-                            borderColor: 'divider'
+                            borderColor: '#FFB74D'
                         }}>
                             <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
                                 ⏱️ {rec.estimatedDuration}min

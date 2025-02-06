@@ -60,15 +60,14 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
 
 
     return (
-        <Box
-            sx={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden'
-            }}
-        >
-            <Box sx={{ flex: 1, display: 'flex',height: '100%', pt: 1.5, pb: 1 }}>
+        <Box sx={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            p: { xs: 1, md: 2 }
+        }}>
+            <Box sx={{ width: '100%' }}>
                 <FormControl fullWidth size="small">
                     <InputLabel id="learner-select-label">Select Learner</InputLabel>
                     <Select
@@ -102,20 +101,55 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                 </FormControl>
             </Box>
 
-            <Box sx={{ flex: 1, display: 'flex', gap: 2, height: 'calc(100% - 80px)', '&:last-child': { pb: 2 } }}>
-
+            <Box sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', lg: 'row' },
+                gap: 2,
+                height: { xs: 'auto', lg: 'calc(100% - 80px)' }
+            }}>
                 {/* Left Column */}
-                <Box sx={{ flex: '0 0 75%', display: 'flex', flexDirection: 'column', gap: 2, height: '100%' }}>
-
+                <Box sx={{
+                    flex: { xs: '1', lg: '0 0 75%' },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2
+                }}>
                     {/* Learning Progress Card */}
-                    <Card style={{ color: 'black', backgroundColor: '#eaeaea' }} sx={{ height: 'calc(33.333% - 11px)', border: '1px solid', borderColor: 'divider' }}>
-                        <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2}}>
-                            <Grid container spacing={3} sx={{ height: '100%' }}>
+                    <Card
+                        style={{ color: 'black', backgroundColor: '#E3F2FD' }}
+                        sx={{
+                            minHeight: { xs: 'auto', md: '300px' },
+                            height: {
+                                xs: 'auto', lg: 'calc(33.333% - 11px)'
+                            },
+                            border: '1px solid', borderColor: 'divider'
+                            }
+                        } >
+                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
+                            <Grid container spacing={1} sx={{ height: '100%' }}>
 
                                 {/* Card Title */}
-                                <Grid size={{ xs: 12, md: 2 }} sx={{ height: '100%', p: 0.5 }}>
-                                <Typography variant="h6" sx={{ flex: '0 0 auto' }}>
-                                    📖 Learning Progress
+                                <Grid size={{ xs: 12, md: 2 }} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.8rem',
+                                            textAlign: 'center',
+                                            fontWeight: 600,
+                                            letterSpacing: '0.5px',
+                                            '& .emoji': {
+                                                WebkitBackgroundClip: 'text',
+                                                backgroundClip: 'text'
+                                            },
+                                            '& .text': {
+                                                background: 'linear-gradient(45deg, #1565C0, #42A5F5)',
+                                                WebkitBackgroundClip: 'text',
+                                                WebkitTextFillColor: 'transparent',
+                                                textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+                                            }
+                                        }}
+                                    >
+                                        <span className="emoji">📖<br /></span>
+                                        <span className="text"> Learning<br />Progress</span>
                                     </Typography>
                                 </Grid>
 
@@ -146,14 +180,41 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                     </Card>
 
                     {/* Module Performance Card */}
-                    <Card style={{ color: 'black', backgroundColor: '#eaeaea' }} sx={{ height: 'calc(33.333% - 11px)', border: '1px solid', borderColor: 'divider' }}>
-                        <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2}}>
+                    <Card
+                        style={{ color: 'black', backgroundColor: '#E8F5E9' }}
+                        sx={{
+                            minHeight: { xs: 'auto', md: '300px' },
+                            height: {
+                                xs: 'auto', lg: 'calc(33.333% - 11px)'
+                            },
+                            border: '1px solid', borderColor: 'divider'
+                        }
+                        } >
+                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
                             <Grid container spacing={1} sx={{ height: '100%' }}>
 
                                 {/* Card Title */}
-                                <Grid size={{ xs: 12, md: 2 }} sx={{ height: '100%', p: 0.5 }}>
-                                    <Typography variant="h6" sx={{ flex: '0 0 auto' }}>
-                                        📊 Module Performance
+                                <Grid size={{ xs: 12, md: 2 }} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.8rem',
+                                            textAlign: 'center',
+                                            fontWeight: 600,
+                                            letterSpacing: '0.5px',
+                                            '& .emoji': {
+                                                WebkitBackgroundClip: 'text',
+                                                backgroundClip: 'text'
+                                            },
+                                            '& .text': {
+                                                background: 'linear-gradient(45deg, #2E7D32, #66BB6A)',
+                                                WebkitBackgroundClip: 'text',
+                                                WebkitTextFillColor: 'transparent',
+                                                textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+                                            }
+                                        }}
+                                    >
+                                        <span className="emoji">📊<br /></span>
+                                        <span className="text"> Module<br />Performance</span>
                                         </Typography>
                                     </Grid>
 
@@ -184,14 +245,41 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                     </Card>
 
                     {/* Community Comparison Card */}
-                    <Card style={{ color: 'black', backgroundColor: '#eaeaea' }} sx={{ height: 'calc(33.333% - 11px)', border: '1px solid', borderColor: 'divider' }}>
-                        <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2}}>
+                    <Card
+                        style={{ color: 'black', backgroundColor: '#EDE7F6' }}
+                        sx={{
+                            minHeight: { xs: 'auto', md: '300px' },
+                            height: {
+                                xs: 'auto', lg: 'calc(33.333% - 11px)'
+                            },
+                            border: '1px solid', borderColor: 'divider'
+                        }
+                        } >
+                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
                             <Grid container spacing={1} sx={{ height: '100%' }}>
 
                                 {/* Card Title */}
-                                <Grid size={{ xs: 12, md: 2 }} sx={{ height: '100%', p: 0.5 }}>
-                                    <Typography variant="h6" sx={{ flex: '0 0 auto' }}>
-                                        🌍 Community Comparison
+                                <Grid size={{ xs: 12, md: 2 }} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.8rem',
+                                            textAlign: 'center',
+                                            fontWeight: 600,
+                                            letterSpacing: '0.5px',
+                                            '& .emoji': {
+                                                WebkitBackgroundClip: 'text',
+                                                backgroundClip: 'text'
+                                            },
+                                            '& .text': {
+                                                background: 'linear-gradient(45deg, #5E35B1, #9575CD)',
+                                                WebkitBackgroundClip: 'text',
+                                                WebkitTextFillColor: 'transparent',
+                                                textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+                                            }
+                                        }}
+                                    >
+                                        <span className="emoji">🌍<br/></span>
+                                        <span className="text"> Community<br />Comparison</span>
                                     </Typography>
                                 </Grid>
 
@@ -244,18 +332,36 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                 </Box>
 
                 {/* Right Column - Recommendations */}
-                <Card style={{ color: 'black', backgroundColor: '#eaeaea' }}
+                <Card
+                    style={{ color: 'black', backgroundColor: '#FFF3E0' }}
                     sx={{
-                    flex: '0 0 25%',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    height: '100%'
+                        flex: { xs: '1', lg: '0 0 24%' },
+                        height: { xs: 'auto', lg: '100%' }
                 }}>
-                    <CardContent>
+                    <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
 
                         {/* Card Title */}
-                        <Typography variant="h6" gutterBottom>
-                            🎯 Activity Recommendations
+                        <Typography
+                            sx={{
+                                fontSize: '1.8rem',
+                                textAlign: 'center',
+                                fontWeight: 600,
+                                letterSpacing: '0.5px',
+                                pb: 1,
+                                '& .emoji': {
+                                    WebkitBackgroundClip: 'text',
+                                    backgroundClip: 'text'
+                                },
+                                '& .text': {
+                                    background: 'linear-gradient(45deg, #E65100, #FFA726)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+                                }
+                            }}
+                        >
+                            <span className="emoji">🎯</span>
+                            <span className="text"> Activity Recommendations</span>
                         </Typography>
 
                         {/* Recommendation Service */}

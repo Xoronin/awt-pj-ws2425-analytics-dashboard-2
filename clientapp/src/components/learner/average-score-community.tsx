@@ -37,12 +37,20 @@ const AverageScoreChartCommunity: React.FC<AverageScoreCommunity> = ({ statement
         { name: 'Remaining', value: 100 - averageScore }
     ];
 
-    const COLORS = [theme.palette.success.main, theme.palette.grey[500]];
+    const COLORS = ['#5E35B1', '#D1C4E9'];
 
     return (
         <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
-            <Typography variant="body1" sx={{ textAlign: 'center' }}>
+            <Typography
+                sx={{
+                    fontSize: '1rem',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: '#5E35B1',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                }}
+            >
                 Community's Average Score
             </Typography>
 
@@ -62,7 +70,7 @@ const AverageScoreChartCommunity: React.FC<AverageScoreCommunity> = ({ statement
                         labelLine={false}
                     >
                         {/* Absolute Zahl im Zentrum anzeigen */}
-                        <Label value={`${averageScore.toFixed(1)}%`} position="center" fontSize={20} fontWeight="bold" fill="000000" />
+                        <Label value={`${averageScore.toFixed(1)}%`} position="center" fontSize={20} fontWeight="bold" fill="#5E35B1" />
                         {chartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index]} />
                         ))}
@@ -84,7 +92,7 @@ const AverageScoreChartCommunity: React.FC<AverageScoreCommunity> = ({ statement
                             return numValue.toFixed(1);
                         }}
                     />
-                    <Legend verticalAlign="bottom" height={56} />
+                    <Legend verticalAlign="bottom" height={80} />
                 </PieChart>
             </ResponsiveContainer>
         </Box>
