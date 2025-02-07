@@ -51,6 +51,8 @@ class ActivityGenerator {
     private courseData: CourseData;
     private verbs: Verb[];
     private numberOfWeeks: number;
+    private activityTotalDuration: Map<string, Map<string, number>> = new Map();
+
 
     constructor(courseData: CourseData, verbs: Verb[], numberOfWeeks: number, config: ActivityConfig = CONFIG,) {
         this.courseData = courseData;
@@ -137,13 +139,16 @@ class ActivityGenerator {
                     completed,
                     score,
                     progress,
-                    willScore
+                    willScore,
+                    this.getTotalActivityDuration(profile.id, currentActivity.id)
                 )
             });
 
             // Update remaining time and current time
             remainingTime -= activityDuration;
             currentTime = endTime;
+
+            this.updateTotalActivityDuration(profile.id, currentActivity.id, activityDuration);
 
             // Only get next activity if current one is completed AND there's enough time left
             if (completed) {
@@ -259,7 +264,8 @@ class ActivityGenerator {
         completed: boolean,
         score: number,
         progress: ActivityProgress,
-        willScore: boolean
+        willScore: boolean,
+        totalDuration?: number
     ): LearningInteraction[] {
         const events: LearningInteraction[] = [];
         let currentTime = new Date(startTime.getTime());
@@ -359,7 +365,9 @@ class ActivityGenerator {
                             result: {
                                 completion: true,
                                 success: true,
-                                duration: this.getDuration(startTime, currentTime)
+                                duration: totalDuration
+                                    ? `PT${Math.floor(totalDuration / 60)}M${totalDuration % 60}S`
+                                    : this.getDuration(startTime, currentTime)
                             }
                         });
                         lastVerb = EventType.COMPLETED;
@@ -516,6 +524,25 @@ class ActivityGenerator {
         if (position < 0.33) return 'start';
         if (position < 0.67) return 'middle';
         return 'end';
+    }
+
+    private getTotalActivityDuration(learnerId: string, activityId: string): number {
+        if (!this.activityTotalDuration.has(learnerId)) {
+            this.activityTotalDuration.set(learnerId, new Map());
+        }
+
+        const learnerDurations = this.activityTotalDuration.get(learnerId)!;
+        if (!learnerDurations.has(activityId)) {
+            learnerDurations.set(activityId, 0);
+        }
+
+        return learnerDurations.get(activityId)!;
+    }
+
+    private updateTotalActivityDuration(learnerId: string, activityId: string, duration: number): void {
+        const learnerDurations = this.activityTotalDuration.get(learnerId)!;
+        const currentTotal = learnerDurations.get(activityId) || 0;
+        learnerDurations.set(activityId, currentTotal + duration);
     }
 }
 
