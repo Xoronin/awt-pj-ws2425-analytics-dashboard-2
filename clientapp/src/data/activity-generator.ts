@@ -371,10 +371,10 @@ class ActivityGenerator {
                             timestamp: new Date(currentTime),
                             result: {
                                 score: {
-                                    raw: score,
-                                    min: 0,
-                                    max: 100,
-                                    scaled: score / 100
+                                    raw: this.generateRating(),
+                                    min: 1,
+                                    max: 10,
+                                    scaled: score / 10
                                 },
                                 completion: true,
                                 success: true
@@ -424,6 +424,10 @@ class ActivityGenerator {
                 result: undefined
             }];
         }
+    }
+
+    private generateRating(): number {
+     return Math.floor(Math.random() * 10) + 1;
     }
 
     /**
@@ -479,6 +483,7 @@ class ActivityGenerator {
 
         return Math.round(Math.min(100, Math.max(0, baseScore + difficultyImpact + attemptBonus + variation)));
     }
+
 
     /**
      * Gets metric value (consistency, scores, duration, effort) for a learner.

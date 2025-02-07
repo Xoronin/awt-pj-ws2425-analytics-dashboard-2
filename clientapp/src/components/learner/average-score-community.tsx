@@ -18,7 +18,7 @@ const AverageScoreChartCommunity: React.FC<AverageScoreCommunity> = ({ statement
 
         learners.forEach(learner => {
             const userScores = statements
-                .filter(statement => statement.actor.mbox === learner.email && statement.result?.score?.scaled !== undefined)
+                .filter(statement => statement.actor.mbox === learner.email && statement.verb.id === 'http://adlnet.gov/expapi/verbs/scored')
                 .map(statement => statement.result!.score!.scaled! * 100); // Skaliert auf %
 
             if (userScores.length > 0) {

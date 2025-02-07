@@ -14,7 +14,7 @@ const AverageScoreChart: React.FC<AverageScoreProps> = ({ statements, learner })
     // Berechne den durchschnittlichen Score für den Nutzer
     const averageScore = useMemo(() => {
         const scores = statements
-            .filter(statement => statement.actor.mbox === learner.email && statement.result?.score?.scaled !== undefined)
+            .filter(statement => statement.actor.mbox === learner.email && statement.verb.id === 'http://adlnet.gov/expapi/verbs/scored')
             .map(statement => statement.result!.score!.scaled! * 100); // Skaliert auf %
 
         const totalScore = scores.reduce((sum, score) => sum + score, 0);

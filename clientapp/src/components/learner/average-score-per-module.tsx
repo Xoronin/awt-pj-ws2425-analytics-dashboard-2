@@ -37,6 +37,7 @@ const AverageScorePerModule: React.FC<AverageScorePerModuleProps> = ({ learnerPr
         const sectionData = statements
             .filter(s =>
                 s.actor.mbox === learnerProfile.email &&
+                s.verb.id === 'http://adlnet.gov/expapi/verbs/scored' &&
                 s.result?.score &&
                 courseData.sections.find(cs =>
                     cs.title === section &&

@@ -21,6 +21,7 @@ import LearningAttemptsCommunity from './learner/attempts-to-pass-community';
 import AverageScorePerModule from './learner/average-score-per-module';
 import AverageScoreChart from './learner/average-score';
 import AverageScoreChartCommunity from './learner/average-score-community';
+import ActivityHistory from './learner/activity-history';
 
 interface LearnerDashboardProps {
     learnerProfiles: LearnerProfile[];
@@ -63,25 +64,38 @@ const ContentCreatorsDashboard: React.FC<LearnerDashboardProps> = ({
             display: 'flex',
             flexDirection: 'column',
             gap: 2,
-            p: { xs: 1, md: 2 }
+            p: { xs: 1 }
         }}>
             <Box sx={{ width: '100%' }}>
                 <FormControl fullWidth size="small">
-                    <InputLabel id="learner-select-label">Select Learner</InputLabel>
+                    <InputLabel id="learner-select-label" sx={{ color: '#1565C0' }}>Select Learner</InputLabel>
                     <Select
                         labelId="learner-select-label"
                         id="learner-select"
                         value={selectedLearnerId}
                         label="Select Learner"
                         onChange={handleLearnerChange}
+                        sx={{
+                            bgcolor: '#E3F2FD',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#90CAF9'
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#1565C0'
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#1565C0'
+                            }
+                        }}
                         MenuProps={{
                             PaperProps: {
-                                style: {
+                                sx: {
                                     maxHeight: 400,
-                                    backgroundColor: '#f8f9fa',
-                                    borderRadius: '10px',
-                                },
-                            },
+                                    backgroundColor: '#E3F2FD',
+                                    borderRadius: 2,
+                                    border: '1px solid #90CAF9'
+                                }
+                            }
                         }}
                     >
                         {[...learnerProfiles]
@@ -102,12 +116,12 @@ const ContentCreatorsDashboard: React.FC<LearnerDashboardProps> = ({
             <Box sx={{
                 display: 'flex',
                 flexDirection: { xs: 'column', lg: 'row' },
-                gap: 2,
+                gap: 1,
                 height: { xs: 'auto', lg: 'calc(100% - 80px)' }
             }}>
                 {/* Left Column */}
                 <Box sx={{
-                    flex: { xs: '1', lg: '0 0 75%' },
+                    flex: { xs: '1', lg: '0 0 70%' },
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 2
@@ -330,43 +344,53 @@ const ContentCreatorsDashboard: React.FC<LearnerDashboardProps> = ({
                 </Box>
 
                 {/* Right Column - Recommendations */}
-                <Card
-                    style={{ color: 'black', backgroundColor: '#FFF3E0' }}
-                    sx={{
-                        flex: { xs: '1', lg: '0 0 24%' },
-                        height: { xs: 'auto', lg: '100%' }
-                    }}>
-                    <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
+                <Box sx={{
+                    flex: { xs: '1', lg: '0 0 30%' },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    width: '100%',
+                    maxWidth: '100%',
+                    overflow: 'hidden'
+                }}>
+                    <Card
+                        style={{ color: 'black', backgroundColor: '#FFF3E0' }}
+                        sx={{
+                            height: {
+                                xs: 'auto', lg: 'calc(50% - 6px)'
+                            },
+                            border: '1px solid', borderColor: 'divider'
+                        }}>
+                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
 
-                        {/* Card Title */}
-                        <Typography
-                            sx={{
-                                fontSize: '1.8rem',
-                                textAlign: 'center',
-                                fontWeight: 600,
-                                letterSpacing: '0.5px',
-                                pb: 1,
-                                '& .emoji': {
-                                    WebkitBackgroundClip: 'text',
-                                    backgroundClip: 'text'
-                                },
-                                '& .text': {
-                                    background: 'linear-gradient(45deg, #E65100, #FFA726)',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                    textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
-                                }
-                            }}
-                        >
-                            <span className="emoji">🎯</span>
-                            <span className="text"> Activity Recommendations</span>
-                        </Typography>
+                            {/* Card Title */}
+                            <Typography
+                                sx={{
+                                    fontSize: '1.8rem',
+                                    textAlign: 'center',
+                                    fontWeight: 600,
+                                    letterSpacing: '0.5px',
+                                    pb: 1,
+                                    '& .emoji': {
+                                        WebkitBackgroundClip: 'text',
+                                        backgroundClip: 'text'
+                                    },
+                                    '& .text': {
+                                        background: 'linear-gradient(45deg, #E65100, #FFA726)',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+                                    }
+                                }}
+                            >
+                                <span className="emoji">🎯</span>
+                                <span className="text"> Activity Recommendations</span>
+                            </Typography>
 
-                        {/* Recommendation Service */}
-                        <Box sx={{ height: 'calc(100% - 32px)' }}>
+                            {/* Activity Recommendations */}
                             <Grid container sx={{ height: '100%' }}>
                                 {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                    <Grid size={{ xs: 12 }} sx={{ height: '100%' }}>
+                                    <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>
                                         <RecommendationService
                                             learnerProfile={learnerProfiles.find(l => l.id === selectedLearnerId)!}
                                             statements={filteredData.statements}
@@ -375,10 +399,63 @@ const ContentCreatorsDashboard: React.FC<LearnerDashboardProps> = ({
                                     </Grid>
                                 )}
                             </Grid>
-                        </Box>
-                    </CardContent>
-                </Card>
 
+                        </CardContent>
+                    </Card>
+
+                    <Card
+                        style={{ color: 'black', backgroundColor: '#FFF9C4' }}
+                        sx={{
+                            height: {
+                                xs: 'auto', lg: 'calc(50% - 6px)'
+                            },
+                            border: '1px solid', borderColor: 'divider'
+                        }}>
+                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
+
+                            {/* Card Title */}
+                            <Typography
+                                sx={{
+                                    fontSize: '1.8rem',
+                                    textAlign: 'center',
+                                    fontWeight: 600,
+                                    letterSpacing: '0.5px',
+                                    pb: 1,
+                                    '& .emoji': {
+                                        WebkitBackgroundClip: 'text',
+                                        backgroundClip: 'text'
+                                    },
+                                    '& .text': {
+                                        background: 'linear-gradient(45deg, #F57F17, #FBC02D)',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+                                    }
+                                }}
+                            >
+                                <span className="emoji">📋</span>
+                                <span className="text"> Activity History</span>
+                            </Typography>
+
+                            {/* Activity History */}
+                            <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>
+
+                                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
+                                    <Grid size={{ xs: 12 }} sx={{ height: '100%' }}>
+
+                                        <ActivityHistory
+                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                            statements={filteredData.statements}
+                                            courseData={courseData}
+                                        />
+                                    </Grid>
+                                )}
+                            </Grid>
+
+                        </CardContent>
+                    </Card>
+
+                </Box>
             </Box>
         </Box>
     );
