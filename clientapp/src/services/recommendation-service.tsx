@@ -187,10 +187,24 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
             display: 'flex',
             flexDirection: 'column',
             gap: 1.5,
-            overflowY: 'auto',
             paddingRight: 1,
             maxHeight: '100%',
-            pb: 2
+            pb: 2,
+            flexGrow: 1,
+            overflowY: 'auto',
+            '&::-webkit-scrollbar': {
+                width: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+                background: '#FFE0B2'
+            },
+            '&::-webkit-scrollbar-thumb': {
+                background: '#FF9800',
+                borderRadius: '4px'
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+                background: '#F57C00'
+            }
         }}>
             {recommendations.length > 0 ? (
                 recommendations.map((rec, index) => (
