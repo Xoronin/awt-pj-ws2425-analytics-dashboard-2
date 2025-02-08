@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import {
     Grid,
     Card,
@@ -12,6 +12,9 @@ import {
     Box
 } from '@mui/material';
 import CourseCompletion from './learner/course-completion';
+import CourseBoxplot from './educator/course-boxplot';
+import StudentPerformanceTable from './educator/performance-table';
+
 import { Verb, LearnerProfile, XAPIStatement, CourseData } from '../types/types';
 
 interface LearnerDashboardProps {
@@ -145,23 +148,13 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                         <Box sx={{ height: 'calc(100% - 32px)' }}>
                             <Grid container spacing={2} sx={{ height: '100%' }}>
                                 <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
-                                            statements={filteredData.statements}
-                                            courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                    {filteredData.statements.length > 0 && courseData  && (
+                                        <StudentPerformanceTable
+                                        statements={statements}
                                         />
                                     )}
                                 </Grid>
-                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
-                                            statements={filteredData.statements}
-                                            courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                        />
-                                    )}
-                                </Grid>
+
                             </Grid>
                         </Box>
                     </CardContent>
@@ -175,25 +168,14 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                         <Box sx={{ height: 'calc(100% - 32px)' }}>
                             <Grid container spacing={2} sx={{ height: '100%' }}>
                                 <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
-                                            statements={filteredData.statements}
-                                            courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                        />
-                                    )}
-                                </Grid>
-                                <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                        <CourseCompletion
-                                            statements={filteredData.statements}
-                                            courseData={courseData}
-                                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                        />
-                                    )}
+                                {filteredData.statements.length > 0 && courseData && (
+                                    <CourseBoxplot statements={statements} />
+                                )}
                                 </Grid>
                             </Grid>
                         </Box>
+
+
                     </CardContent>
                 </Card>
             </Box>
