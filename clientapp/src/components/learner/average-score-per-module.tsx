@@ -60,71 +60,78 @@ const AverageScorePerModule: React.FC<AverageScorePerModuleProps> = ({ learnerPr
     }, {} as Record<string, { averageScore: number; hasData: boolean }>);
 
     return (
-        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-
+        <Box sx={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+        }}>
             <Typography
                 sx={{
                     fontSize: '1rem',
                     textAlign: 'center',
                     fontWeight: 600,
                     color: '#2E7D32',
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+                    flexShrink: 0,
+                    mb: '2%'
                 }}
             >
                 Average Score per Module
             </Typography>
 
-            <Grid container spacing={1} sx={{
-                width: '100%',
-                height: '100%',
-                px: 1
+            <Box sx={{
+                flex: 1,  // Take remaining space
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
+                overflow: 'hidden'
             }}>
                 {FIXED_SECTIONS.map(section => (
-                    <Grid size={{ xs: 12, md: 12 }} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }} key={section}>
-                        <Paper sx={{
+                    <Paper
+                        key={section}
+                        sx={{
+                            flex: 1,  // Each paper takes equal space
                             backgroundColor: '#E8F5E9',
                             border: '1px solid',
                             borderColor: '#81C784',
                             p: 1,
-                            minHeight: '70px',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: 1
+                            justifyContent: 'space-between'
+                        }}
+                    >
+                        <Typography sx={{
+                            fontSize: '0.9rem',
+                            fontWeight: 500,
                         }}>
-                            <Typography variant="body1" sx={{
-                                fontSize: '1.1rem',
-                                fontWeight: 500,
-                                color: '#2E7D32'  
-                            }}>
-                                {section}
-                            </Typography>
-                            <Typography variant="body2" sx={{
-                                fontSize: '1rem',
-                                color: '#1B5E20',
-                                fontWeight: 500
-                            }}>
-                                {sectionScores[section]?.hasData ?
-                                    `${Math.round(sectionScores[section].averageScore)}%` :
-                                    'No data available'}
-                            </Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={sectionScores[section]?.averageScore || 0}
-                                sx={{
-                                    height: 8,
-                                    borderRadius: 2,
-                                    opacity: sectionScores[section]?.hasData ? 1 : 0.4,
-                                    '& .MuiLinearProgress-bar': {
-                                        backgroundColor: '#2E7D32' 
-                                    },
-                                    backgroundColor: '#A5D6A7',
-                                    mt: 'auto'
-                                }}
-                            />
-                        </Paper>
-                    </Grid>
+                            {section}
+                        </Typography>
+
+                        <Typography sx={{
+                            fontSize: '0.85rem',
+                            fontWeight: 500
+                        }}>
+                            {sectionScores[section]?.hasData ?
+                                `${Math.round(sectionScores[section].averageScore)}%` :
+                                'No data available'}
+                        </Typography>
+
+                        <LinearProgress
+                            variant="determinate"
+                            value={sectionScores[section]?.averageScore || 0}
+                            sx={{
+                                height: 6,
+                                borderRadius: 2,
+                                opacity: sectionScores[section]?.hasData ? 1 : 0.4,
+                                '& .MuiLinearProgress-bar': {
+                                    backgroundColor: '#2E7D32'
+                                },
+                                backgroundColor: '#A5D6A7'
+                            }}
+                        />
+                    </Paper>
                 ))}
-            </Grid>
+            </Box>
         </Box>
     );
 };

@@ -37,38 +37,82 @@ const LearningTimeChart: React.FC<LearningTimeProps> = ({ statements, learner })
     }, [statements, learner]);
 
     return (
-        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-
+        <Box sx={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+        }}>
             <Typography
                 sx={{
                     fontSize: '1rem',
                     textAlign: 'center',
                     fontWeight: 600,
                     color: '#1565C0',
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+                    flexShrink: 0,
+                    mb: 1
                 }}
             >
                 Learning Time per Day
             </Typography>
 
-            <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={learningData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                        dataKey="date"
-                        tickFormatter={(tick) => dayjs(tick).format('DD.MM')}
-                    />
-                    <YAxis
-                        label={{
-                            value: 'Minutes',
-                            angle: -90,
-                            position: 'insideLeft'
+            <Box sx={{
+                flex: 1,
+                minHeight: 0,
+                width: '100%',
+                pb: 2
+            }}>
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                        data={learningData}
+                        margin={{
+                            top: 10,
+                            right: 20,
+                            left: 0,
+                            bottom: 30
                         }}
-                    />
-                    <Tooltip formatter={(value) => [`${value} min`, "Time Spent"]} />
-                    <Line type="monotone" dataKey="time" stroke={theme.palette.primary.main} strokeWidth={2} dot={{ r: 4 }} />
-                </LineChart>
-            </ResponsiveContainer>
+                    >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                            dataKey="date"
+                            label={{
+                                value: 'Dates',
+                                position: 'insideBottom',
+                                style: { fontSize: '0.8em' },
+                                offset: -15
+                            }}
+                            tickFormatter={(tick) => dayjs(tick).format('DD.MM')}
+                            interval="preserveStartEnd"
+                            tick={{ fontSize: '0.75em' }}
+                        />
+                        <YAxis
+                            label={{
+                                value: 'Minutes',
+                                angle: -90,
+                                position: 'insideLeft',
+                                style: { fontSize: '0.8em' },
+                                offset: 15,
+                                dy: 20,
+                            }}
+                            tick={{ fontSize: '0.75em' }}
+                        />
+                        <Tooltip
+                            formatter={(value) => [`${value} min`, "Time Spent"]}
+                            contentStyle={{
+                                fontSize: '0.8em'
+                            }}
+                        />
+                        <Line
+                            type="monotone"
+                            dataKey="time"
+                            stroke={theme.palette.primary.main}
+                            strokeWidth={1.5}
+                            dot={{ r: 3 }}
+                        />
+                    </LineChart>
+                </ResponsiveContainer>
+            </Box>
         </Box>
     );
 };

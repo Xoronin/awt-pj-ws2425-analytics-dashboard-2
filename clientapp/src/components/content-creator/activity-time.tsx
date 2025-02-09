@@ -115,47 +115,71 @@ const ActivityTime: React.FC<ActivityTimeProps> = ({ statements, courseData }) =
     }, [learningTimes]);
 
     return (
-        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-
+        <Box sx={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+        }}>
             <Typography
                 sx={{
                     fontSize: '1.2rem',
                     textAlign: 'center',
                     fontWeight: 600,
-                    color: '#1565C0',
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                    color: theme.palette.primary.main,
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+                    flexShrink: 0,
+                    mb: 1
                 }}
             >
                 Learning Time Distribution (in min)
             </Typography>
 
-            <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                    data={histogramData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                        dataKey="name"
-                        label={{
-                            value: 'Learning Time Range',
-                            position: 'insideBottom',
-                            offset: -10,
-                            fontSize: 18
-                        }} />
-                    <YAxis
-                        label={{
-                            value: 'Number of Students',
-                            angle: -90,
-                            position: 'insideLeft',
-                            dy: 60,
-                            fontSize: 18
-                        }} />
-                    <Tooltip />
-                    <Bar dataKey="count" fill={theme.palette.primary.main} />
-                </BarChart>
-            </ResponsiveContainer>
-
+            <Box sx={{
+                flex: 1,
+                minHeight: 0,
+                width: '100%',
+                pb: 2 
+            }}>
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                        data={histogramData}
+                        margin={{
+                            top: 10,
+                            right: 20,
+                            left: 0,
+                            bottom: 30
+                        }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                            dataKey="name"
+                            label={{
+                                value: 'Learning Time Range',
+                                position: 'insideBottom',
+                                offset: -15,
+                                style: { fontSize: '0.8em' }
+                            }}
+                            tick={{ fontSize: '0.75em' }}
+                        />
+                        <YAxis
+                            label={{
+                                value: 'Number of Students',
+                                angle: -90,
+                                position: 'insideLeft',
+                                style: { fontSize: '0.8em' },
+                                offset: 15,
+                                dy: 50
+                            }}
+                            tick={{ fontSize: '0.75em' }}
+                        />
+                        <Tooltip
+                            contentStyle={{ fontSize: '0.8em' }}
+                        />
+                        <Bar dataKey="count" fill={theme.palette.primary.main} />
+                    </BarChart>
+                </ResponsiveContainer>
+            </Box>
         </Box>
     );
 };

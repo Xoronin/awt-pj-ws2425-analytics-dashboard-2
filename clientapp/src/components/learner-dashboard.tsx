@@ -62,11 +62,12 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
 
     return (
         <Box sx={{
-            height: '100%',
+            height: 'calc(100% - 16px)',
             display: 'flex',
             flexDirection: 'column',
             gap: 2,
-            p: { xs: 1 }
+            p: { xs: 1 },
+            overflow: 'hidden'
         }}>
             <Box sx={{ width: '100%' }}>
                 <FormControl fullWidth size="small">
@@ -118,27 +119,26 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
             <Box sx={{
                 display: 'flex',
                 flexDirection: { xs: 'column', lg: 'row' },
-                gap: 1,
-                height: { xs: 'auto', lg: 'calc(100% - 80px)' }
+                gap: 2,
+                height: '100%',   
+                overflow: 'hidden' 
             }}>
                 {/* Left Column */}
                 <Box sx={{
                     flex: { xs: '1', lg: '0 0 70%' },
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 2
+                    gap: 2,
+                    minHeight: 0
                 }}>
                     {/* Learning Progress Card */}
                     <Card
                         style={{ color: 'black', backgroundColor: '#E3F2FD' }}
                         sx={{
-                            minHeight: { xs: 'auto', md: '300px' },
-                            height: {
-                                xs: 'auto', lg: 'calc(33.333% - 11px)'
-                            },
+                            minHeight: 0,
+                            height: '33%',
                             border: '1px solid', borderColor: 'divider'
-                        }
-                        } >
+                        }}>
                         <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
                             <Grid container spacing={1} sx={{ height: '100%' }}>
 
@@ -197,10 +197,8 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                     <Card
                         style={{ color: 'black', backgroundColor: '#E8F5E9' }}
                         sx={{
-                            minHeight: { xs: 'auto', md: '300px' },
-                            height: {
-                                xs: 'auto', lg: 'calc(33.333% - 11px)'
-                            },
+                            minHeight: 0,
+                            height: '33%',
                             border: '1px solid', borderColor: 'divider'
                         }
                         } >
@@ -262,13 +260,10 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                     <Card
                         style={{ color: 'black', backgroundColor: '#EDE7F6' }}
                         sx={{
-                            minHeight: { xs: 'auto', md: '300px' },
-                            height: {
-                                xs: 'auto', lg: 'calc(33.333% - 11px)'
-                            },
+                            minHeight: 0,
+                            height: '33%',
                             border: '1px solid', borderColor: 'divider'
-                        }
-                        } >
+                        }          } >
                         <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
                             <Grid container spacing={1} sx={{ height: '100%' }}>
 
@@ -411,7 +406,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                                         />
                                     </Grid>
                                 )}
-                            </Grid>
+                                </Grid>
 
                         </CardContent>
                     </Card>

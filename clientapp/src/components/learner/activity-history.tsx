@@ -137,7 +137,7 @@ const ActivityHistory: React.FC<ActivityHistoryProps> = ({
             display: 'flex',
             flexDirection: 'column',
             gap: 1.5,
-            paddingRight: 1,
+            paddingRight: 2,
             paddingLeft: 1,
             paddingBottom: 2,
             maxHeight: '100%',
@@ -155,6 +155,7 @@ const ActivityHistory: React.FC<ActivityHistoryProps> = ({
                     overflowX: 'auto',
                     minHeight: 0,
                     marginBottom: 2,
+                    paddingRight: 0.5,
                     backgroundColor: 'transparent',
                     '&::-webkit-scrollbar': {
                         width: '8px',

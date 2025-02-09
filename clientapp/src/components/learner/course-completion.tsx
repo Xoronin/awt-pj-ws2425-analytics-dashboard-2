@@ -80,8 +80,8 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
                         startAngle={90}
                         endAngle={-270}
                         labelLine={false}
-                        innerRadius={80}
-                        outerRadius={100}
+                        innerRadius="60%"
+                        outerRadius="80%"
                         fill={theme.palette.primary.main}
                         dataKey="value"
                     >
