@@ -84,12 +84,12 @@ const CourseBoxplot: React.FC<CourseBoxplotProps> = ({ statements }) => {
                             display: true,
                             text: 'Score',
                             font: {
-                                size: 18
+                                size: 14
                             }
                         },
                         ticks: {
                             font: {
-                                size: 13
+                                size: 11
                             }
                         }
                     },
@@ -98,12 +98,12 @@ const CourseBoxplot: React.FC<CourseBoxplotProps> = ({ statements }) => {
                             display: true,
                             text: 'Course Modules',
                             font: {
-                                size: 18
+                                size: 14
                             }
                         },
                         ticks: {
                             font: {
-                                size: 13
+                                size: 11
                             }
                         }
                     }

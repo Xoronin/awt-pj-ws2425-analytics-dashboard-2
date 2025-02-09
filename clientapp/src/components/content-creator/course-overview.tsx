@@ -297,30 +297,26 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                     height: '100%',
                     overflowX: 'auto',
                     minHeight: 0,
-                    marginBottom: 2,
+                    marginBottom: 1,
+                    paddingRight: 1,
                     backgroundColor: 'transparent',
                     '&::-webkit-scrollbar': {
                         width: '8px',
                         height: '8px'
-                    },
-                    '&::-webkit-scrollbar-track': {
-                        background: '#F3E5F5' 
                     },
                     '&::-webkit-scrollbar-thumb': {
                         background: '#9C27B0',  
                         borderRadius: '4px'
                     },
                     '&::-webkit-scrollbar-thumb:hover': {
-                        background: '#7B1FA2'  
-                    },
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: '#9C27B0 #F3E5F5'
+                        background: '#6A3ADB'  
+                    }
                 }}
             >
                 <Table stickyHeader size="small" sx={{
                     '& .MuiTableCell-root': {
-                        padding: '12px',
-                        fontSize: '1rem'
+                        padding: '5px',
+                        fontSize: '0.9rem'
                     },
                     '& .MuiTableCell-head': {
                         backgroundColor: '#9C27B0',

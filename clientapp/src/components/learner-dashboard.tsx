@@ -125,7 +125,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
             }}>
                 {/* Left Column */}
                 <Box sx={{
-                    flex: { xs: '1', lg: '0 0 70%' },
+                    flex: 1,
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 2,
@@ -137,7 +137,8 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                         sx={{
                             minHeight: 0,
                             height: '33%',
-                            border: '1px solid', borderColor: 'divider'
+                            border: '1px solid',
+                            borderColor: 'divider'
                         }}>
                         <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
                             <Grid container spacing={1} sx={{ height: '100%' }}>
@@ -199,7 +200,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                         sx={{
                             minHeight: 0,
                             height: '33%',
-                            border: '1px solid', borderColor: 'divider'
+                            border: '1px solid', borderColor: 'divider'                        
                         }
                         } >
                         <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
@@ -231,7 +232,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                                 </Grid>
 
                                 {/* Learning Time Per Section Diagram */}
-                                <Grid size={{ xs: 12, md: 5 }} sx={{ height: '100%' }}>
+                                <Grid size={{ xs: 12, md: 5 }} sx={{ height: '100%', pb: 3 }}>
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
                                         <LearningTimePerSection
                                             statements={filteredData.statements}
@@ -242,7 +243,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                                 </Grid>
 
                                 {/* Average Score Per Module Diagram */}
-                                <Grid size={{ xs: 12, md: 5 }} sx={{ height: '100%' }}>
+                                <Grid size={{ xs: 12, md: 5 }} sx={{ height: '100%', pb: 3 }}>
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
                                         <AverageScorePerModule
                                             statements={filteredData.statements}

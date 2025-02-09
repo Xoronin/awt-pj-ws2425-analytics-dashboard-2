@@ -137,7 +137,7 @@ const ActivityHistory: React.FC<ActivityHistoryProps> = ({
             display: 'flex',
             flexDirection: 'column',
             gap: 1.5,
-            paddingRight: 2,
+            paddingRight: 1,
             paddingLeft: 1,
             paddingBottom: 2,
             maxHeight: '100%',
@@ -170,9 +170,7 @@ const ActivityHistory: React.FC<ActivityHistoryProps> = ({
                     },
                     '&::-webkit-scrollbar-thumb:hover': {
                         background: '#F57F17'
-                    },
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: '#FBC02D #FFF9C4'
+                    }
                 }}
             >
                 <Table stickyHeader size="small" sx={{

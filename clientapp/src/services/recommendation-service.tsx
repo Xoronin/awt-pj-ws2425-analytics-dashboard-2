@@ -186,7 +186,7 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
             flexDirection: 'column',
             overflowY: 'auto',
             gap: 1,
-            paddingRight: 2,
+            paddingRight: 1,
             paddingLeft: 1,
             maxHeight: '100%',
             minHeight: 0,
@@ -196,9 +196,6 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
             '&::-webkit-scrollbar': {
                 width: '8px',
                 height: '8px'
-            },
-            '&::-webkit-scrollbar-track': {
-                background: '#FFE0B2'
             },
             '&::-webkit-scrollbar-thumb': {
                 background: '#FF9800',
