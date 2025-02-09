@@ -15,10 +15,11 @@ import {
     LinearProgress
 } from '@mui/material';
 import {
-    CheckCircleOutline as CompletedIcon,
-    ErrorOutline as FailedIcon
+    CheckCircle as CompletedIcon,
+    Cancel as FailedIcon
 } from '@mui/icons-material';
 import { CourseData, LearnerProfile, XAPIStatement } from '../../types/types';
+import { stat } from 'fs';
 
 interface ActivityHistoryProps {
     learner: LearnerProfile;
@@ -119,7 +120,7 @@ const ActivityHistory: React.FC<ActivityHistoryProps> = ({
             }
 
             // Track duration
-            if (statement.result?.duration) {
+            if (!(statement.verb.id === "http://adlnet.gov/expapi/verbs/completed") && statement.result?.duration) {
                 performance.totalDuration += parseDuration(statement.result.duration);
             }
 
@@ -132,54 +133,66 @@ const ActivityHistory: React.FC<ActivityHistoryProps> = ({
 
     return (
         <Box sx={{
-            height: '100%',
+            height: 'calc(100% - 32px)',
             display: 'flex',
             flexDirection: 'column',
             gap: 1.5,
-            overflowY: 'auto',
             paddingRight: 1,
+            paddingLeft: 1,
+            paddingBottom: 2,
             maxHeight: '100%',
-            minHeight: 0
+            minHeight: 0,
+            '& .MuiTableContainer-root': {
+                mb: 3  
+            },
+            pb: 3
         }}>
             <TableContainer
                 component={Paper}
                 sx={{
                     height: '100%',
                     overflowY: 'auto',
+                    overflowX: 'auto',
                     minHeight: 0,
+                    marginBottom: 2,
                     backgroundColor: 'transparent',
                     '&::-webkit-scrollbar': {
                         width: '8px',
+                        height: '8px'
                     },
                     '&::-webkit-scrollbar-track': {
-                        background: '#FFE0B2'
+                        background: '#FFF9C4'
                     },
                     '&::-webkit-scrollbar-thumb': {
-                        background: '#FF9800',
+                        background: '#FBC02D',
                         borderRadius: '4px'
                     },
                     '&::-webkit-scrollbar-thumb:hover': {
-                        background: '#F57C00'
+                        background: '#F57F17'
                     },
                     scrollbarWidth: 'thin',
-                    scrollbarColor: '#FF9800 #FFE0B2'
+                    scrollbarColor: '#FBC02D #FFF9C4'
                 }}
             >
                 <Table stickyHeader size="small" sx={{
                     '& .MuiTableCell-root': {
-                        padding: '8px 6px',
-                        fontSize: '0.8rem'
+                        padding: '6px 3px',
+                        fontSize: '0.9rem'
+                    },
+                    '& .MuiTableCell-head': {
+                        backgroundColor: '#FFF176', 
+                        color: 'rgba(0, 0, 0, 0.87)'
                     },
                     width: '100%'
                 }}>
 
                 <TableHead>
                     <TableRow>
-                        <TableCell sx={{ fontWeight: 'bold' }}>Activity</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold' }}>Section</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold' }}>Score</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold' }}>Duration</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', fontSize: '1rem', width: '40%' }}>Activity</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', fontSize: '1rem', width: '30%' }}>Section</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', fontSize: '1rem', width: '10%' }}>Status</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', fontSize: '1rem', width: '10%'}}>Score</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', fontSize: '1rem', width: '10%'}}>Duration</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -196,29 +209,23 @@ const ActivityHistory: React.FC<ActivityHistoryProps> = ({
                             <TableCell>{activity.section}</TableCell>
                             <TableCell>
                                 {activity.completed ? (
-                                    <Chip
-                                        icon={<CompletedIcon />}
-                                        label="Completed"
+                                    <CompletedIcon
                                         color="success"
-                                        size="small"
+                                        sx={{ fontSize: '1.5rem' }}
                                     />
                                 ) : (
-                                    <Chip
-                                        icon={<FailedIcon />}
-                                        label="Incomplete"
+                                    <FailedIcon
                                         color="error"
-                                        size="small"
+                                        sx={{ fontSize: '1.5rem' }}
                                     />
                                 )}
                             </TableCell>
                             <TableCell>
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Typography sx={{ mr: 1 }}>
-                                        {activity.completed && activity.completionScore !== null
-                                            ? `${activity.completionScore.toFixed(1)}%`
-                                            :  'No score'}
-                                    </Typography>
-                                </Box>
+                                <Typography sx={{ mr: 1 }}>
+                                    {activity.completed && activity.completionScore !== null
+                                        ? `${activity.completionScore.toFixed(1)}%`
+                                        :  'No score'}
+                                </Typography>
                             </TableCell>
                             <TableCell>
                                 {activity.totalDuration.toFixed(0)} min
