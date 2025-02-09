@@ -16,6 +16,8 @@ import CourseOverview from './content-creator/course-overview';
 import ActivityRatings from './content-creator/activity-ratings';
 import ActivityTime from './content-creator/activity-time';
 import ActivitiesCompletedBefore from './content-creator/activities-completed-before';
+import RatingsRec from '../services/ratings-rec';
+import LearningtimeRec from '../services/learningtime-rec';
 
 interface ContentCreatorsDashboardProps {
     statements: XAPIStatement[];
@@ -298,118 +300,118 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
                 </Box>
 
                 {/* Right Column - Recommendations */}
-                {/*<Box sx={{*/}
-                {/*    flex: { xs: '1', lg: '0 0 30%' },*/}
-                {/*    display: 'flex',*/}
-                {/*    flexDirection: 'column',*/}
-                {/*    gap: 2,*/}
-                {/*    width: '100%',*/}
-                {/*    maxWidth: '100%',*/}
-                {/*    overflow: 'hidden'*/}
-                {/*}}>*/}
-                {/*    <Card*/}
-                {/*        style={{ color: 'black', backgroundColor: '#FFF3E0' }}*/}
-                {/*        sx={{*/}
-                {/*            height: {*/}
-                {/*                xs: 'auto', lg: 'calc(50% - 6px)'*/}
-                {/*            },*/}
-                {/*            border: '1px solid', borderColor: 'divider'*/}
-                {/*        }}>*/}
-                {/*        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>*/}
+<Box
+    sx={{
+        flex: { xs: '1', lg: '0 0 30%' },
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+        width: '100%',
+        maxWidth: '100%',
+        overflow: 'hidden'
+    }}
+>
+    <Card
+        style={{ color: 'black', backgroundColor: '#FFF3E0' }}
+        sx={{
+            height: {
+                xs: 'auto',
+                lg: 'calc(50% - 6px)'
+            },
+            border: '1px solid',
+            borderColor: 'divider'
+        }}
+    >
+        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
+            {/* Card Title */}
+            <Typography
+                sx={{
+                    fontSize: '1.8rem',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    letterSpacing: '0.5px',
+                    pb: 1,
+                    '& .emoji': {
+                        WebkitBackgroundClip: 'text',
+                        backgroundClip: 'text'
+                    },
+                    '& .text': {
+                        background: 'linear-gradient(45deg, #E65100, #FFA726)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+                    }
+                }}
+            >
+                <span className="emoji">⭐</span>
+                <span className="text"> Ratings</span>
+            </Typography>
 
-                {/*            */}{/* Card Title */}
-                {/*            <Typography*/}
-                {/*                sx={{*/}
-                {/*                    fontSize: '1.8rem',*/}
-                {/*                    textAlign: 'center',*/}
-                {/*                    fontWeight: 600,*/}
-                {/*                    letterSpacing: '0.5px',*/}
-                {/*                    pb: 1,*/}
-                {/*                    '& .emoji': {*/}
-                {/*                        WebkitBackgroundClip: 'text',*/}
-                {/*                        backgroundClip: 'text'*/}
-                {/*                    },*/}
-                {/*                    '& .text': {*/}
-                {/*                        background: 'linear-gradient(45deg, #E65100, #FFA726)',*/}
-                {/*                        WebkitBackgroundClip: 'text',*/}
-                {/*                        WebkitTextFillColor: 'transparent',*/}
-                {/*                        textShadow: '2px 2px 4px rgba(0,0,0,0.1)'*/}
-                {/*                    }*/}
-                {/*                }}*/}
-                {/*            >*/}
-                {/*                <span className="emoji">🎯</span>*/}
-                {/*                <span className="text"> Activity Recommendations</span>*/}
-                {/*            </Typography>*/}
+            {/* Ratings */}
+            <Grid container sx={{ height: '100%' }}>
+                {filteredData.statements.length > 0 && courseData && (
+                    <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>
+                        <RatingsRec
+                            statements={statements}
+                            courseData={courseData}
+                        />
+                    </Grid>
+                )}
+            </Grid>
+        </CardContent>
+    </Card>
 
-                {/*            */}{/* Activity Recommendations */}
-                {/*            <Grid container sx={{ height: '100%' }}>*/}
-                {/*                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (*/}
-                {/*                    <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>*/}
-                {/*                        <RecommendationService*/}
-                {/*                            learnerProfile={learnerProfiles.find(l => l.id === selectedLearnerId)!}*/}
-                {/*                            statements={filteredData.statements}*/}
-                {/*                            courseData={courseData}*/}
-                {/*                        />*/}
-                {/*                    </Grid>*/}
-                {/*                )}*/}
-                {/*            </Grid>*/}
+    <Card
+        style={{ color: 'black', backgroundColor: '#FFF9C4' }}
+        sx={{
+            height: {
+                xs: 'auto',
+                lg: 'calc(50% - 6px)'
+            },
+            border: '1px solid',
+            borderColor: 'divider'
+        }}
+    >
+        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
+            {/* Card Title */}
+            <Typography
+                sx={{
+                    fontSize: '1.8rem',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    letterSpacing: '0.5px',
+                    pb: 1,
+                    '& .emoji': {
+                        WebkitBackgroundClip: 'text',
+                        backgroundClip: 'text'
+                    },
+                    '& .text': {
+                        background: 'linear-gradient(45deg, #F57F17, #FBC02D)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+                    }
+                }}
+            >
+                <span className="emoji">🕒</span>
+                <span className="text"> Learning Time</span>
+            </Typography>
 
-                {/*        </CardContent>*/}
-                {/*    </Card>*/}
+            {/* Learning Time */}
+            <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>
+                {filteredData.statements.length > 0 && courseData && (
+                    <Grid size={{ xs: 12 }} sx={{ height: '100%' }}>
+                        <LearningtimeRec
+                            statements={statements}
+                            courseData={courseData}
+                        />
+                    </Grid>
+                )}
+            </Grid>
+        </CardContent>
+    </Card>
+</Box>
 
-                {/*    <Card*/}
-                {/*        style={{ color: 'black', backgroundColor: '#FFF9C4' }}*/}
-                {/*        sx={{*/}
-                {/*            height: {*/}
-                {/*                xs: 'auto', lg: 'calc(50% - 6px)'*/}
-                {/*            },*/}
-                {/*            border: '1px solid', borderColor: 'divider'*/}
-                {/*        }}>*/}
-                {/*        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>*/}
-
-                {/*            */}{/* Card Title */}
-                {/*            <Typography*/}
-                {/*                sx={{*/}
-                {/*                    fontSize: '1.8rem',*/}
-                {/*                    textAlign: 'center',*/}
-                {/*                    fontWeight: 600,*/}
-                {/*                    letterSpacing: '0.5px',*/}
-                {/*                    pb: 1,*/}
-                {/*                    '& .emoji': {*/}
-                {/*                        WebkitBackgroundClip: 'text',*/}
-                {/*                        backgroundClip: 'text'*/}
-                {/*                    },*/}
-                {/*                    '& .text': {*/}
-                {/*                        background: 'linear-gradient(45deg, #F57F17, #FBC02D)',*/}
-                {/*                        WebkitBackgroundClip: 'text',*/}
-                {/*                        WebkitTextFillColor: 'transparent',*/}
-                {/*                        textShadow: '2px 2px 4px rgba(0,0,0,0.1)'*/}
-                {/*                    }*/}
-                {/*                }}*/}
-                {/*            >*/}
-                {/*                <span className="emoji">📋</span>*/}
-                {/*                <span className="text"> Activity History</span>*/}
-                {/*            </Typography>*/}
-
-                {/*            */}{/* Activity History */}
-                {/*            <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>*/}
-
-                {/*                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (*/}
-                {/*                    <Grid size={{ xs: 12 }} sx={{ height: '100%' }}>*/}
-
-                {/*                        <ActivityHistory*/}
-                {/*                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}*/}
-                {/*                            statements={filteredData.statements}*/}
-                {/*                            courseData={courseData}*/}
-                {/*                        />*/}
-                {/*                    </Grid>*/}
-                {/*                )}*/}
-                {/*            </Grid>*/}
-
-                {/*        </CardContent>*/}
-                {/*    </Card>*/}
-
-                {/*</Box>*/}
             </Box>
         </Box>
     );

@@ -27,6 +27,8 @@ import StudentPerformanceTable from './educator/performance-table';
 import AverageScoreEducator from './educator/average-score-educator';
 import AttemptsEducator from './educator/attempts-educator';
 import LineTimeChartCumulative from './educator/learning-time-cumulaitve';
+import StudentGradeRec from '../services/grades-rec';
+import CumulativeRec from '../services/cumulative-rec';
 
 interface LearnerDashboardProps {
     learnerProfiles: LearnerProfile[];
@@ -227,206 +229,111 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                         </CardContent>
                     </Card>
 
-                    {/* Community Comparison Card */}
-                    {/*<Card*/}
-                    {/*    style={{ color: 'black', backgroundColor: '#EDE7F6' }}*/}
-                    {/*    sx={{*/}
-                    {/*        minHeight: { xs: 'auto', md: '300px' },*/}
-                    {/*        height: {*/}
-                    {/*            xs: 'auto', lg: 'calc(33.333% - 11px)'*/}
-                    {/*        },*/}
-                    {/*        border: '1px solid', borderColor: 'divider'*/}
-                    {/*    }*/}
-                    {/*    } >*/}
-                    {/*    <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>*/}
-                    {/*        <Grid container spacing={1} sx={{ height: '100%' }}>*/}
-
-                    {/*            */}{/* Card Title */}
-                    {/*            <Grid size={{ xs: 12, md: 2 }} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>*/}
-                    {/*                <Typography*/}
-                    {/*                    sx={{*/}
-                    {/*                        fontSize: '1.8rem',*/}
-                    {/*                        textAlign: 'center',*/}
-                    {/*                        fontWeight: 600,*/}
-                    {/*                        letterSpacing: '0.5px',*/}
-                    {/*                        '& .emoji': {*/}
-                    {/*                            WebkitBackgroundClip: 'text',*/}
-                    {/*                            backgroundClip: 'text'*/}
-                    {/*                        },*/}
-                    {/*                        '& .text': {*/}
-                    {/*                            background: 'linear-gradient(45deg, #5E35B1, #9575CD)',*/}
-                    {/*                            WebkitBackgroundClip: 'text',*/}
-                    {/*                            WebkitTextFillColor: 'transparent',*/}
-                    {/*                            textShadow: '2px 2px 4px rgba(0,0,0,0.1)'*/}
-                    {/*                        }*/}
-                    {/*                    }}*/}
-                    {/*                >*/}
-                    {/*                    <span className="emoji">🌍<br /></span>*/}
-                    {/*                    <span className="text"> Community<br />Comparison</span>*/}
-                    {/*                </Typography>*/}
-                    {/*            </Grid>*/}
-
-                    {/*            */}{/* Average Score Chart */}
-                    {/*            <Grid size={{ xs: 12, md: 2.5 }} sx={{ height: '100%' }}>*/}
-                    {/*                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (*/}
-                    {/*                    <AverageScoreChart*/}
-                    {/*                        statements={filteredData.statements}*/}
-                    {/*                        learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}*/}
-                    {/*                    />*/}
-                    {/*                )}*/}
-                    {/*            </Grid>*/}
-
-                    {/*            */}{/* Average Score Chart Community */}
-                    {/*            <Grid size={{ xs: 12, md: 2.5 }} sx={{ height: '100%' }}>*/}
-                    {/*                {statements.length > 0 && courseData && selectedLearnerId && (*/}
-                    {/*                    <AverageScoreChartCommunity*/}
-                    {/*                        courseData={courseData}*/}
-                    {/*                        statements={statements}*/}
-                    {/*                        learners={learnerProfiles} />*/}
-                    {/*                )}*/}
-                    {/*            </Grid>*/}
-
-                    {/*            */}{/* Learning Attempts Chart */}
-                    {/*            <Grid size={{ xs: 12, md: 2.5 }} sx={{ height: '100%' }}>*/}
-                    {/*                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (*/}
-                    {/*                    <LearningAttempts*/}
-                    {/*                        statements={filteredData.statements}*/}
-                    {/*                        courseData={courseData}*/}
-                    {/*                        learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}*/}
-                    {/*                    />*/}
-                    {/*                )}*/}
-                    {/*            </Grid>*/}
-
-                    {/*            */}{/* Learning Attempts Chart Community */}
-                    {/*            <Grid size={{ xs: 12, md: 2.5 }} sx={{ height: '100%' }}>*/}
-                    {/*                {statements.length > 0 && courseData && selectedLearnerId && (*/}
-                    {/*                    <LearningAttemptsCommunity*/}
-                    {/*                        statements={statements}*/}
-                    {/*                        courseData={courseData}*/}
-                    {/*                        learners={learnerProfiles}*/}
-                    {/*                    />*/}
-                    {/*                )}*/}
-                    {/*            </Grid>*/}
-
-                    {/*        </Grid>*/}
-                    {/*    </CardContent>*/}
-                    {/*</Card>*/}
+                    
 
                 </Box>
 
                 {/* Right Column - Recommendations */}
-                {/*<Box sx={{*/}
-                {/*    flex: { xs: '1', lg: '0 0 30%' },*/}
-                {/*    display: 'flex',*/}
-                {/*    flexDirection: 'column',*/}
-                {/*    gap: 2,*/}
-                {/*    width: '100%',*/}
-                {/*    maxWidth: '100%',*/}
-                {/*    overflow: 'hidden'*/}
-                {/*}}>*/}
-                {/*    <Card*/}
-                {/*        style={{ color: 'black', backgroundColor: '#FFF3E0' }}*/}
-                {/*        sx={{*/}
-                {/*            height: {*/}
-                {/*                xs: 'auto', lg: 'calc(50% - 6px)'*/}
-                {/*            },*/}
-                {/*            border: '1px solid', borderColor: 'divider'*/}
-                {/*        }}>*/}
-                {/*        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>*/}
-
-                {/*            */}{/* Card Title */}
-                {/*            <Typography*/}
-                {/*                sx={{*/}
-                {/*                    fontSize: '1.8rem',*/}
-                {/*                    textAlign: 'center',*/}
-                {/*                    fontWeight: 600,*/}
-                {/*                    letterSpacing: '0.5px',*/}
-                {/*                    pb: 1,*/}
-                {/*                    '& .emoji': {*/}
-                {/*                        WebkitBackgroundClip: 'text',*/}
-                {/*                        backgroundClip: 'text'*/}
-                {/*                    },*/}
-                {/*                    '& .text': {*/}
-                {/*                        background: 'linear-gradient(45deg, #E65100, #FFA726)',*/}
-                {/*                        WebkitBackgroundClip: 'text',*/}
-                {/*                        WebkitTextFillColor: 'transparent',*/}
-                {/*                        textShadow: '2px 2px 4px rgba(0,0,0,0.1)'*/}
-                {/*                    }*/}
-                {/*                }}*/}
-                {/*            >*/}
-                {/*                <span className="emoji">🎯</span>*/}
-                {/*                <span className="text"> Activity Recommendations</span>*/}
-                {/*            </Typography>*/}
-
-                {/*            */}{/* Activity Recommendations */}
-                {/*            <Grid container sx={{ height: '100%' }}>*/}
-                {/*                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (*/}
-                {/*                    <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>*/}
-                {/*                        <RecommendationService*/}
-                {/*                            learnerProfile={learnerProfiles.find(l => l.id === selectedLearnerId)!}*/}
-                {/*                            statements={filteredData.statements}*/}
-                {/*                            courseData={courseData}*/}
-                {/*                        />*/}
-                {/*                    </Grid>*/}
-                {/*                )}*/}
-                {/*            </Grid>*/}
-
-                {/*        </CardContent>*/}
-                {/*    </Card>*/}
-
-                {/*    <Card*/}
-                {/*        style={{ color: 'black', backgroundColor: '#FFF9C4' }}*/}
-                {/*        sx={{*/}
-                {/*            height: {*/}
-                {/*                xs: 'auto', lg: 'calc(50% - 6px)'*/}
-                {/*            },*/}
-                {/*            border: '1px solid', borderColor: 'divider'*/}
-                {/*        }}>*/}
-                {/*        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>*/}
-
-                {/*            */}{/* Card Title */}
-                {/*            <Typography*/}
-                {/*                sx={{*/}
-                {/*                    fontSize: '1.8rem',*/}
-                {/*                    textAlign: 'center',*/}
-                {/*                    fontWeight: 600,*/}
-                {/*                    letterSpacing: '0.5px',*/}
-                {/*                    pb: 1,*/}
-                {/*                    '& .emoji': {*/}
-                {/*                        WebkitBackgroundClip: 'text',*/}
-                {/*                        backgroundClip: 'text'*/}
-                {/*                    },*/}
-                {/*                    '& .text': {*/}
-                {/*                        background: 'linear-gradient(45deg, #F57F17, #FBC02D)',*/}
-                {/*                        WebkitBackgroundClip: 'text',*/}
-                {/*                        WebkitTextFillColor: 'transparent',*/}
-                {/*                        textShadow: '2px 2px 4px rgba(0,0,0,0.1)'*/}
-                {/*                    }*/}
-                {/*                }}*/}
-                {/*            >*/}
-                {/*                <span className="emoji">📋</span>*/}
-                {/*                <span className="text"> Activity History</span>*/}
-                {/*            </Typography>*/}
-
-                {/*            */}{/* Activity History */}
-                {/*            <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>*/}
-
-                {/*                {filteredData.statements.length > 0 && courseData && selectedLearnerId && (*/}
-                {/*                    <Grid size={{ xs: 12 }} sx={{ height: '100%' }}>*/}
-
-                {/*                        <ActivityHistory*/}
-                {/*                            learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}*/}
-                {/*                            statements={filteredData.statements}*/}
-                {/*                            courseData={courseData}*/}
-                {/*                        />*/}
-                {/*                    </Grid>*/}
-                {/*                )}*/}
-                {/*            </Grid>*/}
-
-                {/*        </CardContent>*/}
-                {/*    </Card>*/}
-
-                {/*</Box>*/}
+                <Box sx={{
+                    flex: { xs: '1', lg: '0 0 30%' },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    width: '100%',
+                    maxWidth: '100%',
+                    overflow: 'hidden'
+                }}>
+                    <Card
+                        style={{ color: 'black', backgroundColor: '#FFF3E0' }}
+                        sx={{
+                            height: {
+                                xs: 'auto', lg: 'calc(50% - 6px)'
+                            },
+                            border: '1px solid', borderColor: 'divider'
+                        }}>
+                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
+                            {/* Card Title */}
+                            <Typography
+                                sx={{
+                                    fontSize: '1.8rem',
+                                    textAlign: 'center',
+                                    fontWeight: 600,
+                                    letterSpacing: '0.5px',
+                                    pb: 1,
+                                    '& .emoji': {
+                                        WebkitBackgroundClip: 'text',
+                                        backgroundClip: 'text'
+                                    },
+                                    '& .text': {
+                                        background: 'linear-gradient(45deg, #E65100, #FFA726)',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+                                    }
+                                }}
+                            >
+                                <span className="emoji">🏆</span>
+                                <span className="text"> Student Grades</span>
+                            </Typography>
+                            {/* Grades Recommendations */}
+                            <Grid container sx={{ height: '100%' }}>
+                                {filteredData.statements.length > 0 && courseData &&  (
+                                    <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>
+                                        <StudentGradeRec
+                                            statements={statements}
+                                            courseData={courseData}
+                                        />
+                                    </Grid>
+                                )}
+                            </Grid>
+                        </CardContent>
+                    </Card>
+                    <Card
+                        style={{ color: 'black', backgroundColor: '#FFF9C4' }}
+                        sx={{
+                            height: {
+                                xs: 'auto', lg: 'calc(50% - 6px)'
+                            },
+                            border: '1px solid', borderColor: 'divider'
+                        }}>
+                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
+                            {/* Card Title */}
+                            <Typography
+                                sx={{
+                                    fontSize: '1.8rem',
+                                    textAlign: 'center',
+                                    fontWeight: 600,
+                                    letterSpacing: '0.5px',
+                                    pb: 1,
+                                    '& .emoji': {
+                                        WebkitBackgroundClip: 'text',
+                                        backgroundClip: 'text'
+                                    },
+                                    '& .text': {
+                                        background: 'linear-gradient(45deg, #F57F17, #FBC02D)',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+                                    }
+                                }}
+                            >
+                                <span className="emoji">📚</span>
+                                <span className="text"> Student Commitment</span>
+                            </Typography>
+                            {/* Student Commitment */}
+                            <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>
+                                {filteredData.statements.length > 0 && courseData &&  (
+                                    <Grid size={{ xs: 12 }} sx={{ height: '100%' }}>
+                                        <CumulativeRec
+                                            statements={statements}
+                                            learnerProfiles={learnerProfiles} 
+                                            />
+                                    </Grid>
+                                )}
+                            </Grid>
+                        </CardContent>
+                    </Card>
+                </Box>
             </Box>
         </Box>
     );
