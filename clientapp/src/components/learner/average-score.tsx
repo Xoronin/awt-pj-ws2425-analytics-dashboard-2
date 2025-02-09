@@ -53,8 +53,8 @@ const AverageScoreChart: React.FC<AverageScoreProps> = ({ statements, learner })
                         cy="50%"
                         startAngle={90}
                         endAngle={-270}
-                        innerRadius={80}
-                        outerRadius={100}
+                        innerRadius="60%"
+                        outerRadius="80%"
                         fill={theme.palette.primary.main}
                         labelLine={false}
                     >

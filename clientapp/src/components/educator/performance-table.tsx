@@ -133,6 +133,7 @@ const StudentPerformanceTable: React.FC<StudentPerformanceProps> = ({ statements
                     overflowX: 'auto',
                     minHeight: 0,
                     marginBottom: 3,
+                    paddingRight: 1,
                     backgroundColor: 'transparent',
                     '&::-webkit-scrollbar': {
                         width: '8px',
@@ -147,9 +148,7 @@ const StudentPerformanceTable: React.FC<StudentPerformanceProps> = ({ statements
                     },
                     '&::-webkit-scrollbar-thumb:hover': {
                         background: '#1B5E20'
-                    },
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: '#2E7D32 #E8F5E9'
+                    }
                 }}
             >
                 <Table stickyHeader size="small" sx={{

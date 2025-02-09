@@ -197,9 +197,6 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                 width: '8px',
                 height: '8px'
             },
-            '&::-webkit-scrollbar-track': {
-                background: '#FFE0B2'
-            },
             '&::-webkit-scrollbar-thumb': {
                 background: '#FF9800',
                 borderRadius: '4px'
@@ -241,7 +238,7 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                         <Typography
                             variant="subtitle1"
                             sx={{
-                                fontSize: '1.1rem',
+                                fontSize: '0.9rem',
                                 fontWeight: 600,
                                 color: '#E65100',
                                 flex: 1,

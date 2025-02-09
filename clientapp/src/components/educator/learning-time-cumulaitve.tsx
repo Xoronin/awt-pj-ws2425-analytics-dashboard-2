@@ -92,21 +92,33 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
             >
                 Cumulative Learning Time
             </Typography>
+
             <Box sx={{
                 flex: 1,
+                minHeight: 0,
                 width: '100%',
-                position: 'relative',  
-                minHeight: 0         
+                pb:1
             }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                         data={data}
-                        margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                        margin={{
+                            top: 10,
+                            right: 20,
+                            left: 0,
+                            bottom: 30
+                        }}
                     >
                         <CartesianGrid strokeDasharray="3 3" stroke="#90CAF9" />
                         <XAxis
                             dataKey="name"
-                            tick={{ fontSize: 12 }}
+                            label={{
+                                value: 'Dates',
+                                position: 'insideBottom',
+                                style: { fontSize: '0.8em' },
+                                offset: -15
+                            }}
+                            tick={{ fontSize: '0.75em' }}
                             tickFormatter={(value) => new Date(value).toLocaleDateString('de-DE', {
                                 month: 'short',
                                 day: 'numeric'
@@ -117,10 +129,11 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                                 value: "Minutes",
                                 angle: -90,
                                 position: 'insideLeft',
-                                fontSize: 18,
-                                fontWeight: 600
+                                style: { fontSize: '0.8em' },
+                                offset: 10,
+                                dy: 20,
                             }}
-                            tick={{ fontSize: 14 }}
+                            tick={{ fontSize: '0.75em' }}
                         />
                         <Tooltip
                             contentStyle={{
