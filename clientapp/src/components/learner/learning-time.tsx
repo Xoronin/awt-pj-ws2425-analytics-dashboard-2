@@ -19,7 +19,7 @@ const LearningTimeChart: React.FC<LearningTimeProps> = ({ statements, learner })
         const timeMap: Record<string, number> = {};
 
         statements
-            .filter(statement => statement.actor.mbox === learner.email)
+            .filter(statement => statement.actor.mbox === learner.email && statement.verb.id === "http://adlnet.gov/expapi/verbs/exited")
             .forEach(statement => {
                 const date = dayjs(statement.timestamp).format('YYYY-MM-DD');
                 const duration = statement.result?.duration
@@ -54,8 +54,17 @@ const LearningTimeChart: React.FC<LearningTimeProps> = ({ statements, learner })
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={learningData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickFormatter={(tick) => dayjs(tick).format('DD.MM')} />
-                    <YAxis label={{ value: 'Minutes', angle: -90, position: 'insideLeft' }} />
+                    <XAxis
+                        dataKey="date"
+                        tickFormatter={(tick) => dayjs(tick).format('DD.MM')}
+                    />
+                    <YAxis
+                        label={{
+                            value: 'Minutes',
+                            angle: -90,
+                            position: 'insideLeft'
+                        }}
+                    />
                     <Tooltip formatter={(value) => [`${value} min`, "Time Spent"]} />
                     <Line type="monotone" dataKey="time" stroke={theme.palette.primary.main} strokeWidth={2} dot={{ r: 4 }} />
                 </LineChart>

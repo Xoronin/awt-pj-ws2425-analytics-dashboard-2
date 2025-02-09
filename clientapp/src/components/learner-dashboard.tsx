@@ -137,7 +137,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                                 xs: 'auto', lg: 'calc(33.333% - 11px)'
                             },
                             border: '1px solid', borderColor: 'divider'
-                            }
+                        }
                         } >
                         <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
                             <Grid container spacing={1} sx={{ height: '100%' }}>
@@ -179,7 +179,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                                 </Grid>
 
                                 {/* Learning Time Chart */}
-                                <Grid size={{ xs: 12, md: 7 }} sx={{ height: '100%',  p: 0.5}}>
+                                <Grid size={{ xs: 12, md: 7 }} sx={{ height: '100%', p: 0.5 }}>
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
                                         <LearningTimeChart
                                             statements={filteredData.statements}
@@ -229,8 +229,8 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                                     >
                                         <span className="emoji">📊<br /></span>
                                         <span className="text"> Module<br />Performance</span>
-                                        </Typography>
-                                    </Grid>
+                                    </Typography>
+                                </Grid>
 
                                 {/* Learning Time Per Section Diagram */}
                                 <Grid size={{ xs: 12, md: 5 }} sx={{ height: '100%' }}>
@@ -292,7 +292,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                                             }
                                         }}
                                     >
-                                        <span className="emoji">🌍<br/></span>
+                                        <span className="emoji">🌍<br /></span>
                                         <span className="text"> Community<br />Comparison</span>
                                     </Typography>
                                 </Grid>
@@ -341,8 +341,8 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
 
                             </Grid>
                         </CardContent>
-                    </Card>  
-                    
+                    </Card>
+
                 </Box>
 
                 {/* Right Column - Recommendations */}
@@ -351,8 +351,8 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 2,
-                    width: '100%', 
-                    maxWidth: '100%', 
+                    width: '100%',
+                    maxWidth: '100%',
                     overflow: 'hidden'
                 }}>
                     <Card
@@ -361,9 +361,10 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                             height: {
                                 xs: 'auto', lg: 'calc(50% - 6px)'
                             },
-                            border: '1px solid', borderColor: 'divider'
+                            border: '1px solid',
+                            borderColor: 'divider'
                         }}>
-                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
+                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 1 } }}>
 
                             {/* Card Title */}
                             <Typography
@@ -390,9 +391,19 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                             </Typography>
 
                             {/* Activity Recommendations */}
-                            <Grid container sx={{ height: '100%' }}>
+                            <Grid size={{ xs: 12, md: 12 }} sx={{
+                                height: '100%',
+                                p: 0.5,
+                                pt: 0,
+                                pb: 1
+                            }}>
                                 {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                    <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>
+                                    <Grid size={{ xs: 12, md: 12 }} sx={{
+                                        height: '100%',
+                                        p: 0.5,
+                                        pt: 0,
+                                        pb: 1
+                                    }}>
                                         <RecommendationService
                                             learnerProfile={learnerProfiles.find(l => l.id === selectedLearnerId)!}
                                             statements={filteredData.statements}
@@ -413,7 +424,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                             },
                             border: '1px solid', borderColor: 'divider'
                         }}>
-                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
+                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 1 } }}>
 
                             {/* Card Title */}
                             <Typography
@@ -440,19 +451,20 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                             </Typography>
 
                             {/* Activity History */}
-                            <Grid size={{ xs: 12, md: 12 }} sx={{ height: 'calc(100%-11px)', p: 0.5 }}>
-
+                            <Grid size={{ xs: 12, md: 12 }} sx={{
+                                height: '100%',
+                                p: 0.5,
+                                pt: 0, 
+                                pb: 2   
+                            }}>
                                 {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
-                                    <Grid size={{ xs: 12 }} sx={{ height: '100%' }}>
-
-                                <ActivityHistory
-                                    learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
-                                    statements={filteredData.statements}
-                                    courseData={courseData}
-                                        />
-                                    </Grid>
+                                    <ActivityHistory
+                                        learner={learnerProfiles.find(l => l.id === selectedLearnerId)!}
+                                        statements={filteredData.statements}
+                                        courseData={courseData}
+                                    />
                                 )}
-                                </Grid>
+                            </Grid>
 
                         </CardContent>
                     </Card>
@@ -463,4 +475,4 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
     );
 };
 
- export default LearnerDashboard;
+export default LearnerDashboard;

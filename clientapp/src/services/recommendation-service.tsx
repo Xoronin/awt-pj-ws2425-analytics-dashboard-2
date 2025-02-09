@@ -145,7 +145,6 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                     score: calculateActivityScore(activity, learnerProfile, history)
                 }))
                 .sort((a, b) => b.score - a.score)
-                .slice(0, 5);
         }
         return availableActivities
             .map(activity => ({
@@ -156,7 +155,6 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
             }))
             .filter(activity => activity.prerequisitesCompleted)
             .sort((a, b) => b.score - a.score)
-            .slice(0, 5);
     };
 
     const mapActivityDifficultyToString = (difficulty: number): string => {
@@ -183,17 +181,21 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
 
     return (
         <Box sx={{
-            height: '100%',
+            height: 'calc(100% - 56px)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 1.5,
-            paddingRight: 1,
-            maxHeight: '100%',
-            pb: 2,
-            flexGrow: 1,
             overflowY: 'auto',
+            gap: 1,
+            paddingRight: 1,
+            paddingLeft: 1,
+            maxHeight: '100%',
+            minHeight: 0,
+            '& .MuiTableContainer-root': {
+                mb: 2
+            },
             '&::-webkit-scrollbar': {
                 width: '8px',
+                height: '8px'
             },
             '&::-webkit-scrollbar-track': {
                 background: '#FFE0B2'
