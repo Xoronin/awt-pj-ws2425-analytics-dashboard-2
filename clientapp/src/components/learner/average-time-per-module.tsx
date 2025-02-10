@@ -81,35 +81,18 @@ const AverageTimePerModule: React.FC<AverageTimePerModuleProps> = ({ learnerProf
                     color: '#2E7D32',
                     textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
                     flexShrink: 0,
-                    mb: '1%'
+                    mb: '2%'
                 }}
             >
                 Average Learning Time per Module
             </Typography>
 
             <Box sx={{
-                height: 'calc(100% - 11px)',
+                flex: 1,  // Take remaining space
                 display: 'flex',
                 flexDirection: 'column',
-                overflowY: 'auto',
                 gap: 1,
-                paddingRight: 1,
-                maxHeight: '100%',
-                minHeight: 0,
-                '& .MuiTableContainer-root': {
-                    mb: 1
-                },
-                '&::-webkit-scrollbar': {
-                    width: '8px',
-                    height: '8px'
-                },
-                '&::-webkit-scrollbar-thumb': {
-                    background: '#2E7D32',
-                    borderRadius: '4px'
-                },
-                '&::-webkit-scrollbar-thumb:hover': {
-                    background: '#A5D6A7'
-                }
+                overflow: 'hidden'
             }}>
                 {FIXED_SECTIONS.map(section => (
                     <Paper
@@ -133,7 +116,7 @@ const AverageTimePerModule: React.FC<AverageTimePerModuleProps> = ({ learnerProf
                         </Typography>
 
                         <Typography sx={{
-                            fontSize: '0.8rem',
+                            fontSize: '0.85rem',
                             fontWeight: 500
                         }}>
                             {sectionTimes[section]?.hasData ?
