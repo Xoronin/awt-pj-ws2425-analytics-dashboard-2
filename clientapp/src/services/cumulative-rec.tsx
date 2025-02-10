@@ -61,7 +61,6 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
             overflowY: 'auto',
             gap: 1,
             paddingRight: 1,
-            paddingLeft: 1,
             maxHeight: '100%',
             minHeight: 0,
             '& .MuiTableContainer-root': {

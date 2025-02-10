@@ -100,7 +100,7 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
                             <MenuItem key={course} value={course}>
                                 {course}
                             </MenuItem>
-                            ))}
+                        ))}
                     </Select>
                 </FormControl>
             </Box>
@@ -124,7 +124,7 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
                         style={{ color: 'black', backgroundColor: '#E3F2FD' }}
                         sx={{
                             minHeight: 0,
-                            height: '33%',
+                            height: '50%',
                             border: '1px solid', borderColor: 'divider'
                         }} >
                         <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
@@ -166,72 +166,10 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
 
                                 {/* Course Time Chart */}
                                 <Grid size={{ xs: 12, md: 5.4 }} sx={{ height: '100%', p: 0.5 }}>
-                                    {filteredData.statements.length > 0 && courseData &&  (
+                                    {filteredData.statements.length > 0 && courseData && (
                                         <ActivityTime
                                             statements={filteredData.statements}
                                             courseData={courseData}
-                                        />
-                                    )}
-                                </Grid>
-
-                            </Grid>
-                        </CardContent>
-                    </Card>
-
-                    {/* Completion Order Card */}
-                    <Card
-                        style={{ color: 'black', backgroundColor: '#E8F5E9' }}
-                        sx={{
-                            minHeight: 0,
-                            height: '33%',
-                            border: '1px solid', borderColor: 'divider'
-                        }} >
-                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
-                            <Grid container spacing={1} sx={{ height: '100%' }}>
-
-                                {/* Card Title */}
-                                <Grid size={{ xs: 12, md: 1.2 }} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Typography
-                                        sx={{
-                                            fontSize: '1.8rem',
-                                            textAlign: 'center',
-                                            fontWeight: 600,
-                                            letterSpacing: '0.5px',
-                                            '& .emoji': {
-                                                WebkitBackgroundClip: 'text',
-                                                backgroundClip: 'text'
-                                            },
-                                            '& .text': {
-                                                background: 'linear-gradient(45deg, #2E7D32, #66BB6A)',
-                                                WebkitBackgroundClip: 'text',
-                                                WebkitTextFillColor: 'transparent',
-                                                textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
-                                            }
-                                        }}
-                                    >
-                                        <span className="emoji">🔢<br /></span>
-                                        <span className="text"> Completion<br />Order</span>
-                                    </Typography>
-                                </Grid>
-
-                                {/* Courses Completed Before Diagram */}
-                                <Grid size={{ xs: 12, md: 5.4 }} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && (
-                                        <ActivitiesCompletedBefore
-                                            statements={statements}
-                                            courseData={courseData}
-                                            SelectedCourseName={SelectedCourseName}
-                                        />
-                                    )}
-                                </Grid>
-
-                                {/* Course Overview Diagram */}
-                                <Grid size={{ xs: 12, md: 5.4 }} sx={{ height: '100%' }}>
-                                    {filteredData.statements.length > 0 && courseData && (
-                                        <ActivitiesCompletedBefore
-                                            statements={statements}
-                                            courseData={courseData}
-                                            SelectedCourseName={SelectedCourseName}
                                         />
                                     )}
                                 </Grid>
@@ -245,7 +183,7 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
                         style={{ color: 'black', backgroundColor: '#EDE7F6' }}
                         sx={{
                             minHeight: 0,
-                            height: '33%',
+                            height: '50%',
                             border: '1px solid', borderColor: 'divider'
                         }} >
                         <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: { xs: 1, md: 2 } }}>
@@ -277,7 +215,7 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
                                 </Grid>
 
                                 {/* Course Overview Diagram */}
-                                <Grid size={{ xs: 12, md: 10.8 }} sx={{ height: '100%', p: 0.5 }}>
+                                <Grid size={{ xs: 12, md: 10.8 }} sx={{ height: '100%', p: 0.5, pr: 0 }}>
                                     {filteredData.statements.length > 0 && courseData && (
                                         <CourseOverview
                                             statements={statements}
@@ -335,7 +273,7 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
                                 <span className="text"> Ratings</span>
                             </Typography>
 
-                            {/* Grades Recommendations */}
+                            {/* Ratings */}
                             <Grid size={{ xs: 12, md: 12 }} sx={{
                                 height: '100%',
                                 p: 0.5,
@@ -389,11 +327,11 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
                                     }
                                 }}
                             >
-                                <span className="emoji">🕒</span>
-                                <span className="text"> Learning Time</span>
+                                <span className="emoji">🔢</span>
+                                <span className="text"> Completion Order</span>
                             </Typography>
 
-                            {/* Student Commitment */}
+                            {/* Completion Order */}
                             <Grid size={{ xs: 12, md: 12 }} sx={{
                                 height: '100%',
                                 p: 0.5,
@@ -407,9 +345,10 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
                                         pt: 0,
                                         pb: 1
                                     }}>
-                                        <LearningtimeRec
+                                        <ActivitiesCompletedBefore
                                             statements={statements}
                                             courseData={courseData}
+                                            SelectedCourseName={SelectedCourseName}
                                         />
                                     </Grid>
                                 )}
@@ -419,7 +358,7 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
                     </Card>
 
                 </Box>
-      
+
             </Box>
         </Box>
     );

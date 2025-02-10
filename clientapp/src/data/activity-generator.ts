@@ -448,7 +448,7 @@ class ActivityGenerator {
     }
 
     private generateRating(): number {
-     return Math.floor(Math.random() * 10) + 1;
+        return Math.floor(Math.random() * 10) + 1;
     }
 
     /**
