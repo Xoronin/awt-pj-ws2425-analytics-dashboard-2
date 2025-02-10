@@ -52,13 +52,14 @@ class ActivityGenerator {
     private verbs: Verb[];
     private numberOfWeeks: number;
     private activityTotalDuration: Map<string, Map<string, number>> = new Map();
-
+    private activityDurationTotal: number;
 
     constructor(courseData: CourseData, verbs: Verb[], numberOfWeeks: number, config: ActivityConfig = CONFIG,) {
         this.courseData = courseData;
         this.verbs = verbs;
         this.numberOfWeeks = numberOfWeeks;
         this.config = config;
+        this.activityDurationTotal = 0;
     }
 
     /**
@@ -245,6 +246,19 @@ class ActivityGenerator {
         return `PT${minutes}M${seconds}S`;
     };
 
+    private formatDuration(totalMinutes: number): string {
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = Math.floor(totalMinutes % 60);
+        const seconds = Math.floor((totalMinutes % 1) * 60);
+
+        let duration = 'PT';
+        if (hours > 0) duration += `${hours}H`;
+        if (minutes > 0) duration += `${minutes}M`;
+        if (seconds > 0) duration += `${seconds}S`;
+
+        return duration;
+    }
+
     /**
      * Generates standardized learning events for an activity session.
      * Events follow xAPI verb patterns: initialized → launched → progressed → 
@@ -265,7 +279,7 @@ class ActivityGenerator {
         score: number,
         progress: ActivityProgress,
         willScore: boolean,
-        totalDuration?: number
+        totalDuration: number
     ): LearningInteraction[] {
         const events: LearningInteraction[] = [];
         let currentTime = new Date(startTime.getTime());
@@ -316,7 +330,8 @@ class ActivityGenerator {
                     timestamp: new Date(currentTime),
                     result: {
                         progress: progress.currentProgress,
-                        completion: false
+                        completion: false,
+                        duration: this.getDuration(startTime, currentTime)
                     }
                 });
                 currentTime = new Date(currentTime.getTime() + timeStep);
@@ -365,9 +380,7 @@ class ActivityGenerator {
                             result: {
                                 completion: true,
                                 success: true,
-                                duration: totalDuration
-                                    ? `PT${Math.floor(totalDuration / 60)}M${totalDuration % 60}S`
-                                    : this.getDuration(startTime, currentTime)
+                                duration: this.formatDuration(totalDuration)
                             }
                         });
                         lastVerb = EventType.COMPLETED;
@@ -435,7 +448,7 @@ class ActivityGenerator {
     }
 
     private generateRating(): number {
-     return Math.floor(Math.random() * 10) + 1;
+        return Math.floor(Math.random() * 10) + 1;
     }
 
     /**
@@ -466,6 +479,8 @@ class ActivityGenerator {
         progress.currentProgress = Math.round(
             (progress.currentProgress + progressIncrement) * 1000
         ) / 1000;
+
+        this.activityDurationTotal += timeSpent;
     }
 
     /**

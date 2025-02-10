@@ -13,6 +13,10 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import LearnerDashboard from './components/learner-dashboard';
 import EducatorDashboard from './components/educator-dashboard';
 import ContentCreatorDashboard from './components/content-creator-dashboard';
+import DataUsageIcon from '@mui/icons-material/DataUsage';
+import PersonIcon from '@mui/icons-material/Person';
+import TeachingIcon from '@mui/icons-material/School';
+import ContentCreateIcon from '@mui/icons-material/Create';
 import { Verb, LearnerProfile, XAPIStatement, CourseData } from './types/types';
 import { XAPIService } from './services/xapi-service';
 import LearnerService from './services/learner-service';
@@ -73,6 +77,7 @@ const App = () => {
             const courseData = await services.courseData.loadCourseData();
             setCourseData(courseData);
 
+            //await services.learnerGenerator.generateAndStoreLearners(50);
             const learners = await services.learner.getLearnerProfiles();
             setLearnerProfiles(learners);
 
@@ -120,23 +125,42 @@ const App = () => {
                     flex: 1,
                     display: 'flex',
                     flexDirection: 'column',
-                    borderRadius: 0  
+                    borderRadius: 0
                 }}
             >
                 <CardHeader
                     title={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <DashboardIcon sx={{ fontSize: 32 }} />
-                            <Typography variant="h5" component="h1">
-                                Adaptive Learning Analytics Dashboard
+                        <Box sx={{
+                            display: 'flex', alignItems: 'center', gap: 2,
+                        }}>
+                            <DashboardIcon
+                                sx={{
+                                    fontSize: 32,
+                                    color: 'white',
+                                    opacity: 0.9,
+                                    transition: 'transform 0.3s ease',
+                                    '&:hover': {
+                                        transform: 'rotate(15deg)'
+                                    }
+                                }}
+                            />
+                            <Typography
+                                sx={{
+                                    color: 'white',
+                                    fontSize: '1.5rem',
+                                    fontWeight: 700,
+                                    letterSpacing: '1px',
+                                    textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+                                }}
+                            >
+                                Adaptive Learning Analytics
                             </Typography>
                         </Box>
                     }
                     sx={{
-                        backgroundColor: theme.palette.primary.main,
-                        color: theme.palette.primary.contrastText,
-                        py: 2,
-                        borderRadius: 0 
+                        background: 'linear-gradient(135deg, #2196F3, #3F51B5)',
+                        padding: theme.spacing(2),
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.15)'
                     }}
                 />
                 <CardContent
@@ -155,19 +179,37 @@ const App = () => {
                             onChange={handleTabChange}
                             variant="fullWidth"
                             sx={{
+                                minHeight: '48px',
                                 '& .MuiTab-root': {
-                                    py: 2,
+                                    py: 1,
                                     fontSize: '1rem',
+                                    minHeight: '48px',
+                                    maxHeight: '48px'
                                 }
                             }}
                         >
-                            <Tab label="Data Statistics" />
-                            <Tab label="Learner Dashboard" />
-                            <Tab label="Educator Dashboard" />
-                            <Tab label="Content Creator Dashboard" />
+                            <Tab
+                                icon={<DataUsageIcon />}
+                                iconPosition="start"
+                                label="Data Statistics"
+                            />
+                            <Tab
+                                icon={<PersonIcon />}
+                                iconPosition="start"
+                                label="Learner Dashboard"
+                            />
+                            <Tab
+                                icon={<TeachingIcon />}
+                                iconPosition="start"
+                                label="Educator Dashboard"
+                            />
+                            <Tab
+                                icon={<ContentCreateIcon />}
+                                iconPosition="start"
+                                label="Content Creator Dashboard"
+                            />
                         </Tabs>
                     </Box>
-
                     <Box sx={{
                         px: 2,
                         flex: 1,
@@ -189,8 +231,8 @@ const App = () => {
                         </TabPanel>
                     </Box>
                 </CardContent>
-            </Paper>
-        </Box>
+            </Paper >
+        </Box >
     );
 };
 

@@ -298,24 +298,24 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                     overflowX: 'auto',
                     minHeight: 0,
                     marginBottom: 1,
-                    paddingRight: 1,
+                    paddingRight: 0.5,
                     backgroundColor: 'transparent',
                     '&::-webkit-scrollbar': {
                         width: '8px',
                         height: '8px'
                     },
                     '&::-webkit-scrollbar-thumb': {
-                        background: '#9C27B0',  
+                        background: '#9C27B0',
                         borderRadius: '4px'
                     },
                     '&::-webkit-scrollbar-thumb:hover': {
-                        background: '#6A3ADB'  
+                        background: '#6A3ADB'
                     }
                 }}
             >
                 <Table stickyHeader size="small" sx={{
                     '& .MuiTableCell-root': {
-                        padding: '5px',
+                        padding: '3px',
                         fontSize: '0.9rem'
                     },
                     '& .MuiTableCell-head': {
@@ -323,7 +323,7 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                         color: 'white',
                     },
                     '& .MuiTableCell-body': {
-                        '&:nth-of-type(6), &:nth-of-type(7), &:nth-of-type(8), &:nth-of-type(9), &:nth-of-type(10)': {
+                        '&:nth-of-type(7), &:nth-of-type(8), &:nth-of-type(9), &:nth-of-type(10), &:nth-of-type(11)': {
                             textAlign: 'center'
                         }
                     },
@@ -332,16 +332,17 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                     <TableHead>
                         <TableRow>
                             {[
-                                { id: 'resourceType' as SortableColumn, label: 'Resource Type' },
-                                { id: 'interactivityType' as SortableColumn, label: 'Interactivity Type' },
-                                { id: 'interactivityLevel' as SortableColumn, label: 'Interactivity Level' },
-                                { id: 'semanticDensity' as SortableColumn, label: 'Semantic Density' },
-                                { id: 'difficulty' as SortableColumn, label: 'Difficulty' },
-                                { id: 'typicalLearningTime' as SortableColumn, label: 'Typical Learning Time' },
-                                { id: 'averageLearningTime' as SortableColumn, label: 'Average Learning Time' },
-                                { id: 'averageGrade' as SortableColumn, label: 'Average Grade' },
-                                { id: 'averageAttemptsToPass' as SortableColumn, label: 'Average Attempts to Pass' },
-                                { id: 'averageRating' as SortableColumn, label: 'Average Rating' }
+                                { id: 'id' as SortableColumn, label: 'Id', width: '10%' },
+                                { id: 'resourceType' as SortableColumn, label: 'Resource Type', width: '10%' },
+                                { id: 'interactivityType' as SortableColumn, label: 'Interactivity Type', width: '10%' },
+                                { id: 'interactivityLevel' as SortableColumn, label: 'Interactivity Level', width: '10%' },
+                                { id: 'semanticDensity' as SortableColumn, label: 'Semantic Density', width: '10%' },
+                                { id: 'difficulty' as SortableColumn, label: 'Difficulty', width: '10%' },
+                                { id: 'typicalLearningTime' as SortableColumn, label: 'Typical Learning Time', width: '5%' },
+                                { id: 'averageLearningTime' as SortableColumn, label: 'Average Learning Time', width: '5%' },
+                                { id: 'averageGrade' as SortableColumn, label: 'Average Grade', width: '10%' },
+                                { id: 'averageAttemptsToPass' as SortableColumn, label: 'Average Attempts', width: '5%' },
+                                { id: 'averageRating' as SortableColumn, label: 'Average Rating', width: '5%' }
                             ].map((column) => (
                                 <TableCell
                                     key={column.id}
@@ -362,16 +363,17 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                     <TableBody>
                         {sortRows(rows).map((row, index) => (
                             <TableRow key={index}>
-                                <TableCell align="left">{row.resourceType}</TableCell>
-                                <TableCell align="left">{row.interactivityType}</TableCell>
-                                <TableCell align="left">{row.interactivityLevel}</TableCell>
-                                <TableCell align="left">{row.semanticDensity}</TableCell>
-                                <TableCell align="left">{row.difficulty}</TableCell>
-                                <TableCell align="left">{row.typicalLearningTime} min</TableCell>
-                                <TableCell align="left">{row.averageLearningTime}</TableCell>
-                                <TableCell align="left">{row.averageGrade} points</TableCell>
-                                <TableCell align="left">{row.averageAttemptsToPass}</TableCell>
-                                <TableCell align="left">{row.averageRating}</TableCell>
+                                <TableCell sx={{ width: '10%' }} align="left">{row.activityId}</TableCell>
+                                <TableCell sx={{ width: '10%' }} align="left">{row.resourceType}</TableCell>
+                                <TableCell sx={{ width: '10%' }} align="left">{row.interactivityType}</TableCell>
+                                <TableCell sx={{ width: '10%' }} align="left">{row.interactivityLevel}</TableCell>
+                                <TableCell sx={{ width: '10%' }} align="left">{row.semanticDensity}</TableCell>
+                                <TableCell sx={{ width: '10%' }} align="left">{row.difficulty}</TableCell>
+                                <TableCell sx={{ width: '10%' }} align="left">{row.typicalLearningTime} min</TableCell>
+                                <TableCell sx={{ width: '5%' }} align="left">{row.averageLearningTime}</TableCell>
+                                <TableCell sx={{ width: '5%' }} align="left">{row.averageGrade} points</TableCell>
+                                <TableCell sx={{ width: '5%' }} align="left">{row.averageAttemptsToPass}</TableCell>
+                                <TableCell sx={{ width: '5%' }} align="left">{row.averageRating}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

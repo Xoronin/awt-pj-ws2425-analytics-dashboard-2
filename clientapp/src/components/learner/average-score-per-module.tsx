@@ -73,24 +73,42 @@ const AverageScorePerModule: React.FC<AverageScorePerModuleProps> = ({ learnerPr
                     color: '#2E7D32',
                     textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
                     flexShrink: 0,
-                    mb: '2%'
+                    mb: '1%'
                 }}
             >
                 Average Score per Module
             </Typography>
 
             <Box sx={{
-                flex: 1,  // Take remaining space
+                height: 'calc(100% - 11px)',
                 display: 'flex',
                 flexDirection: 'column',
+                overflowY: 'auto',
                 gap: 1,
-                overflow: 'hidden'
+                paddingRight: 1,
+                paddingBottom: 1,
+                maxHeight: '100%',
+                minHeight: 0,
+                '& .MuiTableContainer-root': {
+                    mb: 1
+                },
+                '&::-webkit-scrollbar': {
+                    width: '8px',
+                    height: '8px'
+                },
+                '&::-webkit-scrollbar-thumb': {
+                    background: '#2E7D32',
+                    borderRadius: '4px'
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                    background: '#A5D6A7'
+                }
             }}>
                 {FIXED_SECTIONS.map(section => (
                     <Paper
                         key={section}
                         sx={{
-                            flex: 1,  // Each paper takes equal space
+                            flex: 1,
                             backgroundColor: '#E8F5E9',
                             border: '1px solid',
                             borderColor: '#81C784',
@@ -98,8 +116,8 @@ const AverageScorePerModule: React.FC<AverageScorePerModuleProps> = ({ learnerPr
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'space-between'
-                        }}
-                    >
+                        }}>
+
                         <Typography sx={{
                             fontSize: '0.9rem',
                             fontWeight: 500,
@@ -108,14 +126,13 @@ const AverageScorePerModule: React.FC<AverageScorePerModuleProps> = ({ learnerPr
                         </Typography>
 
                         <Typography sx={{
-                            fontSize: '0.85rem',
+                            fontSize: '0.8rem',
                             fontWeight: 500
                         }}>
                             {sectionScores[section]?.hasData ?
                                 `${Math.round(sectionScores[section].averageScore)}%` :
                                 'No data available'}
                         </Typography>
-
                         <LinearProgress
                             variant="determinate"
                             value={sectionScores[section]?.averageScore || 0}
