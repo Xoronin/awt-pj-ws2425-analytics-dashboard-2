@@ -118,7 +118,7 @@ const ActivitiesCompletedBefore: React.FC<ActivitiesCompletedBeforeProps> = ({
 
     return (
         <Box sx={{
-            height: 'calc(100% - 32px)',
+            height: 'calc(100% - 56px)',
             display: 'flex',
             flexDirection: 'column',
             overflowY: 'auto',
@@ -126,6 +126,7 @@ const ActivitiesCompletedBefore: React.FC<ActivitiesCompletedBeforeProps> = ({
             paddingLeft: 1,
             maxHeight: '100%',
             minHeight: 0,
+            backgroundColor: 'transparent',
             '& .MuiTableContainer-root': {
                 mb: 2
             },
@@ -133,39 +134,40 @@ const ActivitiesCompletedBefore: React.FC<ActivitiesCompletedBeforeProps> = ({
                 width: '8px',
                 height: '8px'
             },
-            '&::-webkit-scrollbar-track': {
-                background: '#E8F5E9'  
-            },
             '&::-webkit-scrollbar-thumb': {
-                background: '#4CAF50',  
+                background: '#FBC02D',
                 borderRadius: '4px'
             },
             '&::-webkit-scrollbar-thumb:hover': {
-                background: '#2E7D32' 
+                background: '#F57F17'
             }
         }}
         >
-            <Typography
-                sx={{
-                    fontSize: '1.2rem',
-                    textAlign: 'center',
-                    fontWeight: 600,
-                    color: '#2E7D32',
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
-                    mb: 2,
-                }}
-            >
-                Activities Completed Before {SelectedCourseName}
-            </Typography>
-
             {
                 sortedCourses.length === 0 ? (
-                    <Typography variant="body1" sx={{ color: '#388E3C' }}>
+                    <Typography variant="body1" >
                         No courses completed before the current course.
                     </Typography>
                 ) : (
                     sortedCourses.map(({ activityId, count, percentage, title }) => (
-                        <Box key={activityId} sx={{ marginBottom: 2 }}>
+                        <Box key={activityId} sx={{
+                            marginBottom: 1,
+                            p: 1,
+                            bgcolor: '#FFF9C4',
+                            borderRadius: 2,
+                            border: '1px solid',
+                            borderColor: '#FFD54F',
+                            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            flex: '0 0 auto',
+                            minHeight: '30px',
+                            '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: 2,
+                                cursor: 'pointer',
+                                bgcolor: '#FFECB3'
+                            } }}>
                             <Typography variant="body1" sx={{ fontWeight: 500 }}>
                                 {title}
                             </Typography>
@@ -175,9 +177,9 @@ const ActivitiesCompletedBefore: React.FC<ActivitiesCompletedBeforeProps> = ({
                                 sx={{
                                     height: 8,
                                     borderRadius: 4,
-                                    backgroundColor: '#C8E6C9',
+                                    backgroundColor: '#FFF3E0',
                                     '& .MuiLinearProgress-bar': {
-                                        background: 'linear-gradient(90deg, #2E7D32, #66BB6A)',
+                                        background: 'linear-gradient(90deg, #FFEB3B, #FFC107)'
                                     },
                                 }}
                             />

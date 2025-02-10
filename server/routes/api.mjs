@@ -189,10 +189,10 @@ const apiRouter = (db) => {
             }
 
             //Create unique index
-            await collection.createIndex(
-                { 'id': 1 },
-                { unique: true }
-            );
+            //await collection.createIndex(
+            //    { 'id': 1 },
+            //    { unique: true }
+            //);
 
             const result = await collection.insertMany(learners);
 

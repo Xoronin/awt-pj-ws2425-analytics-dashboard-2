@@ -200,10 +200,13 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                         sx={{
                             minHeight: 0,
                             height: '33%',
-                            border: '1px solid', borderColor: 'divider'                        
-                        }
-                        } >
-                        <CardContent sx={{ height: '100%', p: { xs: 1, md: 2 } }}>
+                            border: '1px solid',
+                            borderColor: 'divider'                        
+                        }}>
+                        <CardContent sx={{
+                            height: '100%',
+                            p: { xs: 1, md: 2 },
+                        }}>
                             <Grid container spacing={1} sx={{ height: '100%' }}>
 
                                 {/* Card Title */}
@@ -232,7 +235,7 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                                 </Grid>
 
                                 {/* Learning Time Per Section Diagram */}
-                                <Grid size={{ xs: 12, md: 5 }} sx={{ height: '100%', pb: 3 }}>
+                                <Grid size={{ xs: 12, md: 5 }} sx={{ height: '100%', pb: 3, pt: 0 }}>
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
                                         <LearningTimePerSection
                                             statements={filteredData.statements}
@@ -243,7 +246,10 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
                                 </Grid>
 
                                 {/* Average Score Per Module Diagram */}
-                                <Grid size={{ xs: 12, md: 5 }} sx={{ height: '100%', pb: 3 }}>
+                                <Grid
+                                    size={{ xs: 12, md: 5 }}
+                                    sx={{ height: '100%', p: 0.5, pb: 3, pt: 0 }}>
+
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
                                         <AverageScorePerModule
                                             statements={filteredData.statements}
