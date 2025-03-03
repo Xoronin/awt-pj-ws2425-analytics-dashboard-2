@@ -45,10 +45,12 @@ const LearningtimeRec: React.FC<LearningtimeRecProps> = ({ statements, courseDat
             }
         });
 
-        return Object.keys(completionTimeMap).map((activityId) => ({
-            activityId,
-            averageTime: completionTimeMap[activityId].totalTime / completionTimeMap[activityId].count,
-        }));
+        return Object.keys(completionTimeMap)
+            .map((activityId) => ({
+                activityId,
+                averageTime: completionTimeMap[activityId].totalTime / completionTimeMap[activityId].count,
+            }))
+            .sort((a, b) => a.averageTime - b.averageTime); 
     }, [completedStatements]);
 
     // Helper function to fetch activity fields

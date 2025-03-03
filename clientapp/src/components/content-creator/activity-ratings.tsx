@@ -11,20 +11,20 @@ const ActivityRatings: React.FC<ActivityRatingsProps> = ({ statements }) => {
     const theme = useTheme();
 
     const ratingsData = useMemo(() => {
-        const ratingsCount = Array(10).fill(0); // Array for counting ratings from 1 to 10
+        const ratingsCount = Array(10).fill(0); 
 
         statements
-            .filter(statement => statement.verb.id === 'http://id.tincanapi.com/verb/rated') // Filter for "rated" statements
+            .filter(statement => statement.verb.id === 'http://id.tincanapi.com/verb/rated') 
             .forEach(statement => {
                 const rawScore = statement.result?.score?.raw;
                 if (rawScore !== undefined && rawScore >= 1 && rawScore <= 10) {
-                    ratingsCount[rawScore - 1] += 1; // Subtract 1 to match array index (rating 1 -> index 0)
+                    ratingsCount[rawScore - 1] += 1; 
                 }
             });
 
         return ratingsCount.map((count, index) => ({
-            rating: index + 1,  // x-axis: rating from 1 to 10
-            count,              // y-axis: number of occurrences
+            rating: index + 1,  
+            count,              
         }));
     }, [statements]);
 

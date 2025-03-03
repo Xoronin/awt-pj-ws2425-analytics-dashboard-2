@@ -141,7 +141,8 @@ class ActivityGenerator {
                     score,
                     progress,
                     willScore,
-                    this.getTotalActivityDuration(profile.id, currentActivity.id)
+                    this.getTotalActivityDuration(profile.id, currentActivity.id),
+                    currentActivity
                 )
             });
 
@@ -238,7 +239,13 @@ class ActivityGenerator {
         return learnerProgress.get(activityId)!;
     }
 
-    // Calculate the duration for each event from start time
+    /**
+     * Calculates formatted ISO 8601 duration between two timestamps.
+     * 
+     * @param start - Starting timestamp
+     * @param current - Ending timestamp
+     * @returns Formatted duration string in ISO 8601 format (e.g., "PT5M30S")
+    */
     private getDuration = (start: Date, current: Date): string => {
         const durationMs = current.getTime() - start.getTime();
         const minutes = Math.floor(durationMs / 60000);
@@ -246,6 +253,12 @@ class ActivityGenerator {
         return `PT${minutes}M${seconds}S`;
     };
 
+    /**
+     * Formats a duration in minutes to ISO 8601 format.
+     * 
+     * @param totalMinutes - Duration in minutes
+     * @returns Formatted duration string in ISO 8601 format (e.g., "PT1H30M15S")
+    */
     private formatDuration(totalMinutes: number): string {
         const hours = Math.floor(totalMinutes / 60);
         const minutes = Math.floor(totalMinutes % 60);
@@ -270,6 +283,8 @@ class ActivityGenerator {
      * @param score - Activity score (if scored)
      * @param progress - Current progress state
      * @param willScore - Whether scoring will occur
+     * @param totalDuration - Total time spent on this activity across sessions
+     * @param currentActivity - The activity object being processed
      * @returns Ordered array of learning events
      */
     private generateEvents(
@@ -279,7 +294,8 @@ class ActivityGenerator {
         score: number,
         progress: ActivityProgress,
         willScore: boolean,
-        totalDuration: number
+        totalDuration: number,
+        currentActivity: Activity
     ): LearningInteraction[] {
         const events: LearningInteraction[] = [];
         let currentTime = new Date(startTime.getTime());
@@ -392,7 +408,7 @@ class ActivityGenerator {
                             timestamp: new Date(currentTime),
                             result: {
                                 score: {
-                                    raw: this.generateRating(),
+                                    raw: this.generateRating(currentActivity),
                                     min: 1,
                                     max: 10,
                                     scaled: score / 10
@@ -447,8 +463,26 @@ class ActivityGenerator {
         }
     }
 
-    private generateRating(): number {
-        return Math.floor(Math.random() * 10) + 1;
+    /**
+     * Generates a biased rating (1-10) based on activity rating property.
+     * Higher activity ratings produce higher scores on average.
+     * 
+     * @param currentActivity - The activity to generate a rating for
+     * @returns A rating between 1-10
+    */
+    private generateRating(currentActivity: Activity): number {
+        const adjustment = currentActivity.rating;
+
+        const rawRandom = Math.random();
+
+        let skewedRandom;
+        if (adjustment >= 0.5) {
+            skewedRandom = Math.pow(rawRandom, 0.3 / adjustment);
+        } else {
+            skewedRandom = 1 - Math.pow(1 - rawRandom, 0.3 / (1 - adjustment));
+        }
+
+        return Math.round(1 + skewedRandom * 9);
     }
 
     /**
@@ -475,7 +509,6 @@ class ActivityGenerator {
             (timeSpent / neededTime) * learningSpeed
         );
 
-        // Update progress (rounded to 3 decimal places for precision)
         progress.currentProgress = Math.round(
             (progress.currentProgress + progressIncrement) * 1000
         ) / 1000;
@@ -507,7 +540,6 @@ class ActivityGenerator {
         return Math.round(Math.min(100, Math.max(0, baseScore + difficultyImpact + attemptBonus + variation)));
     }
 
-
     /**
      * Gets metric value (consistency, scores, duration, effort) for a learner.
      * Returns fixed value for regular personas or phase-based value for outliers.
@@ -522,9 +554,8 @@ class ActivityGenerator {
         const metric = profile.metrics[metricName];
 
         if (typeof metric === 'number') {
-            return metric; // Regular persona
+            return metric; 
         } else {
-            // Outlier - get value based on current phase
             const phase = this.getCurrentPhase(currentWeek);
             return metric[phase];
         }
@@ -541,6 +572,13 @@ class ActivityGenerator {
         return 'end';
     }
 
+    /**
+     * Gets the total time a learner has spent on a specific activity.
+     * 
+     * @param learnerId - Unique learner identifier
+     * @param activityId - Activity identifier
+     * @returns Total duration in minutes
+    */
     private getTotalActivityDuration(learnerId: string, activityId: string): number {
         if (!this.activityTotalDuration.has(learnerId)) {
             this.activityTotalDuration.set(learnerId, new Map());
@@ -554,6 +592,13 @@ class ActivityGenerator {
         return learnerDurations.get(activityId)!;
     }
 
+    /**
+     * Updates the total time a learner has spent on a specific activity.
+     * 
+     * @param learnerId - Unique learner identifier
+     * @param activityId - Activity identifier
+     * @param duration - Duration to add in minutes
+    */
     private updateTotalActivityDuration(learnerId: string, activityId: string, duration: number): void {
         const learnerDurations = this.activityTotalDuration.get(learnerId)!;
         const currentTotal = learnerDurations.get(activityId) || 0;

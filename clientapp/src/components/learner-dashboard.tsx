@@ -58,8 +58,6 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
         setSelectedLearnerId(event.target.value);
     };
 
-
-
     return (
         <Box sx={{
             height: 'calc(100% - 16px)',

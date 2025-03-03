@@ -43,14 +43,27 @@ interface UsageListProps {
     maxItems?: number;
 }
 
+/**
+ * Displays statistics about learners, activities, and overall course engagement
+ * 
+ * @param learnerProfiles - Array of learner profiles
+ * @param statements - Array of xAPI statements
+ * @param verbs - Array of available verbs
+ * @param courseData - Course structure and metadata
+ * @returns Dashboard tab with multiple tabs for different data views
+*/
 const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: StatisticsProps) => {
     const [activeTab, setActiveTab] = useState<TabValue>('learners');
 
-    // Helper function to parse ISO 8601 duration
+    /**
+     * Parses ISO 8601 duration format into minutes
+     * 
+     * @param duration - ISO 8601 duration string
+     * @returns Total duration in minutes
+    */
     const parseDuration = (duration: string): number => {
-        // Parse ISO 8601 duration format (e.g., "PT1H30M" or "PT45M")
         const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-        if (!matches) return 15; // default to 15 minutes
+        if (!matches) return 15; 
 
         const [, hours, minutes, seconds] = matches;
         return (
@@ -60,8 +73,11 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
         );
     };
 
+    /**
+     * Calculates and memoizes various statistics from xAPI statements
+     * Processes activity usage, section usage, verb usage, scores, completion rates, etc.
+    */
     const stats = useMemo(() => {
-        // Initialize tracking structures
         const activityUsage: Record<string, number> = {};
         const sectionUsage: Record<string, number> = {};
         const verbUsage: Record<string, number> = {};
@@ -69,13 +85,11 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
         const learnerScores = new Map<string, number[]>(); 
         const learnerDurations = new Map<string, number>();
 
-        // Initialize for all learners
         learnerProfiles.forEach(learner => {
             completedActivities.set(learner.email, new Set());
             learnerDurations.set(learner.email, 0);
         });
 
-        // Initialize all sections and activities with 0 usage
         courseData.sections.forEach(section => {
             sectionUsage[section.title] = 0;
             section.activities.forEach(activity => {
@@ -87,20 +101,17 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
         statements.forEach(statement => {
 
             const learnerEmail = statement.actor.mbox;
-            // Track verb usage
+
             const verbId = statement.verb.id;
             verbUsage[verbId] = (verbUsage[verbId] || 0) + 1;
 
-            // Get activity ID
             const activityId = statement.object.definition.extensions?.[
                 'https://w3id.org/learning-analytics/learning-management-system/external-id'
             ];
             if (!activityId) return;
 
-            // Track activity usage
             activityUsage[activityId] = (activityUsage[activityId] || 0) + 1;
 
-            // Find section for activity and track usage
             const section = courseData.sections.find(s =>
                 s.activities.some(a => a.id === activityId)
             );
@@ -108,7 +119,6 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
                 sectionUsage[section.title] = (sectionUsage[section.title] || 0) + 1;
             }
 
-            // Check for completion either through verb or result field
             const isCompleted =
                 (statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') ||
                 (statement.result?.completion === true);
@@ -117,8 +127,6 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
                 completedActivities.get(learnerEmail)!.add(activityId);
             }
 
-
-            // Track scores
             if (statement.result?.score?.raw !== undefined) {
                 if (!learnerScores.has(activityId)) {
                     learnerScores.set(activityId, []);
@@ -126,7 +134,6 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
                 learnerScores.get(activityId)!.push(statement.result.score.raw);
             }
 
-            // Track durations
             if (statement.result?.duration) {
                 const duration = parseDuration(statement.result.duration);
                 const currentDuration = learnerDurations.get(learnerEmail) || 0;
@@ -138,7 +145,6 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
             }
         });
 
-        // Calculate averages and totals
         const totalActivities = courseData.sections.reduce(
             (acc, section) => acc + section.activities.length,
             0
@@ -172,7 +178,9 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
         };
     }, [statements, courseData, learnerProfiles]);
 
-
+    /**
+     * Displays a single statistic with icon, title, value and description
+    */
     const StatCard = ({ icon: Icon, title, value, description }: StatCardProps) => (
         <Paper elevation={1} sx={{ p: 2, height: '100%' }}>
             <Box display="flex" flexDirection="column">
@@ -192,6 +200,13 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
         </Paper>
     );
 
+    /**
+     * Renders a sorted list of items with usage counts and progress bars
+     * 
+     * @param data - Record mapping keys to usage counts
+     * @param getLabel - Function to get displayable label from a key
+     * @param getDescription - Optional function to get description from a key
+    */
     const UsageList = ({ data, getLabel, getDescription }: UsageListProps) => (
         <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
             {Object.entries(data)
@@ -219,6 +234,12 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
         </Box>
     );
 
+    /**
+     * Retrieves activity name and description from an activity ID
+     * 
+     * @param activityId - Unique identifier for an activity
+     * @returns Object containing activity name and description
+    */
     const getActivityDetails = (activityId: string) => {
         for (const section of courseData.sections) {
             const activity = section.activities.find(a => a.id === activityId);
@@ -232,6 +253,12 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
         return { name: activityId, description: 'Unknown Activity' };
     };
 
+    /**
+     * Renders the appropriate content based on the active tab
+     * Handles switching between learners, overview, activities, and engagement views
+     * 
+     * @returns React element for the current tab
+    */
     const renderContent = () => {
         switch (activeTab) {
             case 'learners':

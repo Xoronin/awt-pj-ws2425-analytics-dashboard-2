@@ -41,9 +41,9 @@ const StudentGradeRec: React.FC<StudentGradeRecProps> = ({ statements }) => {
 
         // Find students with grades significantly below average (>20% worse)
         return {
-            students: studentAverages.filter(
-                student => student.averageScore < overallAverage * 0.8
-            ),
+            students: studentAverages
+                .filter(student => student.averageScore < overallAverage * 0.8)
+                .sort((a, b) => a.averageScore - b.averageScore), 
             overallAverage
         };
     }, [scoredStatements]);
