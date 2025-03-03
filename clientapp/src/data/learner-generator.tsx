@@ -181,7 +181,6 @@ const outliers: Outlier[] = [
 ];
 
 /**
- * LearnerGenerator class
  * Responsible for generating realistic learner profiles based on predefined personas and outliers
  * Uses a percentage-based distribution to create a realistic representation of a learning cohort
  */

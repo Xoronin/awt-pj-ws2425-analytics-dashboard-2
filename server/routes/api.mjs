@@ -47,13 +47,6 @@ const apiRouter = (db) => {
         try {
             const collection = await db.collection("lom_data");
 
-            //const existingCount = await collection.countDocuments();
-            //if (existingCount > 0) {
-            //    return res.status(400).json({
-            //        message: 'LOM data already exists in database'
-            //    });
-            //}
-
             // Drop all entries
             await collection.deleteMany({});
 
@@ -174,25 +167,12 @@ const apiRouter = (db) => {
             // Drop all entries
             await collection.deleteMany({});
 
-            //const existingCount = await collection.countDocuments();
-            //if (existingCount > 0) {
-            //    return res.status(400).json({
-            //        message: 'Learners already exist in database'
-            //    });
-            //}
-
             const learners = req.body;
             if (!Array.isArray(learners) || learners.length === 0) {
                 return res.status(400).json({
                     message: 'Invalid input: expected non-empty array of learners'
                 });
             }
-
-            //Create unique index
-            //await collection.createIndex(
-            //    { 'id': 1 },
-            //    { unique: true }
-            //);
 
             const result = await collection.insertMany(learners);
 

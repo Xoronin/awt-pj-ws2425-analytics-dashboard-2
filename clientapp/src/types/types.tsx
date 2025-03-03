@@ -112,6 +112,7 @@ export interface Activity {
     href: string;
     objectType: string;
     probability: number;
+    rating: number;
 }
 
 /**

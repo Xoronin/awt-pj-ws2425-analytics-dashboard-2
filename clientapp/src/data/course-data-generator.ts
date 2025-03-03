@@ -43,10 +43,36 @@ const usageProbability: Record<ActivityId, number> = {
     'I_30C2727A': 0.01   // mit Seilausrüstung Bäume erklettern
 };
 
+
+/**
+ * Rating Adjustments
+ * 
+ * This object defines a rating bias for each activity.
+ * Higher values (closer to 1.0) = more likely to get better ratings
+ * Lower values (closer to 0.0) = more likely to get worse ratings
+ */
+const ratingAdjustment = {
+    'I_A8531FEB': 0.68,  // Bäume schützen
+    'I_3DFBBC79': 0.42,  // Bäume kappen
+    'I_80934D41': 0.45,  // Bäume ausdünnen
+    'I_02429027': 0.63,  // über Fragen zu Bäumen beraten
+    'I_6FC50F13': 0.65,  // Grünpflanzen pflanzen
+    'I_F53A47AD': 0.38,  // auf Bäume klettern
+    'I_9A5F5D33': 0.58,  // Gefahren im Umgang mit Bäumen mindern
+    'I_FD36D805': 0.35,  // Kettensäge bedienen
+    'I_6EED8747': 0.60,  // bei der Baumidentifizierung assistieren 
+    'I_018EF56F': 0.52,  // Baumkonservierung
+    'I_D459AF40': 0.43,  // Krankheits- und Schädlingsbekämpfung durchführen 
+    'I_0CDA34DA': 0.41,  // Baumkrankheiten bekämpfen 
+    'I_938103FA': 0.51,  // forstwirtschaftliche Ausrüstung instand halten 
+    'I_D48D1B23': 0.47,  // Sicherheitsverfahren bei der Arbeit in großen Höhen befolgen 
+    'I_30C2727A': 0.32   // mit Seilausrüstung Bäume erklettern 
+};
+
 /**
  * Service for generating structured course data from XML manifests and LOM metadata
  */
-class CourseDataGenerator{
+class CourseDataGenerator {
     private lomDataService = new LOMDataService();
     private verbService = new VerbService();
     private templates: Map<string, any>;
@@ -92,10 +118,7 @@ class CourseDataGenerator{
 
         // Get type and href from XML data 
         const resource = xmlDoc.querySelector(`resource[identifier="${activity.id}"]`);
-        //const type = resource?.getAttribute('type');
-        //if (type !== null && type !== undefined) {
-        //    activity.type = type;
-        //}
+
         const href = resource?.querySelector('file')?.getAttribute('href');
         if (href !== null && href !== undefined) {
             activity.href = href;
@@ -123,13 +146,18 @@ class CourseDataGenerator{
 
         // Set objectType from templates
         activity.objectType = item.getAttribute('type') && this.verbToActivityType.get(item.getAttribute('type') || '') ?
-                this.verbToActivityType.get(item.getAttribute('type') || '') || '' :
-                'http://adlnet.gov/expapi/activities/course'
+            this.verbToActivityType.get(item.getAttribute('type') || '') || '' :
+            'http://adlnet.gov/expapi/activities/course'
 
         // map probability for each activity
         activity.probability = (identifier in usageProbability)
             ? usageProbability[identifier as ActivityId]
             : 0.01;
+
+        // map rating adjustment for each activity
+        activity.rating = (identifier in ratingAdjustment)
+            ? ratingAdjustment[identifier as ActivityId]
+            : 0.5;
 
         // Return activity with LOM data
         return activity;
@@ -163,9 +191,8 @@ class CourseDataGenerator{
     * @returns Total duration in minutes
     */
     private parseTypicalLearningTime(duration: string): number {
-        // Parse ISO 8601 duration format (e.g., "PT1H30M" or "PT45M")
         const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-        if (!matches) return 15; // default to 15 minutes
+        if (!matches) return 15;
 
         const [, hours, minutes, seconds] = matches;
         return (
@@ -232,7 +259,11 @@ class CourseDataGenerator{
         }
     }
 
-
+    /**
+     * Loads xAPI profile templates and maps verbs to activity types.
+     * @returns Promise that resolves when templates are loaded
+     * @throws Error if profile loading fails
+    */
     private async loadxApiProfileTemplates(): Promise<void> {
         try {
             const profile = await fetch('https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/xapi/xapi_profiles.json').then(r => r.json());
@@ -249,14 +280,8 @@ class CourseDataGenerator{
     }
 
     /**
-     * Calculates activity difficulty based on title keywords
-     * @param title - Activity title
-     * @returns Difficulty value between 0 and 1
-     */
-
-    /**
-     * Loads and processes course data from XML manifest
-     * @returns Promise resolving to structured course data
+     * Loads and processes verbs from XAPI profile
+     * @returns Promise resolving to array of Verb objects
      */
     async loadVerbs(): Promise<Verb[]> {
         try {
@@ -317,11 +342,10 @@ class CourseDataGenerator{
     }
 
     /**
-     * Transforms a parsed XML object into a structured `LomData` object.
-     * @param parsedXml - The parsed XML object.
-     * @returns A `LomData` object or `null` if the XML structure is invalid.
+     * Fetches and parses multiple LOM XML files.
+     * @returns An array of LomData objects.
      */
-    async loadLOM(parsedXml: any): Promise<LomData[]> {
+    async loadLOM(): Promise<LomData[]> {
         try {
             const manifestUrls = [
                 "https://dash.fokus.fraunhofer.de/tests/tan/awt/ws2425/objectMetadata/11.xml",
@@ -368,9 +392,10 @@ class CourseDataGenerator{
         }
     }
 
-
     /**
-     * Parse LOM from LOM files
+     * Parses a Learning Object Metadata (LOM) XML document into a structured LomData object.
+     * @param parsedXml - The parsed XML document.
+     * @returns A structured LomData object with general, educational, and classification data.
      */
     private parseLOM(parsedXml: any): LomData {
         const lomData: LomData = {

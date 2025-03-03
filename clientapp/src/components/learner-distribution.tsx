@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, Typography, Box, Divider } from '@mui/material';
 import { LearnerProfile } from '../types/types';
 
@@ -18,6 +17,12 @@ const PERSONA_ORDER = [
     'outlierD'
 ];
 
+/**
+ * Returns a consistent color for each persona type for visual identification.
+ * 
+ * @param type - The persona type identifier
+ * @returns Hex color code associated with the persona type
+*/
 const getColorForPersonaType = (type: string): string => {
     const colors = {
         struggler: '#FF6B6B',
@@ -33,17 +38,28 @@ const getColorForPersonaType = (type: string): string => {
     return colors[type as keyof typeof colors] || '#808080';
 };
 
+/**
+ * Component that displays the distribution of different learner personas in a course.
+ * Shows a visual breakdown of learner types with counts and percentages.
+ * 
+ * @param learnerProfiles - Array of learner profiles to analyze
+*/
 const LearnerDistribution = ({ learnerProfiles }: DistributionProps) => {
+
+    /**
+     * Analyzes learner profiles to calculate the distribution of persona types.
+     * Counts occurrences of each type and calculates percentages.
+     * 
+     * @returns Object mapping persona types to count and percentage data
+    */
     const calculateDistribution = () => {
         const distribution: { [key: string]: { count: number; percentage: string } } = {};
         const total = learnerProfiles.length;
 
-        // Initialize all possible persona types with zero counts
         PERSONA_ORDER.forEach(type => {
             distribution[type] = { count: 0, percentage: '0%' };
         });
 
-        // Count occurrences
         learnerProfiles.forEach(profile => {
             if (!distribution[profile.personaType]) {
                 distribution[profile.personaType] = { count: 0, percentage: '0%' };
@@ -51,7 +67,6 @@ const LearnerDistribution = ({ learnerProfiles }: DistributionProps) => {
             distribution[profile.personaType].count++;
         });
 
-        // Calculate percentages
         Object.keys(distribution).forEach(type => {
             distribution[type].percentage =
                 `${((distribution[type].count / total) * 100).toFixed(1)}%`;
