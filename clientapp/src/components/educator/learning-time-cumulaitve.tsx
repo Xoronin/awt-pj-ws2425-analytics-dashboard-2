@@ -13,6 +13,7 @@ interface LearnerDataItem {
     email: string;
     displayName: string;
     value: number;
+    color: string;
 }
 
 const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartCumulativeProps) => {
@@ -33,14 +34,38 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
         );
     };
 
-    // Fixed set of colors for consistency
+    // More distinct colors for better differentiation
     const colors = [
-        '#1565C0', // Primary blue
-        '#42A5F5', // Light blue
-        '#1976D2', // Secondary blue
-        '#2196F3', // Another blue
-        '#0D47A1', // Dark blue
+        '#1565C0',  // Blue
+        '#D32F2F',  // Red
+        '#388E3C',  // Green
+        '#FFA000',  // Amber
+        '#7B1FA2',  // Purple
+        '#00796B',  // Teal
+        '#F57C00',  // Orange
+        '#5D4037',  // Brown
+        '#C2185B',  // Pink
+        '#303F9F',  // Indigo
+        '#0097A7',  // Cyan
+        '#689F38',  // Light Green
+        '#616161',  // Grey
+        '#E64A19',  // Deep Orange
+        '#512DA8',  // Deep Purple
+        '#00ACC1',  // Light Blue
+        '#FF7043',  // Lighter Orange
+        '#673AB7',  // Violet
+        '#2E7D32',  // Darker Green
+        '#01579B',  // Darker Blue
     ];
+
+    // Create a mapping of email to color for consistent coloring
+    const emailToColorMap = useMemo(() => {
+        const map: Record<string, string> = {};
+        learnerProfiles.forEach((learner, index) => {
+            map[learner.email] = colors[index % colors.length];
+        });
+        return map;
+    }, [learnerProfiles, colors]);
 
     // Create a mapping of emails to display names
     const emailToNameMap = useMemo(() => {
@@ -107,7 +132,8 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                         dateData.push({
                             email: item.dataKey,
                             displayName: emailToNameMap[item.dataKey] || item.dataKey,
-                            value: item.value
+                            value: item.value,
+                            color: emailToColorMap[item.dataKey] || '#1565C0'
                         });
                     }
                 });
@@ -152,7 +178,7 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                     mb: 1
                 }}
             >
-                Cumulative Learning Time 
+                Cumulative Learning Time (Click on a date point to see details)
             </Typography>
 
             <Box sx={{
@@ -179,7 +205,7 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                                 value: 'Dates',
                                 position: 'insideBottom',
                                 style: { fontSize: '0.8em' },
-                                offset: -5
+                                offset: -15
                             }}
                             tick={{ fontSize: '0.75em' }}
                             height={40}
@@ -237,12 +263,12 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                                 strokeDasharray="3 3"
                             />
                         )}
-                        {learnerProfiles.map((learner, index) => (
+                        {learnerProfiles.map((learner) => (
                             <Line
                                 key={learner.email}
                                 type="monotone"
                                 dataKey={learner.email}
-                                stroke={colors[index % colors.length]}
+                                stroke={emailToColorMap[learner.email]}
                                 dot={false}
                                 activeDot={{ r: 6 }}
                             />
@@ -280,9 +306,21 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                             >
                                 <ListItemText
                                     primary={
-                                        <Typography sx={{ fontWeight: 500 }}>
-                                            {item.displayName}
-                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Box
+                                                sx={{
+                                                    width: 12,
+                                                    height: 12,
+                                                    backgroundColor: item.color,
+                                                    marginRight: 1.5,
+                                                    borderRadius: '50%',
+                                                    flexShrink: 0
+                                                }}
+                                            />
+                                            <Typography sx={{ fontWeight: 500 }}>
+                                                {item.displayName}
+                                            </Typography>
+                                        </Box>
                                     }
                                     secondary={`${item.value} minutes`}
                                 />
