@@ -1,14 +1,26 @@
-import React, { useMemo } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import React, { useMemo, useState } from "react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, ReferenceLine } from "recharts";
 import { XAPIStatement, LearnerProfile } from '../../types/types';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
 
 interface LineTimeChartCumulativeProps {
     statements: XAPIStatement[];
     learnerProfiles: LearnerProfile[];
 }
 
+// Define interface for selected data items
+interface LearnerDataItem {
+    email: string;
+    displayName: string;
+    value: number;
+}
+
 const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartCumulativeProps) => {
+    // State for the selected date and dialog
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+    const [selectedDateData, setSelectedDateData] = useState<LearnerDataItem[]>([]);
+
     // Helper function to parse ISO 8601 duration
     const parseDuration = (duration: string): number => {
         const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
@@ -29,6 +41,16 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
         '#2196F3', // Another blue
         '#0D47A1', // Dark blue
     ];
+
+    // Create a mapping of emails to display names
+    const emailToNameMap = useMemo(() => {
+        const map: Record<string, string> = {};
+        learnerProfiles.forEach((learner) => {
+            // Use email username part since name isn't available
+            map[learner.email] = learner.email.split('@')[0];
+        });
+        return map;
+    }, [learnerProfiles]);
 
     // Process statements to accumulate time per learner over time
     const data = useMemo(() => {
@@ -73,6 +95,46 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
         return mergedData;
     }, [statements, learnerProfiles]);
 
+    // Handle chart click to open the dialog
+    const handleChartClick = (data: any) => {
+        if (data && data.activeLabel) {
+            const date = data.activeLabel;
+            const dateData: LearnerDataItem[] = [];
+
+            if (data.activePayload) {
+                data.activePayload.forEach((item: any) => {
+                    if (item.value > 0) {
+                        dateData.push({
+                            email: item.dataKey,
+                            displayName: emailToNameMap[item.dataKey] || item.dataKey,
+                            value: item.value
+                        });
+                    }
+                });
+            }
+
+            // Sort by value in descending order
+            dateData.sort((a, b) => b.value - a.value);
+
+            setSelectedDate(date);
+            setSelectedDateData(dateData);
+            setDialogOpen(true);
+        }
+    };
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
+    };
+
+    // Format date for display
+    const formatDate = (dateStr: string): string => {
+        return new Date(dateStr).toLocaleDateString('de-DE', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
     return (
         <Box sx={{
             width: '100%',
@@ -90,14 +152,14 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                     mb: 1
                 }}
             >
-                Cumulative Learning Time
+                Cumulative Learning Time 
             </Typography>
 
             <Box sx={{
                 flex: 1,
                 minHeight: 0,
                 width: '100%',
-                pb:1
+                pb: 1
             }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart
@@ -108,6 +170,7 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                             left: 0,
                             bottom: 30
                         }}
+                        onClick={handleChartClick}
                     >
                         <CartesianGrid strokeDasharray="3 3" stroke="#90CAF9" />
                         <XAxis
@@ -116,9 +179,10 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                                 value: 'Dates',
                                 position: 'insideBottom',
                                 style: { fontSize: '0.8em' },
-                                offset: -15
+                                offset: -5
                             }}
                             tick={{ fontSize: '0.75em' }}
+                            height={40}
                             tickFormatter={(value) => new Date(value).toLocaleDateString('de-DE', {
                                 month: 'short',
                                 day: 'numeric'
@@ -136,25 +200,97 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                             tick={{ fontSize: '0.75em' }}
                         />
                         <Tooltip
-                            contentStyle={{
-                                backgroundColor: '#E3F2FD',
-                                border: '1px solid #1565C0',
-                                borderRadius: '4px'
+                            content={({ active, payload, label }) => {
+                                if (active && payload && payload.length) {
+                                    // Count how many learners have data for this date
+                                    const learnersWithData = payload.filter(p => (p.value ?? 0) > 0).length;
+
+                                    return (
+                                        <div style={{
+                                            backgroundColor: '#E3F2FD',
+                                            border: '1px solid #1565C0',
+                                            borderRadius: '4px',
+                                            padding: '8px 12px',
+                                            fontSize: '0.85rem'
+                                        }}>
+                                            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                                                {new Date(label).toLocaleDateString('de-DE', {
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    year: 'numeric'
+                                                })}
+                                            </div>
+                                            <div>
+                                                Click to show all {learnersWithData} learners for this date
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                                return null;
                             }}
-                            labelStyle={{ fontWeight: 'bold' }}
                         />
-                        {learnerProfiles.map((learner) => (
+                        {selectedDate && (
+                            <ReferenceLine
+                                x={selectedDate}
+                                stroke="#FF5722"
+                                strokeWidth={2}
+                                strokeDasharray="3 3"
+                            />
+                        )}
+                        {learnerProfiles.map((learner, index) => (
                             <Line
                                 key={learner.email}
                                 type="monotone"
                                 dataKey={learner.email}
-                                stroke={`#${Math.floor(Math.random() * 16777215).toString(16)}`}
+                                stroke={colors[index % colors.length]}
                                 dot={false}
+                                activeDot={{ r: 6 }}
                             />
                         ))}
                     </LineChart>
                 </ResponsiveContainer>
             </Box>
+
+            {/* Dialog to display all learners for a selected date */}
+            <Dialog
+                open={dialogOpen}
+                onClose={handleCloseDialog}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        maxHeight: '80vh'
+                    }
+                }}
+            >
+                <DialogTitle sx={{ bgcolor: '#1565C0', color: 'white' }}>
+                    Learning Time for {selectedDate ? formatDate(selectedDate) : ""}
+                </DialogTitle>
+                <DialogContent dividers>
+                    <List sx={{ width: '100%' }}>
+                        {selectedDateData.map((item, index) => (
+                            <ListItem
+                                key={item.email}
+                                divider={index < selectedDateData.length - 1}
+                                sx={{
+                                    '&:hover': {
+                                        bgcolor: '#E3F2FD'
+                                    }
+                                }}
+                            >
+                                <ListItemText
+                                    primary={
+                                        <Typography sx={{ fontWeight: 500 }}>
+                                            {item.displayName}
+                                        </Typography>
+                                    }
+                                    secondary={`${item.value} minutes`}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 };

@@ -1,34 +1,17 @@
-﻿import React, { useState, useMemo } from 'react';
-import {
-    Card,
-    CardContent,
-    Typography,
-    FormControl,
-    InputLabel,
-    Select,
-    SelectChangeEvent,
-    MenuItem,
-    Box
+﻿import {
+    Box, Card,
+    CardContent, SelectChangeEvent, Typography
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import CourseCompletion from './learner/course-completion';
-import { Verb, LearnerProfile, XAPIStatement, CourseData } from '../types/types';
-import RecommendationService from '../services/recommendation-service';
-import LearningTimeChart from './learner/learning-time';
-import LearningTimePerSection from './learner/average-time-per-module';
-import LearningAttempts from './learner/attempts-to-pass';
-import LearningAttemptsCommunity from './learner/attempts-to-pass-community';
-import AverageScorePerModule from './learner/average-score-per-module';
-import AverageScoreChart from './learner/average-score';
-import AverageScoreChartCommunity from './learner/average-score-community';
-import ActivityHistory from './learner/activity-history';
-import CourseBoxplot from './educator/course-boxplot';
-import StudentPerformanceTable from './educator/performance-table';
-import AverageScoreEducator from './educator/average-score-educator';
-import AttemptsEducator from './educator/attempts-educator';
-import LineTimeChartCumulative from './educator/learning-time-cumulaitve';
+import React, { useMemo, useState } from 'react';
 import CumulativeRec from '../services/cumulative-rec';
 import StudentGradeRec from '../services/grades-rec';
+import { CourseData, LearnerProfile, Verb, XAPIStatement } from '../types/types';
+import AttemptsEducator from './educator/attempts-educator';
+import AverageScoreEducator from './educator/average-score-educator';
+import CourseBoxplot from './educator/course-boxplot';
+import LineTimeChartCumulative from './educator/learning-time-cumulaitve';
+import StudentPerformanceTable from './educator/performance-table';
 
 interface LearnerDashboardProps {
     learnerProfiles: LearnerProfile[];
