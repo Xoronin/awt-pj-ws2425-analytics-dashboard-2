@@ -253,7 +253,7 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                             sx={{
                                 px: 1.5,
                                 py: 1.5,
-                                bgcolor: rec.score >= 0.8 ? '#2E7D32' :  
+                                bgcolor: rec.score >= 0.7 ? '#2E7D32' :  
                                     rec.score >= 0.6 ? '#F57C00' :      
                                         '#D32F2F',                          
                                 color: 'white',

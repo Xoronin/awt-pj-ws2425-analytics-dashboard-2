@@ -191,6 +191,7 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
                                         <CourseBoxplot
                                             statements={statements}
+                                            courseData={courseData}
                                         />
                                     )}
                                 </Grid>

@@ -17,7 +17,6 @@ import ActivityRatings from './content-creator/activity-ratings';
 import ActivityTime from './content-creator/activity-time';
 import ActivitiesCompletedBefore from './content-creator/activities-completed-before';
 import RatingsRec from '../services/ratings-rec';
-import LearningtimeRec from '../services/learningtime-rec';
 
 interface ContentCreatorsDashboardProps {
     statements: XAPIStatement[];

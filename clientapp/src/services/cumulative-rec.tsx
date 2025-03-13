@@ -7,6 +7,17 @@ interface CumulativeRecProps {
     learnerProfiles: LearnerProfile[];
 }
 
+interface StudentActivity {
+    email: string;
+    totalTime: number;
+    activeDays: number;
+    totalDays: number;
+    activePercentage: number;
+    inactivityPeriod: number;
+    inactivityStartDate: Date;
+    inactivityEndDate: Date;
+}
+
 const parseDuration = (duration: string): number => {
     const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
     if (!matches) return 15;
@@ -18,39 +29,128 @@ const parseDuration = (duration: string): number => {
     );
 };
 
-const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfiles }) => {
-    const studentTimes = useMemo(() => {
-        // Calculate cumulative time for each student
-        const cumulativeTime: Record<string, number> = {};
+// Number of days to consider as a significant inactivity period
+const INACTIVITY_THRESHOLD_DAYS = 5;
 
+// Helper to get date string for grouping by day
+const getDateString = (date: Date): string => {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+};
+
+// Get color based on activity percentage
+const getActivityColor = (percentage: number): string => {
+    if (percentage >= 80) return '#4CAF50'; // Green
+    if (percentage >= 60) return '#FFBB00'; // Yellow
+    if (percentage >= 50) return '#F57C00'; // Dark Orange
+    if (percentage >= 40) return '#D32F2F'; // Red
+    return '#9F2F2F'; // Dark Red
+};
+
+const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfiles }) => {
+    const inactiveStudents = useMemo(() => {
+        // Group statements by student
+        const studentActivities: Record<string, { timestamp: Date; cumulativeTime: number }[]> = {};
+
+        // Sort statements by timestamp
         const sortedStatements = [...statements].sort((a, b) =>
             new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
         );
 
+        // Track course start and end dates
+        let courseStartDate: Date | null = null;
+        let courseEndDate: Date | null = null;
+
+        if (sortedStatements.length > 0) {
+            courseStartDate = new Date(sortedStatements[0].timestamp);
+            courseEndDate = new Date(sortedStatements[sortedStatements.length - 1].timestamp);
+        }
+
+        // Process each statement to build activity timeline for each student
         sortedStatements.forEach((statement) => {
             const learnerEmail = statement.actor.mbox;
             const username = learnerEmail.split('@')[0];
 
+            if (!studentActivities[username]) {
+                studentActivities[username] = [];
+            }
+
+            const timestamp = new Date(statement.timestamp);
             const duration = statement.result?.duration ? parseDuration(statement.result.duration) : 0;
-            cumulativeTime[username] = (cumulativeTime[username] || 0) + duration;
+            
+            // Calculate cumulative time up to this point
+            const previousCumulativeTime = studentActivities[username].length > 0 
+                ? studentActivities[username][studentActivities[username].length - 1].cumulativeTime 
+                : 0;
+            
+            studentActivities[username].push({
+                timestamp,
+                cumulativeTime: previousCumulativeTime + duration
+            });
         });
 
-        // Calculate average cumulative time
-        const totalTime = Object.values(cumulativeTime).reduce((sum, time) => sum + time, 0);
-        const averageTime = totalTime / Object.keys(cumulativeTime).length;
+        // Identify students with periods of inactivity
+        const studentsWithInactivity: StudentActivity[] = [];
 
-        // Find students with cumulative time significantly below average
-        const belowAverageStudents = Object.entries(cumulativeTime)
-            .filter(([, time]) => time < averageTime * 0.8)
-            .map(([email, time]) => ({
-                email,
-                totalTime: time,
-            }));
+        Object.entries(studentActivities).forEach(([username, activities]) => {
+            // Need at least 2 activities to check for gaps
+            if (activities.length < 2) {
+                return;
+            }
 
-        return {
-            students: belowAverageStudents,
-            averageTime,
-        };
+            // Check for gaps of inactivity
+            let maxInactivityPeriod = 0;
+            let inactivityStartDate: Date | null = null;
+            let inactivityEndDate: Date | null = null;
+
+            for (let i = 1; i < activities.length; i++) {
+                const currentActivity = activities[i];
+                const previousActivity = activities[i - 1];
+                
+                // Calculate days between activities
+                const daysBetween = (currentActivity.timestamp.getTime() - previousActivity.timestamp.getTime()) / (1000 * 3600 * 24);
+                
+                if (daysBetween > maxInactivityPeriod) {
+                    maxInactivityPeriod = daysBetween;
+                    inactivityStartDate = previousActivity.timestamp;
+                    inactivityEndDate = currentActivity.timestamp;
+                }
+            }
+
+            // Calculate total learning time
+            const totalTime = activities[activities.length - 1].cumulativeTime;
+
+            // Calculate active days (days with at least one activity)
+            const activeDaysSet = new Set<string>();
+            activities.forEach(activity => {
+                activeDaysSet.add(getDateString(activity.timestamp));
+            });
+            
+            const activeDays = activeDaysSet.size;
+            
+            // Calculate total days in learning period
+            const firstActivity = activities[0].timestamp;
+            const lastActivity = activities[activities.length - 1].timestamp;
+            const totalDays = Math.ceil((lastActivity.getTime() - firstActivity.getTime()) / (1000 * 3600 * 24)) + 1;
+            
+            // Calculate active percentage
+            const activePercentage = (activeDays / totalDays) * 100;
+
+            // If there's a significant inactivity period, add the student to our list
+            if (maxInactivityPeriod >= INACTIVITY_THRESHOLD_DAYS && inactivityStartDate && inactivityEndDate) {
+                studentsWithInactivity.push({
+                    email: username,
+                    totalTime,
+                    activeDays,
+                    totalDays,
+                    activePercentage,
+                    inactivityPeriod: maxInactivityPeriod,
+                    inactivityStartDate,
+                    inactivityEndDate
+                });
+            }
+        });
+
+        return studentsWithInactivity;
     }, [statements]);
 
     return (
@@ -78,8 +178,8 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
                 background: '#F57F17'
             },
         }}>
-            {studentTimes.students.length > 0 ? (
-                studentTimes.students.map((student, index) => (
+            {inactiveStudents.length > 0 ? (
+                inactiveStudents.map((student, index) => (
                     <Box
                         key={index}
                         sx={{
@@ -93,7 +193,7 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
                             flexDirection: 'column',
                             flex: '0 0 auto',
                             minHeight: '30px',
-                            ...(index === studentTimes.students.length - 1 && {
+                            ...(index === inactiveStudents.length - 1 && {
                                 mb: 0.5
                             }),
                             '&:hover': {
@@ -129,11 +229,7 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
                                 sx={{
                                     px: 1.5,
                                     py: 1.5,
-                                    bgcolor: student.totalTime >= studentTimes.averageTime * 0.9
-                                        ? '#F57C00'
-                                        : student.totalTime >= studentTimes.averageTime * 0.85
-                                            ? '#D32F2F'
-                                            : '#9F2F2F',
+                                    bgcolor: getActivityColor(student.activePercentage),
                                     color: 'white',
                                     borderRadius: 1,
                                     fontSize: '0.8rem',
@@ -141,7 +237,7 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
                                     lineHeight: 1,
                                 }}
                             >
-                                Total Time: {Math.round(student.totalTime)}mins
+                                Active: {student.activeDays}/{student.totalDays} days
                             </Typography>
                         </Box>
 
@@ -154,7 +250,7 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
                                 marginBottom: '8px',
                             }}
                         >
-                            ⚠️ Low engagement detected! Student's total learning time is significantly below class average of {Math.round(studentTimes.averageTime)} minutes.
+                            ⚠️ Inactivity detected! Student had a {Math.round(student.inactivityPeriod)}-day learning gap between {student.inactivityStartDate.toLocaleDateString()} and {student.inactivityEndDate.toLocaleDateString()}.
                         </Typography>
 
                     </Box>
@@ -170,7 +266,7 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
                     p: 2,
                 }}>
                     <Typography>
-                        👍 All students are showing good engagement levels based on learning time.
+                        👍 All students are showing consistent engagement with no significant periods of inactivity.
                     </Typography>
                 </Box>
             )}

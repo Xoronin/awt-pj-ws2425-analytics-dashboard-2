@@ -42,7 +42,7 @@ const StudentGradeRec: React.FC<StudentGradeRecProps> = ({ statements }) => {
         // Find students with grades significantly below average (>20% worse)
         return {
             students: studentAverages
-                .filter(student => student.averageScore < overallAverage * 0.8)
+                .filter(student => student.averageScore < overallAverage * 0.6)
                 .sort((a, b) => a.averageScore - b.averageScore), 
             overallAverage
         };
@@ -121,11 +121,9 @@ const StudentGradeRec: React.FC<StudentGradeRecProps> = ({ statements }) => {
                                 sx={{
                                     px: 1.5,
                                     py: 1.5,
-                                    bgcolor: student.averageScore >= studentGrades.overallAverage * 0.9
-                                        ? '#F57C00'
-                                        : student.averageScore >= studentGrades.overallAverage * 0.85
-                                            ? '#D32F2F'
-                                            : '#9F2F2F',
+                                    bgcolor: student.averageScore <= studentGrades.overallAverage * 0.4
+                                    ? '#6B1212'
+                                    : '#D32F2F',
                                     color: 'white',
                                     borderRadius: 1,
                                     fontSize: '0.8rem',
@@ -146,7 +144,7 @@ const StudentGradeRec: React.FC<StudentGradeRecProps> = ({ statements }) => {
                                 marginBottom: '8px',
                             }}
                         >
-                            🚨 Student needs attention! Grade is significantly below class average of {studentGrades.overallAverage.toFixed(2)}.
+                            🚨 Student needs attention! Grade is significantly below class average.
                         </Typography>
 
                     </Box>
