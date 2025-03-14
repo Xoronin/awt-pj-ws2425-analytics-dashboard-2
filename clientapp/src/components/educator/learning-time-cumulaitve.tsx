@@ -178,7 +178,7 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                     mb: 1
                 }}
             >
-                Cumulative Learning Time (Click on a date point to see details)
+                Cumulative Learning Time
             </Typography>
 
             <Box sx={{

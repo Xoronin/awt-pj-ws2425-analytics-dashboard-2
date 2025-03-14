@@ -118,7 +118,7 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
                     flexDirection: 'column',
                     gap: 2
                 }}>
-                    {/* Summary Card */}
+                    {/* Activity Review Card */}
                     <Card
                         style={{ color: 'black', backgroundColor: '#E3F2FD' }}
                         sx={{
@@ -150,7 +150,7 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
                                         }}
                                     >
                                         <span className="emoji">📖<br /></span>
-                                        <span className="text"> Summary</span>
+                                        <span className="text"> Activity<br />Review </span>
                                     </Typography>
                                 </Grid>
 

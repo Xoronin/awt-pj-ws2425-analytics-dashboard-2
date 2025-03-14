@@ -12,7 +12,7 @@ interface AverageScoreEducatorProps {
 const AverageScoreEducator: React.FC<AverageScoreEducatorProps> = ({ statements, learners, courseData }) => {
     const theme = useTheme();
 
-    // Berechne den durchschnittlichen Score für alle Nutzer
+    // Berechne den durchschnittlichen Score fï¿½r alle Nutzer
     const averageScore = useMemo(() => {
         const scores: number[] = [];
 
@@ -27,11 +27,11 @@ const AverageScoreEducator: React.FC<AverageScoreEducatorProps> = ({ statements,
             }
         });
 
-        // Gesamt-Mittelwert für alle Nutzer berechnen
+        // Gesamt-Mittelwert fï¿½r alle Nutzer berechnen
         return scores.length > 0 ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0;
     }, [statements, learners]);
 
-    // Daten für das Kreisdiagramm
+    // Daten fï¿½r das Kreisdiagramm
     const chartData = [
         { name: 'Average Score', value: averageScore },
         { name: 'Remaining', value: 100 - averageScore }

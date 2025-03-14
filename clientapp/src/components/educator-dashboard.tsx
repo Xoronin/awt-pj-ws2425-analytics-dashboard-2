@@ -146,7 +146,7 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                         </CardContent>
                     </Card>
 
-                    {/* Module Performance Card */}
+                    {/* Academic Results Card */}
                     <Card
                         style={{ color: 'black', backgroundColor: '#E8F5E9' }}
                         sx={{
@@ -182,7 +182,7 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                                         }}
                                     >
                                         <span className="emoji">📊<br /></span>
-                                        <span className="text"> Modules <br/> Statistics</span>
+                                        <span className="text"> Academic <br/> Results</span>
                                     </Typography>
                                 </Grid>
 
@@ -251,10 +251,10 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                                 }}
                             >
                                 <span className="emoji">🎯</span>
-                                <span className="text"> Grades Recommendations</span>
+                                <span className="text"> Student Results</span>
                             </Typography>
 
-                            {/* Grades Recommendations */}
+                            {/* Student Results */}
                             <Grid size={{ xs: 12, md: 12 }} sx={{
                                 height: '100%',
                                 p: 0.5,

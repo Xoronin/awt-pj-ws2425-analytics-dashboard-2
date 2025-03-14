@@ -17,7 +17,7 @@ const AttemptsEducator: React.FC<AttemptsEducatorProps> = ({ statements, learner
     const attemptsData = useMemo(() => {
         const attemptsMap: Record<string, { failed: number; passed: number }> = {};
 
-        // Sammeln der Versuche für alle Lernenden
+        // Sammeln der Versuche fï¿½r alle Lernenden
         learners.forEach(learner => {
             statements.forEach(statement => {
                 if (statement.actor.mbox === learner.email) {
@@ -38,7 +38,7 @@ const AttemptsEducator: React.FC<AttemptsEducatorProps> = ({ statements, learner
             });
         });
 
-        // Berechne die mittlere Anzahl der Versuche für alle Lernenden
+        // Berechne die mittlere Anzahl der Versuche fï¿½r alle Lernenden
         const totalAttempts = Object.values(attemptsMap).reduce(
             (acc, { failed, passed }) => {
                 acc.failed += failed;
@@ -85,7 +85,7 @@ const AttemptsEducator: React.FC<AttemptsEducatorProps> = ({ statements, learner
                     mb: 1
                 }}
             >
-                Attempts to Pass
+                Passed Attempts
             </Typography>
 
             <Box sx={{

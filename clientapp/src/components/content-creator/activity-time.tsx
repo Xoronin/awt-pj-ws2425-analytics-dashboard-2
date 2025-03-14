@@ -47,7 +47,7 @@ const ActivityTime: React.FC<ActivityTimeProps> = ({ statements, courseData }) =
     }, [activityId, courseData]);
 
     // Log the typicalLearningTime to the console
-    console.log('Typical Learning Time:', activityTypicalTime);
+    //console.log('Typical Learning Time:', activityTypicalTime);
 
     // Process the data to extract the learning times for each student
     const learningTimes = useMemo(() => {
@@ -132,7 +132,7 @@ const ActivityTime: React.FC<ActivityTimeProps> = ({ statements, courseData }) =
                     mb: 1
                 }}
             >
-                Learning Time Distribution (in min)
+                Learning Time Distribution
             </Typography>
 
             <Box sx={{

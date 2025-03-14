@@ -114,12 +114,13 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
         );
 
         if (relevantStatements.length === 0) return 'N/A'; // Return 'N/A' if there are no completed statements with duration.
-
+        console.log('Duration:', relevantStatements);
         const totalDuration = relevantStatements.reduce((sum, statement) => {
             const duration = statement.result?.duration;
             return sum + (duration ? parseDuration(duration) : 0);
         }, 0);
-
+        console.log('Total Duration:', totalDuration);
+        console.log('Rel. Statements:', relevantStatements.length);
         const averageDuration = Math.round(totalDuration / relevantStatements.length);
         return `${averageDuration} min`; // Return the average duration in minutes.
     };
