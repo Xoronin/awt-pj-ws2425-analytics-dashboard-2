@@ -51,7 +51,7 @@ const ActivityTime: React.FC<ActivityTimeProps> = ({ statements, courseData }) =
         return null; 
     }, [activityId, courseData]);
 
-    console.log('Typical Learning Time:', activityTypicalTime);
+    //console.log('Typical Learning Time:', activityTypicalTime);
 
     /**
      * Processes xAPI statements to calculate total learning time for each student
@@ -149,7 +149,7 @@ const ActivityTime: React.FC<ActivityTimeProps> = ({ statements, courseData }) =
                     mb: 1
                 }}
             >
-                Learning Time Distribution (in min)
+                Learning Time Distribution
             </Typography>
 
             <Box sx={{

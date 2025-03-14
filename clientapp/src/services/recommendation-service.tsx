@@ -9,6 +9,14 @@ interface RecommendationServiceProps {
     courseData: CourseData;
 }
 
+/**
+ * Interface for tracking a learner's history with an activity
+ * @interface ActivityHistory
+ * @property {number} completions - Number of times the activity was completed
+ * @property {number[]} scores - Array of scores achieved on this activity
+ * @property {number} avgTime - Average time spent on the activity in minutes
+ * @property {number} attempts - Total number of attempts on the activity
+ */
 type ActivityHistory = {
     completions: number;
     scores: number[];
@@ -16,14 +24,28 @@ type ActivityHistory = {
     attempts: number;
 };
 
-type PersonaWeights = {
-    [key in 'struggler' | 'average' | 'sprinter' | 'gritty' | 'coaster']: number;
-};
-
+/**
+ * Interface for a recommended activity with score
+ * @interface RecommendedActivity
+ * @extends Activity
+ * @property {number} score - Recommendation score (0-1) indicating match quality
+ */
 type RecommendedActivity = Activity & {
     score: number;
 };
 
+/** 
+ * Provides personalized activity recommendations for learners based on their
+ * learning history, performance, and persona type.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {LearnerProfile} props.learnerProfile - The learner's profile data
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {CourseData} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A scrollable list of recommended activities
+ */
 const RecommendationService: React.FC<RecommendationServiceProps> = ({
     learnerProfile,
     statements,
@@ -31,17 +53,29 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
 }) => {
     const [recommendations, setRecommendations] = useState<RecommendedActivity[]>([]);
 
+    /**
+     * Extracts the activity ID from an xAPI statement.
+     * Prioritizes the external-id extension if available, otherwise uses the object ID.
+     * 
+     * @param {XAPIStatement} statement - xAPI statement to extract ID from
+     * @returns {string} Activity ID
+     */
     const getActivityId = (statement: XAPIStatement): string => {
-        // Try to get ID from extensions first
         const extensionId = statement.object.definition.extensions?.[
             'https://w3id.org/learning-analytics/learning-management-system/external-id'
         ];
         if (extensionId) return extensionId;
 
-        // Fallback to object ID
         return statement.object.id;
     };
 
+    /**
+     * Analyzes statements to build a history of learner's interactions with activities.
+     * 
+     * @param {XAPIStatement[]} statements - Array of xAPI statements
+     * @param {string} learnerEmail - Email of the learner to analyze
+     * @returns {Record<string, ActivityHistory>} Map of activity IDs to their history data
+     */
     const analyzeStatements = (statements: XAPIStatement[], learnerEmail: string): Record<string, ActivityHistory> => {
         return statements
             .filter(s => s.actor.mbox === learnerEmail)
@@ -63,36 +97,33 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
             }, {} as Record<string, ActivityHistory>);
     };
 
-    const getMetricValue = (metric: number | { start: number; middle: number; end: number }): number => {
-        if (typeof metric === 'number') return metric;
-        return (metric.start + metric.middle + metric.end) / 3;
-    };
-
+    /**
+     * Calculates a matching score between a learner and an activity.
+     * Considers the learner's persona type to weight difficulty and duration factors differently.
+     * 
+     * @param {Activity} activity - The activity to score
+     * @param {LearnerProfile} learner - The learner's profile
+     * @param {Record<string, ActivityHistory>} history - The learner's activity history
+     * @returns {number} Score between 0-1 indicating how well the activity matches the learner
+     */
     const calculateActivityScore = (
         activity: Activity,
         learner: LearnerProfile,
         history: Record<string, ActivityHistory>
     ): number => {
-        // Get learner's average performance from history
         const avgScore = Object.values(history).reduce((sum, h) =>
             sum + (h.scores.length ? h.scores.reduce((a, b) => a + b, 0) / h.scores.length : 0), 0)
             / Math.max(Object.keys(history).length, 1);
 
-        // Get learner's average duration
         const avgDuration = Object.values(history).reduce((sum, h) => sum + h.avgTime, 0)
             / Math.max(Object.keys(history).length, 1);
 
-        // Calculate difficulty match (prefers slightly more challenging activities)
         const targetDifficulty = Math.min(avgScore + 0.2, 1);
         const difficultyMatch = 1 - Math.abs(targetDifficulty - activity.difficulty);
 
-        // Calculate duration match
         const durationMatch = 1 - Math.min(1, Math.abs(activity.estimatedDuration - avgDuration) / 60);
 
 
-        //Learner rausnhemen
-        // vorherige aktivitäten, durations, noten und kurse nach reihenfolge
-        // Apply persona-specific scoring
         switch (learner.personaType) {
             case 'struggler':
                 return difficultyMatch * 0.7 + durationMatch * 0.3;
@@ -102,11 +133,17 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                 return difficultyMatch * 0.8 + durationMatch * 0.2;
             case 'coaster':
                 return difficultyMatch * 0.5 + durationMatch * 0.5;
-            default: // average
+            default: 
                 return difficultyMatch * 0.6 + durationMatch * 0.4;
         }
     };
 
+    /**
+     * Generates personalized activity recommendations based on learner's history.
+     * Filters completed activities, checks prerequisites, and sorts by matching score.
+     * 
+     * @returns {RecommendedActivity[]} Array of recommended activities sorted by score
+     */
     const generateRecommendations = (): RecommendedActivity[] => {
         if (!courseData) return [];
 
@@ -151,6 +188,12 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
             .sort((a, b) => b.score - a.score)
     };
 
+    /**
+     * Maps numeric difficulty values to human-readable strings.
+     * 
+     * @param {number} difficulty - Numeric difficulty value
+     * @returns {string} Human-readable difficulty level
+     */
     const mapActivityDifficultyToString = (difficulty: number): string => {
         switch (difficulty) {
             case 0.2:
@@ -247,7 +290,7 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                             sx={{
                                 px: 1.5,
                                 py: 1.5,
-                                bgcolor: rec.score >= 0.8 ? '#2E7D32' :  
+                                bgcolor: rec.score >= 0.7 ? '#2E7D32' :
                                     rec.score >= 0.6 ? '#F57C00' :      
                                         '#D32F2F',                          
                                 color: 'white',

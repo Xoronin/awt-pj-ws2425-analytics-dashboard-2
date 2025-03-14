@@ -24,7 +24,6 @@ import VerbService from './services/verb-service';
 import CourseDataGenerator from './data/course-data-generator';
 import LearnerGenerator from './data/learner-generator';
 import XAPIStatistics from './components/xapi-statistics';
-import XAPIGenerator from './data/xapi-generator';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -77,17 +76,11 @@ const App = () => {
             const courseData = await services.courseData.loadCourseData();
             setCourseData(courseData);
 
-            //await services.learnerGenerator.generateAndStoreLearners(50);
             const learners = await services.learner.getLearnerProfiles();
             setLearnerProfiles(learners);
 
             const verbs = await services.verb.getVerbs();
             setVerbs(verbs);
-
-            // Generate new xApi Statements
-            //const xApiGenerator = new XAPIGenerator(courseData, verbs, learners);
-            //const result = await xApiGenerator.generateAndSaveStatements(50, 12);
-            //setStatements(result.statements);
 
             const statements = await services.xApi.getStatements();
             setStatements(statements);

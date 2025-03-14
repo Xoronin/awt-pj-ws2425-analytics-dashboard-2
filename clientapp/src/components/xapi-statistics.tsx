@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Verb, XAPIStatement, CourseData, LearnerProfile } from '../types/types';
 import {
     Card,

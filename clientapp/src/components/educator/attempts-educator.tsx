@@ -79,7 +79,7 @@ const AttemptsEducator: React.FC<AttemptsEducatorProps> = ({ statements, learner
         return {
             failed: totalAttempts.failed,
             passed: totalAttempts.passed,
-            totalAttempts: totalAttempts.failed + totalAttempts.passed, // Gesamtzahl der Versuche
+            totalAttempts: totalAttempts.failed + totalAttempts.passed,
             averageAttempts
         };
     }, [statements, learners]);
@@ -113,7 +113,7 @@ const AttemptsEducator: React.FC<AttemptsEducatorProps> = ({ statements, learner
                     mb: 1
                 }}
             >
-                Attempts to Pass
+                Passed Attempts
             </Typography>
 
             <Box sx={{

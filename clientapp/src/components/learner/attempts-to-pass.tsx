@@ -90,7 +90,7 @@ const LearningAttempts: React.FC<LearningAttempts> = ({ statements, learner }) =
                     textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
                 }}
             >
-                Your Attempts to Pass
+                Your Passed Attempts
             </Typography>
 
             <ResponsiveContainer width="100%" height="100%">

@@ -1,7 +1,4 @@
-﻿import {
-    Box, Card,
-    CardContent, SelectChangeEvent, Typography
-} from '@mui/material';
+﻿import { Box, Card, CardContent, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import React, { useMemo, useState } from 'react';
 import CumulativeRec from '../services/cumulative-rec';
@@ -20,6 +17,18 @@ interface LearnerDashboardProps {
     courseData: CourseData | null;
 }
 
+/**
+ * A comprehensive dashboard for educators to view learner performance analytics.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {LearnerProfile[]} props.learnerProfiles - Array of learner profiles
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {Verb[]} props.verbs - Array of available xAPI verbs
+ * @param {CourseData | null} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A dashboard interface with multiple analytics visualizations
+ */
 const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
     learnerProfiles,
     statements,
@@ -43,10 +52,6 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
             )
         };
     }, [selectedLearnerId, statements, learnerProfiles]);
-
-    const handleLearnerChange = (event: SelectChangeEvent) => {
-        setSelectedLearnerId(event.target.value);
-    };
 
     return (
         <Box sx={{
@@ -146,7 +151,7 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                         </CardContent>
                     </Card>
 
-                    {/* Module Performance Card */}
+                    {/* Academic Results Card */}
                     <Card
                         style={{ color: 'black', backgroundColor: '#E8F5E9' }}
                         sx={{
@@ -182,7 +187,7 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                                         }}
                                     >
                                         <span className="emoji">📊<br /></span>
-                                        <span className="text"> Modules <br/> Statistics</span>
+                                        <span className="text"> Academic <br /> Results</span>
                                     </Typography>
                                 </Grid>
 
@@ -191,6 +196,7 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                                     {filteredData.statements.length > 0 && courseData && selectedLearnerId && (
                                         <CourseBoxplot
                                             statements={statements}
+                                            courseData={courseData}
                                         />
                                     )}
                                 </Grid>
@@ -250,10 +256,10 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                                 }}
                             >
                                 <span className="emoji">🎯</span>
-                                <span className="text"> Grades Recommendations</span>
+                                <span className="text"> Student Results</span>
                             </Typography>
 
-                            {/* Grades Recommendations */}
+                            {/* Student Results */}
                             <Grid size={{ xs: 12, md: 12 }} sx={{
                                 height: '100%',
                                 p: 0.5,

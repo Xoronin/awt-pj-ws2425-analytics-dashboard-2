@@ -356,8 +356,7 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                     <TableHead>
                         <TableRow>
                             {[
-                                { id: 'id' as SortableColumn, label: 'Id', width: '10%' },
-                                { id: 'resourceType' as SortableColumn, label: 'Resource Type', width: '10%' },
+                                { id: 'title' as SortableColumn, label: 'Activity Name', width: '10%' },                                { id: 'resourceType' as SortableColumn, label: 'Resource Type', width: '10%' },
                                 { id: 'interactivityType' as SortableColumn, label: 'Interactivity Type', width: '10%' },
                                 { id: 'interactivityLevel' as SortableColumn, label: 'Interactivity Level', width: '10%' },
                                 { id: 'semanticDensity' as SortableColumn, label: 'Semantic Density', width: '10%' },
@@ -387,8 +386,7 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                     <TableBody>
                         {sortRows(rows).map((row, index) => (
                             <TableRow key={index}>
-                                <TableCell sx={{ width: '10%' }} align="left">{row.activityId}</TableCell>
-                                <TableCell sx={{ width: '10%' }} align="left">{row.resourceType}</TableCell>
+                                <TableCell sx={{ width: '10%' }} align="left">{row.title}</TableCell>                                <TableCell sx={{ width: '10%' }} align="left">{row.resourceType}</TableCell>
                                 <TableCell sx={{ width: '10%' }} align="left">{row.interactivityType}</TableCell>
                                 <TableCell sx={{ width: '10%' }} align="left">{row.interactivityLevel}</TableCell>
                                 <TableCell sx={{ width: '10%' }} align="left">{row.semanticDensity}</TableCell>
