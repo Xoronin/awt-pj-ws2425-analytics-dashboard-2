@@ -2,47 +2,81 @@ import React, { useMemo } from 'react';
 import { Box, Typography, LinearProgress } from '@mui/material';
 import { XAPIStatement } from '../../types/types';
 
+/**
+ * Props interface for the ActivitiesCompletedBefore component
+ * @interface ActivitiesCompletedBeforeProps
+ * @property {XAPIStatement[]} statements - Array of xAPI statements containing completion data
+ * @property {any} courseData - Data structure containing course sections and activities
+ * @property {string} SelectedCourseName - Name of the currently selected course
+ */
 interface ActivitiesCompletedBeforeProps {
     statements: XAPIStatement[];
-    courseData: any; // Define the appropriate type for courseData if available
+    courseData: any; 
     SelectedCourseName: string;
 }
 
+/**
+ * Component that shows which activities were completed before the selected course
+ * 
+ * This component analyzes xAPI statements to determine which courses students completed
+ * prior to the currently selected course, displaying them as a sorted list with
+ * progress bars indicating the percentage of students who completed each activity.
+ * 
+ * @component
+ * @param {ActivitiesCompletedBeforeProps} props - Component props
+ * @returns {React.ReactElement} The rendered component
+ */
 const ActivitiesCompletedBefore: React.FC<ActivitiesCompletedBeforeProps> = ({
     statements,
     courseData,
     SelectedCourseName,
 }) => {
-    // Find the ActivityId for the selected course name (current course)
+
+    /**
+     * Finds the activity ID for the selected course name
+     * 
+     * @returns {string|undefined} The ID of the selected course activity
+     */
     const activityId = useMemo(() => {
         const activity = courseData.sections.find((s: any) =>
             s.activities.find((a: any) => a.title === SelectedCourseName)
         )?.activities.find((a: any) => a.title === SelectedCourseName);
-        return activity?.id; // Return the id of the found activity, or undefined if not found
+        return activity?.id; 
     }, [courseData, SelectedCourseName]);
 
-    // Get the course title by activityId
+    /**
+     * Retrieves the course title from its ID
+     * 
+     * @param {string} id - The activity ID to look up
+     * @returns {string} The title of the activity or the ID if not found
+     */
     const getCourseTitleById = (id: string) => {
         const activity = courseData.sections
             .flatMap((section: any) => section.activities)
             .find((activity: any) => activity.id === id);
-        return activity?.title || id; // Return the title or id if not found
+        return activity?.title || id; 
     };
 
-    // Process the statements to count how many students completed each course before the selected course
+    /**
+     * Processes xAPI statements to determine activities completed before the selected course
+     * 
+     * This complex data processing:
+     * 1. Identifies students who completed the current course
+     * 2. For each student, finds which other courses they completed before the current one
+     * 3. Calculates completion counts and percentages for each activity
+     * 
+     * @returns {Object} Object containing completion data and total student count
+     */
     const { coursesCompletedBefore, totalStudents } = useMemo(() => {
         if (!activityId) return { coursesCompletedBefore: {}, totalStudents: 0 };
 
-        // Store the count of students who completed each course before the current course
-        const courseCompletionCounts: { [key: string]: Set<string> } = {}; // Using a Set to ensure unique students
-        const allStudents = new Set<string>(); // Track all unique students
+        const courseCompletionCounts: { [key: string]: Set<string> } = {}; 
+        const allStudents = new Set<string>();
 
-        // Separate students into two cases:
-        const studentsCompletedCurrentCourse = new Set<string>(); // Store students who have completed the current course
+        const studentsCompletedCurrentCourse = new Set<string>(); 
 
-        // Process all statements
         statements.forEach((statement) => {
-            if (statement.verb.id !== 'http://adlnet.gov/expapi/verbs/completed') return; // Only consider "completed" verbs
+            if (statement.verb.id !== 'http://adlnet.gov/expapi/verbs/completed') return; 
 
             const completedActivityId = statement.object.definition.extensions?.[
                 'https://w3id.org/learning-analytics/learning-management-system/external-id'
@@ -50,16 +84,13 @@ const ActivitiesCompletedBefore: React.FC<ActivitiesCompletedBeforeProps> = ({
 
             if (!completedActivityId) return;
 
-            // Track all students
             const studentEmail = statement.actor.mbox;
             allStudents.add(studentEmail);
 
-            // Check if the student completed the current course
             if (completedActivityId === activityId) {
                 studentsCompletedCurrentCourse.add(studentEmail);
             } else {
                 if (studentsCompletedCurrentCourse.has(studentEmail)) {
-                    // Case 2: The student has completed the current course, so we check timestamps
                     const currentCourseTimestamp = statements
                         .filter(
                             (s) =>
@@ -71,14 +102,12 @@ const ActivitiesCompletedBefore: React.FC<ActivitiesCompletedBeforeProps> = ({
                         .map((s) => s.timestamp)[0];
 
                     if (new Date(statement.timestamp) < new Date(currentCourseTimestamp)) {
-                        // The student completed this course before the current course
                         if (!courseCompletionCounts[completedActivityId]) {
                             courseCompletionCounts[completedActivityId] = new Set();
                         }
                         courseCompletionCounts[completedActivityId].add(studentEmail);
                     }
                 } else {
-                    // Case 1: The student has not completed the current course
                     if (!courseCompletionCounts[completedActivityId]) {
                         courseCompletionCounts[completedActivityId] = new Set();
                     }
@@ -104,7 +133,12 @@ const ActivitiesCompletedBefore: React.FC<ActivitiesCompletedBeforeProps> = ({
         return { coursesCompletedBefore: result, totalStudents };
     }, [statements, activityId, courseData]);
 
-    // Sort the courses by percentage in descending order
+    /**
+     * Sorts courses by completion percentage and adds titles
+     * 
+     * @returns {Array<{activityId: string, count: number, percentage: number, title: string}>}
+     *          Sorted array of course completion data
+     */
     const sortedCourses = useMemo(() => {
         return Object.entries(coursesCompletedBefore)
             .sort(([, a], [, b]) => b.percentage - a.percentage)

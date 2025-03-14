@@ -3,12 +3,25 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { XAPIStatement, LearnerProfile } from '../../types/types';
 import { Box, Typography, Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
 
+/**
+ * Props interface for the LineTimeChartCumulative component
+ * @interface LineTimeChartCumulativeProps
+ * @property {XAPIStatement[]} statements - Array of xAPI statements containing learning activity data
+ * @property {LearnerProfile[]} learnerProfiles - Array of learner profile objects with email identifiers
+*/
 interface LineTimeChartCumulativeProps {
     statements: XAPIStatement[];
     learnerProfiles: LearnerProfile[];
 }
 
-// Define interface for selected data items
+/**
+ * Interface representing a single learner's data item for a specific date
+ * @interface LearnerDataItem
+ * @property {string} email - Learner's email address used as unique identifier
+ * @property {string} displayName - Learner's display name (derived from email)
+ * @property {number} value - Cumulative learning time value in minutes
+ * @property {string} color - Color code for visual representation in the chart
+*/
 interface LearnerDataItem {
     email: string;
     displayName: string;
@@ -16,13 +29,24 @@ interface LearnerDataItem {
     color: string;
 }
 
+/**
+ * Component that displays a cumulative line chart of learning time across multiple learners
+ * 
+ * @component
+ * @param {LineTimeChartCumulativeProps} props - Component props
+ * @returns {React.ReactElement} The rendered component
+*/
 const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartCumulativeProps) => {
-    // State for the selected date and dialog
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
     const [selectedDateData, setSelectedDateData] = useState<LearnerDataItem[]>([]);
 
-    // Helper function to parse ISO 8601 duration
+    /**
+     * Parses an ISO 8601 duration string and converts it to minutes
+     * 
+     * @param {string} duration - ISO 8601 duration string (e.g., "PT1H30M15S")
+     * @returns {number} Total duration in minutes
+    */
     const parseDuration = (duration: string): number => {
         const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
         if (!matches) return 0;
@@ -34,7 +58,8 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
         );
     };
 
-    // More distinct colors for better differentiation
+    // Color palette for learner lines in the chart
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const colors = [
         '#1565C0',  // Blue
         '#D32F2F',  // Red
@@ -58,7 +83,11 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
         '#01579B',  // Darker Blue
     ];
 
-    // Create a mapping of email to color for consistent coloring
+    /**
+     * Creates a mapping of learner emails to consistent colors
+     * 
+     * @returns {Record<string, string>} Map of email addresses to color codes
+    */
     const emailToColorMap = useMemo(() => {
         const map: Record<string, string> = {};
         learnerProfiles.forEach((learner, index) => {
@@ -67,7 +96,12 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
         return map;
     }, [learnerProfiles, colors]);
 
-    // Create a mapping of emails to display names
+    /**
+     * Creates a mapping of learner emails to display names
+     * Extracts username part from email address as display name
+     * 
+     * @returns {Record<string, string>} Map of email addresses to display names
+    */
     const emailToNameMap = useMemo(() => {
         const map: Record<string, string> = {};
         learnerProfiles.forEach((learner) => {
@@ -77,7 +111,11 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
         return map;
     }, [learnerProfiles]);
 
-    // Process statements to accumulate time per learner over time
+    /**
+     * Processes xAPI statements to calculate cumulative learning time per learner over time
+     * 
+     * @returns {Record<string, any>[]} Array of data points for the chart, with cumulative times for each learner
+    */
     const data = useMemo(() => {
         const learnerData: Record<string, { date: string; time: number }[]> = {};
         learnerProfiles.forEach((learner) => {
@@ -120,7 +158,11 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
         return mergedData;
     }, [statements, learnerProfiles]);
 
-    // Handle chart click to open the dialog
+    /**
+     * Handles chart click events and opens dialog with details for the selected date
+     * 
+     * @param {any} data - Click event data from the Recharts component
+    */
     const handleChartClick = (data: any) => {
         if (data && data.activeLabel) {
             const date = data.activeLabel;
@@ -148,11 +190,19 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
         }
     };
 
+    /**
+     * Closes the details dialog
+    */
     const handleCloseDialog = () => {
         setDialogOpen(false);
     };
 
-    // Format date for display
+    /**
+     * Formats a date string for display in the German locale format
+     * 
+     * @param {string} dateStr - ISO date string
+     * @returns {string} Formatted date string
+     */
     const formatDate = (dateStr: string): string => {
         return new Date(dateStr).toLocaleDateString('de-DE', {
             year: 'numeric',
@@ -228,7 +278,6 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                         <Tooltip
                             content={({ active, payload, label }) => {
                                 if (active && payload && payload.length) {
-                                    // Count how many learners have data for this date
                                     const learnersWithData = payload.filter(p => (p.value ?? 0) > 0).length;
 
                                     return (

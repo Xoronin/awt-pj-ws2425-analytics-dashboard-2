@@ -3,13 +3,38 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Box, Typography, useTheme } from '@mui/material';
 import { XAPIStatement } from '../../types/types';
 
+/**
+ * Props interface for the ActivityRatings component
+ * @interface ActivityRatingsProps
+ * @property {XAPIStatement[]} statements - Array of xAPI statements containing rating data
+ */
 interface ActivityRatingsProps {
     statements: XAPIStatement[];
 }
 
+/**
+ * Component that displays a bar chart visualization of activity ratings
+ * 
+ * This component analyzes xAPI statements with "rated" verbs to create a
+ * distribution chart showing how many ratings were given for each score (1-10).
+ * 
+ * @component
+ * @param {ActivityRatingsProps} props - Component props
+ * @returns {React.ReactElement} The rendered component
+ */
 const ActivityRatings: React.FC<ActivityRatingsProps> = ({ statements }) => {
     const theme = useTheme();
 
+    /**
+     * Processes xAPI statements to extract rating data
+     * 
+     * This function:
+     * 1. Filters statements for those with the "rated" verb
+     * 2. Counts occurrences of each rating score (1-10)
+     * 3. Transforms the data into the format required by the chart
+     * 
+     * @returns {Array<{rating: number, count: number}>} Array of rating counts for visualization
+     */
     const ratingsData = useMemo(() => {
         const ratingsCount = Array(10).fill(0); 
 
