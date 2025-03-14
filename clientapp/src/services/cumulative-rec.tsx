@@ -1,12 +1,25 @@
 import React, { useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 import type { XAPIStatement, LearnerProfile } from '../types/types';
+import { ParseDuration } from '../helper/helper';
 
 interface CumulativeRecProps {
     statements: XAPIStatement[];
     learnerProfiles: LearnerProfile[];
 }
 
+/**
+ * Interface for student activity analysis
+ * @interface StudentActivity
+ * @property {string} email - Student's email identifier
+ * @property {number} totalTime - Total learning time in minutes
+ * @property {number} activeDays - Number of days with learning activity
+ * @property {number} totalDays - Total course duration in days
+ * @property {number} activePercentage - Percentage of days active
+ * @property {number} inactivityPeriod - Longest period of inactivity in days
+ * @property {Date} inactivityStartDate - Start date of longest inactivity period
+ * @property {Date} inactivityEndDate - End date of longest inactivity period
+ */
 interface StudentActivity {
     email: string;
     totalTime: number;
@@ -18,26 +31,12 @@ interface StudentActivity {
     inactivityEndDate: Date;
 }
 
-const parseDuration = (duration: string): number => {
-    const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!matches) return 15;
-    const [, hours, minutes, seconds] = matches;
-    return (
-        (parseInt(hours || '0') * 60) +
-        parseInt(minutes || '0') +
-        Math.ceil(parseInt(seconds || '0') / 60)
-    );
-};
-
-// Number of days to consider as a significant inactivity period
 const INACTIVITY_THRESHOLD_DAYS = 5;
 
-// Helper to get date string for grouping by day
 const getDateString = (date: Date): string => {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 };
 
-// Get color based on activity percentage
 const getActivityColor = (percentage: number): string => {
     if (percentage >= 80) return '#4CAF50'; // Green
     if (percentage >= 60) return '#FFBB00'; // Yellow
@@ -46,9 +45,27 @@ const getActivityColor = (percentage: number): string => {
     return '#9F2F2F'; // Dark Red
 };
 
+
+/**
+ * Identifies and displays students with significant periods of inactivity,
+ * providing recommendations for educators to address inconsistent engagement.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {LearnerProfile[]} props.learnerProfiles - Array of learner profiles
+ * 
+ * @returns {React.ReactElement} A scrollable list of students with significant inactivity periods
+ */
 const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfiles }) => {
+
+    /**
+     * Analyzes student activity patterns to identify periods of inactivity.
+     * Tracks daily engagement and calculates the longest gaps between learning sessions.
+     * 
+     * @returns {StudentActivity[]} Array of students with significant inactivity periods
+     */
     const inactiveStudents = useMemo(() => {
-        // Group statements by student
         const studentActivities: Record<string, { timestamp: Date; cumulativeTime: number }[]> = {};
 
         // Sort statements by timestamp
@@ -56,7 +73,6 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
             new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
         );
 
-        // Track course start and end dates
         let courseStartDate: Date | null = null;
         let courseEndDate: Date | null = null;
 
@@ -65,7 +81,6 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
             courseEndDate = new Date(sortedStatements[sortedStatements.length - 1].timestamp);
         }
 
-        // Process each statement to build activity timeline for each student
         sortedStatements.forEach((statement) => {
             const learnerEmail = statement.actor.mbox;
             const username = learnerEmail.split('@')[0];
@@ -75,29 +90,26 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
             }
 
             const timestamp = new Date(statement.timestamp);
-            const duration = statement.result?.duration ? parseDuration(statement.result.duration) : 0;
-            
-            // Calculate cumulative time up to this point
-            const previousCumulativeTime = studentActivities[username].length > 0 
-                ? studentActivities[username][studentActivities[username].length - 1].cumulativeTime 
+            const duration = statement.result?.duration ? ParseDuration(statement.result.duration) : 0;
+
+            const previousCumulativeTime = studentActivities[username].length > 0
+                ? studentActivities[username][studentActivities[username].length - 1].cumulativeTime
                 : 0;
-            
+
             studentActivities[username].push({
                 timestamp,
                 cumulativeTime: previousCumulativeTime + duration
             });
         });
 
-        // Identify students with periods of inactivity
         const studentsWithInactivity: StudentActivity[] = [];
 
         Object.entries(studentActivities).forEach(([username, activities]) => {
-            // Need at least 2 activities to check for gaps
+
             if (activities.length < 2) {
                 return;
             }
 
-            // Check for gaps of inactivity
             let maxInactivityPeriod = 0;
             let inactivityStartDate: Date | null = null;
             let inactivityEndDate: Date | null = null;
@@ -105,10 +117,9 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
             for (let i = 1; i < activities.length; i++) {
                 const currentActivity = activities[i];
                 const previousActivity = activities[i - 1];
-                
-                // Calculate days between activities
+
                 const daysBetween = (currentActivity.timestamp.getTime() - previousActivity.timestamp.getTime()) / (1000 * 3600 * 24);
-                
+
                 if (daysBetween > maxInactivityPeriod) {
                     maxInactivityPeriod = daysBetween;
                     inactivityStartDate = previousActivity.timestamp;
@@ -116,26 +127,21 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
                 }
             }
 
-            // Calculate total learning time
             const totalTime = activities[activities.length - 1].cumulativeTime;
 
-            // Calculate active days (days with at least one activity)
             const activeDaysSet = new Set<string>();
             activities.forEach(activity => {
                 activeDaysSet.add(getDateString(activity.timestamp));
             });
-            
+
             const activeDays = activeDaysSet.size;
-            
-            // Calculate total days in learning period
+
             const firstActivity = activities[0].timestamp;
             const lastActivity = activities[activities.length - 1].timestamp;
             const totalDays = Math.ceil((lastActivity.getTime() - firstActivity.getTime()) / (1000 * 3600 * 24)) + 1;
-            
-            // Calculate active percentage
+
             const activePercentage = (activeDays / totalDays) * 100;
 
-            // If there's a significant inactivity period, add the student to our list
             if (maxInactivityPeriod >= INACTIVITY_THRESHOLD_DAYS && inactivityStartDate && inactivityEndDate) {
                 studentsWithInactivity.push({
                     email: username,

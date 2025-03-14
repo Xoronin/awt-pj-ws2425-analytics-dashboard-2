@@ -1,18 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { XAPIStatement, LearnerProfile, CourseData } from '../../types/types';
 import { Typography, Paper, LinearProgress, Box } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import { ParseDuration } from '../../helper/helper';
 
-interface Activity {
-    id: string;
-    title: string;
-    estimatedDuration: number;
-}
-
-interface Section {
-    title: string;
-    activities: Activity[];
-}
 
 interface AverageTimePerModuleProps {
     learnerProfile: LearnerProfile;
@@ -20,26 +10,33 @@ interface AverageTimePerModuleProps {
     courseData: CourseData;
 }
 
-const parseDuration = (duration: string): number => {
-    const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!matches) return 15; // Default to 15 minutes if the duration is not available.
-
-    const [, hours, minutes, seconds] = matches;
-    return (
-        (parseInt(hours || '0') * 60) +
-        parseInt(minutes || '0') +
-        Math.ceil(parseInt(seconds || '0') / 60)
-    );
-};
-
 const FIXED_SECTIONS = [
     "Grundlagen der Baumpflege",
     "Grundlagen der Instandhaltung",
     "Grundlagen des Kletterns"
 ];
 
+/**
+ * Displays a learner's average time spent across different course modules using progress bars.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {LearnerProfile} props.learnerProfile - The learner's profile data
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {CourseData} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A visual representation of time spent per module with progress bars
+*/
 const AverageTimePerModule: React.FC<AverageTimePerModuleProps> = ({ learnerProfile, statements, courseData }) => {
 
+    /**
+     * Calculates the average time spent in each fixed module/section.
+     * Filters statements by learner, checks for duration data, and finds the matching section.
+     * 
+     * @returns {Object} Object containing average time data per section
+     * @property {number} averageTime - Average time spent in minutes
+     * @property {boolean} hasData - Whether there's time data available for this section
+     */
     const sectionTimes = FIXED_SECTIONS.reduce((acc, section) => {
         const sectionData = statements
             .filter(s =>
@@ -54,7 +51,7 @@ const AverageTimePerModule: React.FC<AverageTimePerModuleProps> = ({ learnerProf
             );
 
         if (sectionData.length > 0) {
-            const totalTime = sectionData.reduce((sum, s) => sum + parseDuration(s.result?.duration || 'PT0M'), 0);
+            const totalTime = sectionData.reduce((sum, s) => sum + ParseDuration(s.result?.duration || 'PT0M'), 0);
             acc[section] = {
                 averageTime: totalTime / sectionData.length,
                 hasData: true
@@ -64,8 +61,6 @@ const AverageTimePerModule: React.FC<AverageTimePerModuleProps> = ({ learnerProf
         }
         return acc;
     }, {} as Record<string, { averageTime: number; hasData: boolean }>);
-
-    const maxTime = Math.max(...Object.values(sectionTimes).map(t => t.averageTime));
 
     return (
         <Box sx={{
@@ -116,7 +111,7 @@ const AverageTimePerModule: React.FC<AverageTimePerModuleProps> = ({ learnerProf
                     <Paper
                         key={section}
                         sx={{
-                            flex: 1,  // Each paper takes equal space
+                            flex: 1, 
                             backgroundColor: '#E8F5E9',
                             border: '1px solid',
                             borderColor: '#81C784',

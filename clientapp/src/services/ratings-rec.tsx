@@ -1,35 +1,44 @@
 import React, { useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 import type { XAPIStatement, CourseData } from '../types/types';
+import { ParseDuration } from '../helper/helper';
 
 interface RatingsRecProps {
     statements: XAPIStatement[];
     courseData: CourseData;
 }
 
-// Utility function to parse duration in the format "PT20M37S" to minutes
-const parseDuration = (duration: string): number => {
-    const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!matches) return 15;
-
-    const [, hours, minutes, seconds] = matches;
-    return (
-        (parseInt(hours || '0') * 60) +
-        parseInt(minutes || '0') +
-        Math.ceil(parseInt(seconds || '0') / 60)
-    );
-};
-
+/**
+ * Identifies and displays activities with poor user ratings,
+ * providing recommendations for content creators to improve learning materials.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {CourseData} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A scrollable list of poorly-rated activities
+ */
 const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
     const ratedStatements = statements.filter(
         (statement) => statement.verb.id === 'http://id.tincanapi.com/verb/rated'
     );
 
+    /**
+     * Analyzes activity ratings to identify content that may need improvement.
+     * Identifies activities with either low average ratings or a high number of very poor ratings.
+     * 
+     * @returns {Array} Array of activities needing improvement
+     * @property {string} activityId - Unique identifier for the activity
+     * @property {number} averageScore - Average rating score
+     * @property {number} lowRatingsCount - Count of ratings that are 2 or lower
+     * @property {string} improvementReason - Why the activity needs improvement ('low_average' or 'high_low_ratings')
+     */
     const activityRatings = useMemo(() => {
-        const ratingsMap: Record<string, { 
-            totalScore: number; 
+        const ratingsMap: Record<string, {
+            totalScore: number;
             count: number;
-            lowRatingsCount: number; // Track ratings of 1 and 2
+            lowRatingsCount: number; 
         }> = {};
 
         ratedStatements.forEach((statement) => {
@@ -45,8 +54,7 @@ const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
                 }
                 ratingsMap[activityId].totalScore += score;
                 ratingsMap[activityId].count += 1;
-                
-                // Count ratings of 1 or 2 as low ratings
+
                 if (score <= 2) {
                     ratingsMap[activityId].lowRatingsCount += 1;
                 }
@@ -56,7 +64,6 @@ const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
         return Object.keys(ratingsMap).map((activityId) => ({
             activityId,
             averageScore: ratingsMap[activityId].totalScore / ratingsMap[activityId].count,
-            //lowRatingsPercentage: (ratingsMap[activityId].lowRatingsCount / ratingsMap[activityId].count) * 100,
             lowRatingsCount: ratingsMap[activityId].lowRatingsCount
         }));
     }, [ratedStatements]);
@@ -65,32 +72,33 @@ const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
         activityRatings.reduce((sum, activity) => sum + activity.averageScore, 0) /
         activityRatings.length;
 
+    /**
+     * Identifies activities that need improvement based on two criteria:
+     * 1. Low average score (below 70% of the overall average)
+     * 2. High number of low ratings (more than 30 ratings of 2 or lower)
+     * 
+     * @returns {Array} Array of activities needing improvement, sorted by increasing average score
+     * 
+     */
     const improvementNeededActivities = useMemo(() => {
-        // Get activities that need improvement based on either criterion
         const lowAverageActivities = activityRatings.filter(
             (activity) => activity.averageScore < overallAverageScore * 0.7
         );
-        
+
         const highLowRatingsActivities = activityRatings.filter(
-            (activity) => activity.lowRatingsCount > 30 //activity.lowRatingsPercentage > 20 || activity.lowRatingsCount > 30
+            (activity) => activity.lowRatingsCount > 30 
         );
-        
-        // Combine both sets of activities (avoiding duplicates)
+
         const combinedActivitiesMap = new Map();
-        
-        // First add low average activities
         lowAverageActivities.forEach(activity => {
             combinedActivitiesMap.set(activity.activityId, {
                 ...activity,
                 improvementReason: 'low_average'
             });
         });
-        
-        // Then add high percentage or count of low ratings activities (if not already included)
+
         highLowRatingsActivities.forEach(activity => {
             if (combinedActivitiesMap.has(activity.activityId)) {
-                // Activity already included for low average, keep that reason
-                // No change needed
             } else {
                 combinedActivitiesMap.set(activity.activityId, {
                     ...activity,
@@ -98,12 +106,17 @@ const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
                 });
             }
         });
-        
-        // Convert map to array and sort from lowest to highest score
+
         return Array.from(combinedActivitiesMap.values())
             .sort((a, b) => a.averageScore - b.averageScore);
     }, [activityRatings, overallAverageScore]);
 
+    /**
+     * Maps numeric difficulty values to human-readable strings.
+     * 
+     * @param {number} difficulty - Numeric difficulty value
+     * @returns {string} Human-readable difficulty level
+     */
     const mapActivityDifficultyToString = (difficulty: number): string => {
         switch (difficulty) {
             case 0.2: return 'very low';
@@ -115,7 +128,13 @@ const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
         }
     };
 
-    // Helper function to fetch activity fields
+    /**
+     * Retrieves a specific field value for an activity from the course data.
+     * 
+     * @param {string | undefined} activityId - The ID of the activity
+     * @param {string} field - The name of the field to retrieve
+     * @returns {any} The value of the requested field or null if not found
+     */
     const getActivityField = (activityId: string | undefined, field: string) => {
         if (activityId && courseData.sections) {
             const section = courseData.sections.find((s) =>
@@ -163,7 +182,7 @@ const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
                     const typicalLearningTime = getActivityField(activity.activityId, 'typicalLearningTime');
                     const title = getActivityField(activity.activityId, 'title');
 
-                    const parsedLearningTime = typicalLearningTime ? parseDuration(typicalLearningTime) : 15;
+                    const parsedLearningTime = typicalLearningTime ? ParseDuration(typicalLearningTime) : 15;
 
                     return (
                         <Box
@@ -205,7 +224,7 @@ const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
                                         textOverflow: 'ellipsis',
                                     }}
                                 >
-                                    {title} {/* Display activity title */}
+                                    {title}
                                 </Typography>
                                 <Typography
                                     variant="body2"
@@ -238,7 +257,7 @@ const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
                                     🚨 This activity's content may need improvement! Its rating is significantly lower than the average.
                                 </Typography>
                             )}
-                            
+
                             {activity.improvementReason === 'high_low_ratings' && (
                                 <Typography
                                     variant="body2"

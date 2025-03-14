@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
     Box,
-    Typography,
     Table,
     TableBody,
     TableCell,
@@ -12,24 +11,23 @@ import {
     TableSortLabel,
 } from '@mui/material';
 import { XAPIStatement, CourseData } from '../../types/types';
+import { ParseDuration } from '../../helper/helper';
 
 interface CourseOverviewProps {
     statements: XAPIStatement[];
     courseData: CourseData;
 }
 
-const parseDuration = (duration: string | null): number => {
-    if (!duration) return 15; // Default to 15 minutes if no duration
-
-    const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!matches) return 15; // Default to 15 minutes if the duration is not available or malformed.
-
-    const [, hours, minutes, seconds] = matches;
-    return (
-        (parseInt(hours || '0') * 60) + parseInt(minutes || '0') + Math.ceil(parseInt(seconds || '0') / 60)
-    );
-};
-
+/**
+ * Displays a sortable table of course activities with their metadata and analytics.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {CourseData} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A table displaying course activities with metadata and learning analytics
+ */
 const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData }) => {
     type SortableColumn = 'resourceType' | 'interactivityType' | 'interactivityLevel' |
         'semanticDensity' | 'difficulty' | 'typicalLearningTime' |
@@ -62,19 +60,21 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
         '1.0': 'very high'
     };
 
+    /**
+     * Converts difficulty values to standardized text descriptions.
+     * @param {string | number | null} difficulty - Difficulty value
+     * @returns {string} - Text description or "N/A"
+     */
     const parseDifficulty = (difficulty: string | number | null): string => {
         if (difficulty === null) return 'N/A';
 
-        // Convert to string to ensure consistent comparison
         const difficultyStr = difficulty.toString();
 
-        // Check if it's already a mapped string difficulty
         const lowercaseDifficulty = difficultyStr.toLowerCase();
         if (['very low', 'low', 'average', 'high', 'very high'].includes(lowercaseDifficulty)) {
             return lowercaseDifficulty;
         }
 
-        // If it's a numeric value, map to corresponding string
         const closestDifficulty = Object.keys(difficultyMap).reduce((prev, curr) =>
             Math.abs(parseFloat(curr) - parseFloat(difficultyStr)) <
                 Math.abs(parseFloat(prev) - parseFloat(difficultyStr)) ? curr : prev
@@ -83,6 +83,12 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
         return difficultyMap[closestDifficulty] || 'N/A';
     };
 
+    /**
+     * Retrieves a specific field for an activity from the course data.
+     * @param {string | undefined} activityId - The ID of the activity
+     * @param {string} field - The name of the field to retrieve
+     * @returns {any} - The value of the requested field or null if not found
+     */
     const getActivityField = (activityId: string | undefined, field: string) => {
         if (activityId && courseData.sections) {
             const section = courseData.sections.find((s) =>
@@ -103,6 +109,11 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
         return null;
     };
 
+    /**
+     * Calculates average time spent on an activity based on completed statements.
+     * @param {string} activityId - The ID of the activity
+     * @returns {string} - Average duration in minutes or "N/A" if no relevant data
+     */
     const calculateAverageLearningTime = (activityId: string): string => {
         const relevantStatements = statements.filter(
             (statement) =>
@@ -113,8 +124,8 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                 statement.result?.duration
         );
 
-        if (relevantStatements.length === 0) return 'N/A'; // Return 'N/A' if there are no completed statements with duration.
-        console.log('Duration:', relevantStatements);
+        if (relevantStatements.length === 0) return 'N/A'; 
+
         const totalDuration = relevantStatements.reduce((sum, statement) => {
             const duration = statement.result?.duration;
             return sum + (duration ? parseDuration(duration) : 0);
@@ -122,9 +133,14 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
         console.log('Total Duration:', totalDuration);
         console.log('Rel. Statements:', relevantStatements.length);
         const averageDuration = Math.round(totalDuration / relevantStatements.length);
-        return `${averageDuration} min`; // Return the average duration in minutes.
+        return `${averageDuration} min`; 
     };
 
+    /**
+     * Calculates the average grade for an activity across all students.
+     * @param {string} activityId - The ID of the activity
+     * @returns {string} - Average grade to one decimal place or "N/A"
+     */
     const calculateAverageGrade = (activityId: string): string => {
         const scoredStatements = statements.filter(
             (statement) =>
@@ -136,7 +152,7 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                 statement.actor?.mbox
         );
 
-        if (scoredStatements.length === 0) return 'N/A'; // Return 'N/A' if no scored statements are found.
+        if (scoredStatements.length === 0) return 'N/A'; 
 
         const studentScores: { [email: string]: number[] } = {};
 
@@ -160,6 +176,11 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
         return overallAverage.toFixed(1); // Return the average grade rounded to 2 decimal places.
     };
 
+    /**
+     * Calculates average number of attempts per student for an activity.
+     * @param {string} activityId - The ID of the activity
+     * @returns {string} - Average attempts to one decimal place or "N/A"
+     */
     const calculateAverageAttemptsToPass = (activityId: string): string => {
         const relevantStatements = statements.filter(
             (statement) =>
@@ -171,7 +192,7 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                 statement.actor?.mbox
         );
 
-        if (relevantStatements.length === 0) return 'N/A'; // Return 'N/A' if no statements are found.
+        if (relevantStatements.length === 0) return 'N/A'; 
 
         const studentAttempts: { [email: string]: number } = {};
 
@@ -190,6 +211,11 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
         return overallAverageAttempts.toFixed(1); // Return the average attempts rounded to 2 decimal places.
     };
 
+    /**
+     * Calculates the average rating given to an activity.
+     * @param {string} activityId - The ID of the activity
+     * @returns {string} - Average rating to one decimal place or "N/A"
+     */
     const calculateAverageRating = (activityId: string): string => {
         const ratedStatements = statements.filter(
             (statement) =>
@@ -200,7 +226,7 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                 statement.result?.score?.raw !== undefined
         );
 
-        if (ratedStatements.length === 0) return 'N/A'; // Return 'N/A' if no rated statements are found.
+        if (ratedStatements.length === 0) return 'N/A'; 
 
         const totalRating = ratedStatements.reduce((sum, statement) => {
             const score = statement.result!.score!.raw!;
@@ -208,7 +234,7 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
         }, 0);
 
         const averageRating = totalRating / ratedStatements.length;
-        return averageRating.toFixed(1); // Return the average rating rounded to 2 decimal places.
+        return averageRating.toFixed(1); 
     };
 
     const rows = useMemo(() => {
@@ -220,7 +246,7 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
             interactivityLevel: getActivityField(activityId, 'interactivityLevel'),
             semanticDensity: getActivityField(activityId, 'semanticDensity'),
             difficulty: getActivityField(activityId, 'difficulty'),
-            typicalLearningTime: parseDuration(getActivityField(activityId, 'typicalLearningTime')),
+            typicalLearningTime: ParseDuration(getActivityField(activityId, 'typicalLearningTime')),
             averageLearningTime: calculateAverageLearningTime(activityId),
             averageGrade: calculateAverageGrade(activityId),
             averageAttemptsToPass: calculateAverageAttemptsToPass(activityId),
@@ -236,7 +262,6 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
 
     const sortRows = (rows: any[]) => {
         const comparator = (a: any, b: any) => {
-            // Handle numeric fields
             if (['averageLearningTime', 'averageGrade', 'averageAttemptsToPass', 'averageRating', 'typicalLearningTime'].includes(orderBy)) {
                 const aValue = a[orderBy] === 'N/A' ? -1 :
                     orderBy === 'averageLearningTime' ? parseInt(a[orderBy]) :
@@ -249,7 +274,6 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                 return order === 'desc' ? bValue - aValue : aValue - bValue;
             }
 
-            // Handle text fields
             const aValue = (a[orderBy] || '').toString().toLowerCase();
             const bValue = (b[orderBy] || '').toString().toLowerCase();
             if (order === 'desc') {

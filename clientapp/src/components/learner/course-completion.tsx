@@ -9,6 +9,17 @@ interface CourseCompletionProps {
     learner: LearnerProfile;
 }
 
+/**
+ * Visualizes a learner's course completion progress as a donut chart.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {CourseData} props.courseData - Structured course data containing sections and activities
+ * @param {LearnerProfile} props.learner - The learner profile data
+ * 
+ * @returns {React.ReactElement} A donut chart displaying completed vs. remaining activities
+ */
 const CourseCompletion: React.FC<CourseCompletionProps> = ({
     statements,
     courseData,
@@ -16,19 +27,26 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
 }) => {
     const theme = useTheme();
 
+    const COLORS = ['#1565C0', '#90CAF9 '];
+
+    /**
+     * Calculates course completion data from xAPI statements and course structure.
+     * Considers an activity completed if it has either a "completed" verb or completion=true.
+     * 
+     * @returns {Array} Array with two objects representing completed and remaining activities
+     * @property {string} name - Label for the segment ("Completed" or "Remaining")
+     * @property {number} value - Count of activities in this category
+     */
     const completionData = useMemo(() => {
-        // Get completed activities from xAPI statements for this learner
         const completedActivities = new Set<string>();
 
         statements
             .filter(statement => statement.actor.mbox === learner.email)
             .forEach(statement => {
-                // Extract activity ID from the extensions
                 const activityId = statement.object.definition.extensions?.[
                     'https://w3id.org/learning-analytics/learning-management-system/external-id'
                 ];
 
-                // Check for completion either through verb or result field
                 const isCompleted =
                     (statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') ||
                     (statement.result?.completion === true);
@@ -38,7 +56,6 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
                 }
             });
 
-        // Get total activities count
         const totalActivities = courseData.sections.reduce((acc, section) =>
             acc + section.activities.length, 0
         );
@@ -49,12 +66,6 @@ const CourseCompletion: React.FC<CourseCompletionProps> = ({
             { name: 'Remaining', value: totalActivities - completedCount }
         ];
     }, [statements, courseData]);
-
-    const COLORS = ['#1565C0', '#90CAF9 '];
-
-    const completionPercentage = Math.round(
-        (completionData[0].value / (completionData[0].value + completionData[1].value)) * 100
-    );
 
     return (
         <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

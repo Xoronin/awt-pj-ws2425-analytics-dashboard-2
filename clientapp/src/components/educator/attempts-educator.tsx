@@ -3,21 +3,47 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Label, Legend } from
 import { Box, Typography, useTheme } from '@mui/material';
 import { XAPIStatement, LearnerProfile, CourseData } from '../../types/types';
 
+/**
+ * Props interface for the AttemptsEducator component
+ * @interface AttemptsEducatorProps
+ * @property {XAPIStatement[]} statements - Array of xAPI statements containing attempt data
+ * @property {LearnerProfile[]} learners - Array of learner profiles
+ * @property {CourseData} courseData - Data about the course
+*/
 interface AttemptsEducatorProps {
     statements: XAPIStatement[];
-    learners: LearnerProfile[]; // Alle Lernenden
+    learners: LearnerProfile[]; 
     courseData: CourseData;
 }
 
+/**
+ * Component that displays pass/fail attempt statistics as a donut chart
+ * 
+ * This component analyzes xAPI statements to calculate the ratio of passed
+ * to failed attempts across all activities and learners.
+ * 
+ * @component
+ * @param {AttemptsEducatorProps} props - Component props
+ * @returns {React.ReactElement} The rendered component
+*/
 const AttemptsEducator: React.FC<AttemptsEducatorProps> = ({ statements, learners, courseData }) => {
     const theme = useTheme();
 
     const COLORS = ['#1565C0', '#90CAF9'];
 
+    /**
+     * Calculates attempt statistics from xAPI statements
+     * 
+     * Processes all statements to:
+     * 1. Count passed and failed attempts for each activity
+     * 2. Calculate total passed and failed attempts across all activities
+     * 3. Determine the average number of attempts per activity
+     * 
+     * @returns {Object} Statistics about attempts including passed, failed, total, and average counts
+    */
     const attemptsData = useMemo(() => {
         const attemptsMap: Record<string, { failed: number; passed: number }> = {};
 
-        // Sammeln der Versuche f�r alle Lernenden
         learners.forEach(learner => {
             statements.forEach(statement => {
                 if (statement.actor.mbox === learner.email) {
@@ -38,7 +64,6 @@ const AttemptsEducator: React.FC<AttemptsEducatorProps> = ({ statements, learner
             });
         });
 
-        // Berechne die mittlere Anzahl der Versuche f�r alle Lernenden
         const totalAttempts = Object.values(attemptsMap).reduce(
             (acc, { failed, passed }) => {
                 acc.failed += failed;
@@ -54,12 +79,15 @@ const AttemptsEducator: React.FC<AttemptsEducatorProps> = ({ statements, learner
         return {
             failed: totalAttempts.failed,
             passed: totalAttempts.passed,
-            totalAttempts: totalAttempts.failed + totalAttempts.passed, // Gesamtzahl der Versuche
+            totalAttempts: totalAttempts.failed + totalAttempts.passed,
             averageAttempts
         };
     }, [statements, learners]);
 
-    // Berechne den Anteil der bestandenen Versuche
+    /**
+     * Calculates the percentage of successful attempts
+     * This value is displayed in the center of the donut chart
+    */
     const passPercentage = (attemptsData.passed / attemptsData.totalAttempts) * 100;
 
     const chartData = [

@@ -1,19 +1,7 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { XAPIStatement, LearnerProfile, CourseData } from '../../types/types';
 import { Typography, Paper, LinearProgress, Box } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 
-
-interface Activity {
-    id: string;
-    title: string;
-    estimatedDuration: number;
-}
-
-interface Section {
-    title: string;
-    activities: Activity[];
-}
 
 interface AverageScorePerModuleProps {
     learnerProfile: LearnerProfile;
@@ -27,12 +15,28 @@ const FIXED_SECTIONS = [
     "Grundlagen des Kletterns"
 ];
 
-const parseScore = (score: any): number => {
-    // Falls kein Score vorhanden ist, default auf 0
-    return score?.raw ?? 0;
-};
-
+/**
+ * Displays a learner's average scores across different course modules using progress bars.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {LearnerProfile} props.learnerProfile - The learner's profile data
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {CourseData} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A visual representation of module scores with progress bars
+ */
 const AverageScorePerModule: React.FC<AverageScorePerModuleProps> = ({ learnerProfile, statements, courseData }) => {
+
+    /**
+     * Parses a score value from an xAPI statement
+     * @param {any} score - Score object from an xAPI statement
+     * @returns {number} - Numeric value of the score or 0 if unavailable
+     */
+    const parseScore = (score: any): number => {
+        return score?.raw ?? 0;
+    };
+
     const sectionScores = FIXED_SECTIONS.reduce((acc, section) => {
         const sectionData = statements
             .filter(s =>

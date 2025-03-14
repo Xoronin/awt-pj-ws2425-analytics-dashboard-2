@@ -17,14 +17,12 @@ class LOMDataService {
 
         try
         {
-            // First check if data already exists
             const existingdata = await this.getLomData();
             if (existingdata.length > 0) {
                 console.log('lom data already exists in database');
                 return;
             }
 
-            // Store in MongoDB
             const response = await fetch(`${this.apiUrl}/lom`, {
                 method: 'POST',
                 headers: {

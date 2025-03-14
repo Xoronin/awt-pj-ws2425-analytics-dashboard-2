@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CourseCompletion from './learner/course-completion';
-import { Verb, LearnerProfile, XAPIStatement, CourseData } from '../types/types';
+import { LearnerProfile, XAPIStatement, CourseData } from '../types/types';
 import RecommendationService from '../services/recommendation-service';
 import LearningTimeChart from './learner/learning-time';
 import LearningTimePerSection from './learner/average-time-per-module';
@@ -26,14 +26,24 @@ import ActivityHistory from './learner/activity-history';
 interface LearnerDashboardProps {
     learnerProfiles: LearnerProfile[];
     statements: XAPIStatement[];
-    verbs: Verb[];
     courseData: CourseData | null;
 }
 
+/**
+ * A comprehensive dashboard for individual learners to view their performance analytics 
+ * and compare with the learning community.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {LearnerProfile[]} props.learnerProfiles - Array of learner profiles
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {CourseData | null} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A dashboard interface with multiple analytics visualizations
+ */
 const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
     learnerProfiles,
     statements,
-    verbs,
     courseData
 }) => {
     const [selectedLearnerId, setSelectedLearnerId] = useState<string>('');
@@ -44,6 +54,11 @@ const LearnerDashboard: React.FC<LearnerDashboardProps> = ({
         }
     }, [learnerProfiles, selectedLearnerId]);
 
+    /**
+     * Filters statements to only include those related to the selected learner.
+     * 
+     * @returns {Object} Object containing filtered statements for the selected learner
+     */
     const filteredData = useMemo(() => {
         if (!selectedLearnerId) return { statements: [] };
 

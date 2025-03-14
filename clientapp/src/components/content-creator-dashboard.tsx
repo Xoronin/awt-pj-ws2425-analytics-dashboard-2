@@ -23,12 +23,28 @@ interface ContentCreatorsDashboardProps {
     courseData: CourseData | null;
 }
 
+/**
+ * A comprehensive dashboard for content creators to analyze course performance
+ * and learner interactions with content.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {CourseData | null} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A dashboard interface with analytics visualizations for content creators
+ */
 const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
     statements,
     courseData
 }) => {
     const [SelectedCourseName, setSelectedCourseName] = useState<string>('');
 
+    /**
+     * Extracts unique course names from xAPI statements.
+     * 
+     * @returns {string[]} Array of unique course names
+     */
     const availableCourses = useMemo(() => {
         const uniqueCourses = Array.from(new Set(statements.map(statement => statement.object.definition.name.en)));
         return uniqueCourses;
@@ -36,10 +52,15 @@ const ContentCreatorsDashboard: React.FC<ContentCreatorsDashboardProps> = ({
 
     React.useEffect(() => {
         if (availableCourses.length > 0 && !SelectedCourseName) {
-            setSelectedCourseName(availableCourses[0]);  // Set the first course as default
+            setSelectedCourseName(availableCourses[0]); 
         }
     }, [availableCourses, SelectedCourseName]);
 
+    /**
+     * Filters statements to only include those related to the selected course.
+     * 
+     * @returns {Object} Object containing filtered statements for the selected course
+     */
     const filteredData = useMemo(() => {
         if (!SelectedCourseName) return { statements: [] };
 

@@ -1,34 +1,50 @@
 import React, { useEffect, useRef } from 'react';
 import { Chart, LinearScale, CategoryScale, Title, Tooltip, Legend } from 'chart.js';
 import { BoxPlotController, BoxAndWiskers } from '@sgratzl/chartjs-chart-boxplot';
-import { XAPIStatement } from '../../types/types'; // Adjust the path if needed
+import { XAPIStatement } from '../../types/types';
 import { Box, Typography } from '@mui/material';
 
-// Register chart components
+// Register the required Chart.js components for boxplot visualization
 Chart.register(BoxPlotController, BoxAndWiskers, LinearScale, CategoryScale, Title, Tooltip, Legend);
 
 interface CourseData {
-  sections: {
-    activities: {
-      id: string;
-      title: string;
-      [key: string]: any;
+    sections: {
+        activities: {
+            id: string;
+            title: string;
+            [key: string]: any;
+        }[];
     }[];
-  }[];
 }
 
+/**
+ * Props interface for the CourseBoxplot component
+ * @interface CourseBoxplotProps
+ * @property {XAPIStatement[]} statements - Array of xAPI statements containing scoring data
+*/
 interface CourseBoxplotProps {
-  statements: XAPIStatement[];
-  courseData: CourseData;
-  maxLabelLength?: number; // Maximum length for labels before truncation
-  useLineBreaks?: boolean; // Whether to use line breaks instead of truncation
+    statements: XAPIStatement[];
+    courseData: CourseData;
+    maxLabelLength?: number;
+    useLineBreaks?: boolean; 
 }
 
-const CourseBoxplot: React.FC<CourseBoxplotProps> = ({ 
-  statements, 
-  courseData, 
-  maxLabelLength = 20, // Default truncation length
-  useLineBreaks = false // Default to truncation rather than line breaks
+/**
+ * Component that creates a boxplot visualization of score distributions across different courses
+ * 
+ * This component analyzes xAPI statements to extract course scores and visualize their statistical
+ * distribution (min, max, median, quartiles, outliers) using boxplots. Each boxplot represents
+ * the distribution of scores for a specific course module.
+ * 
+ * @component
+ * @param {CourseBoxplotProps} props - Component props
+ * @returns {React.ReactElement} The rendered component
+*/
+const CourseBoxplot: React.FC<CourseBoxplotProps> = ({
+    statements,
+    courseData,
+    maxLabelLength = 20, 
+    useLineBreaks = false 
 }) => {
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstanceRef = useRef<Chart | null>(null);
@@ -49,28 +65,34 @@ const CourseBoxplot: React.FC<CourseBoxplotProps> = ({
         return null;
     };
 
-    // Function to truncate text and add ellipsis
     const truncateText = (text: string, maxLength: number): string => {
         if (text.length <= maxLength) return text;
         return text.substring(0, maxLength) + '...';
     };
 
-    // Function to add line breaks to text
     const addLineBreak = (text: string, maxLength: number): string[] => {
         if (text.length <= maxLength) return [text];
-        
-        // Find a space near the middle to break at
+
         const midPoint = Math.floor(text.length / 2);
         let breakPoint = text.indexOf(' ', midPoint - 10);
-        
+
         if (breakPoint === -1 || breakPoint > midPoint + 10) {
-            // If no good space found, just break at the midpoint
             breakPoint = midPoint;
         }
-        
+
         return [text.substring(0, breakPoint), text.substring(breakPoint).trim()];
     };
 
+
+    /**
+     * Effect hook to create and update the boxplot chart
+     * 
+     * This effect:
+     * 1. Extracts scores from xAPI statements for each course
+     * 2. Processes the data into a format required by the boxplot chart
+     * 3. Creates or updates the Chart.js instance
+     * 4. Handles cleanup when component unmounts
+    */
     useEffect(() => {
         if (!chartRef.current) return;
 
@@ -80,8 +102,8 @@ const CourseBoxplot: React.FC<CourseBoxplotProps> = ({
         // Step 1: Extract scores for each unique course (activityId)
         const courseScores: Record<string, number[]> = {};
         const activityTitles: Record<string, string> = {};
-        const fullTitles: Record<string, string> = {}; // Store full titles for tooltips
-        const activityNumbers: Record<string, number> = {}; // Store 1-based module numbers
+        const fullTitles: Record<string, string> = {};
+        const activityNumbers: Record<string, number> = {};
 
         statements
             .filter(
@@ -97,13 +119,12 @@ const CourseBoxplot: React.FC<CourseBoxplotProps> = ({
                 if (activityId) {
                     if (!courseScores[activityId]) {
                         courseScores[activityId] = [];
-                        // Get and store the activity title
+
                         const title = getActivityField(activityId, 'title') || activityId;
-                        fullTitles[activityId] = title; // Store full title
-                        
-                        // Process the title based on the chosen method
+                        fullTitles[activityId] = title; 
+
                         if (useLineBreaks) {
-                            activityTitles[activityId] = title; // Will be processed by Chart.js
+                            activityTitles[activityId] = title; 
                         } else {
                             activityTitles[activityId] = truncateText(title, maxLabelLength);
                         }
@@ -114,15 +135,12 @@ const CourseBoxplot: React.FC<CourseBoxplotProps> = ({
 
         // Step 2: Prepare labels and data for the chart
         const activityIds = Object.keys(courseScores);
-        
-        // Assign 1-based module numbers
+
         activityIds.forEach((id, index) => {
-            activityNumbers[id] = index + 1; // Start module numbering from 1
+            activityNumbers[id] = index + 1;
         });
-        
-        // Create labels with module numbers
+
         const labels = activityIds.map((_, index) => (index + 1).toString());
-        
         const data = activityIds.map((activityId) => courseScores[activityId]);
 
         if (chartInstanceRef.current) {
@@ -159,7 +177,7 @@ const CourseBoxplot: React.FC<CourseBoxplotProps> = ({
                                 const index = tooltipItems[0].dataIndex;
                                 const activityId = activityIds[index];
                                 const activityNum = activityNumbers[activityId];
-                                // Include the module number in the tooltip for reference
+
                                 return `Activity ${activityNum}: ${fullTitles[activityId]}`;
                             }
                         }
@@ -195,7 +213,8 @@ const CourseBoxplot: React.FC<CourseBoxplotProps> = ({
                                 size: 11
                             },
                             callback: function (value, index, values) {
-                                return labels[index]; // Ensure it uses your activity labels
+                                return labels[index];
+
                             }
                         }
                     }

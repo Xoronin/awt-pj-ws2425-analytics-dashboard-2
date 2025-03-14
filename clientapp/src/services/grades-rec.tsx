@@ -7,11 +7,30 @@ interface StudentGradeRecProps {
     courseData: CourseData;
 }
 
+/**
+ * Identifies and displays students with below-average grades,
+ * providing recommendations for educators to address underperforming students.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {CourseData} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A scrollable list of students with below-average grades
+ */
 const StudentGradeRec: React.FC<StudentGradeRecProps> = ({ statements }) => {
     const scoredStatements = statements.filter(
         (statement) => statement.verb.id === 'http://adlnet.gov/expapi/verbs/scored'
     );
 
+    /**
+     * Analyzes scored statements to calculate grade averages and identify 
+     * students performing significantly below the class average.
+     * 
+     * @returns {Object} Object containing grade analysis
+     * @property {Array} students - Underperforming students sorted by lowest score
+     * @property {number} overallAverage - Average grade across all students
+     */
     const studentGrades = useMemo(() => {
         const gradesMap: Record<string, { totalScore: number; count: number }> = {};
 
@@ -35,11 +54,9 @@ const StudentGradeRec: React.FC<StudentGradeRecProps> = ({ statements }) => {
             averageScore: data.totalScore / data.count,
         }));
 
-        // Calculate overall average
         const overallAverage = studentAverages.reduce((sum, student) =>
             sum + student.averageScore, 0) / studentAverages.length;
 
-        // Find students with grades significantly below average (>20% worse)
         return {
             students: studentAverages
                 .filter(student => student.averageScore < overallAverage * 0.6)

@@ -1,24 +1,56 @@
 import React, { useMemo, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, useTheme, TableSortLabel } from '@mui/material';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel } from '@mui/material';
 import { XAPIStatement } from '../../types/types';
 
+/**
+ * Props interface for the StudentPerformanceTable component
+ * @interface StudentPerformanceProps
+ * @property {XAPIStatement[]} statements - Array of xAPI statements containing student performance data
+*/
 interface StudentPerformanceProps {
     statements: XAPIStatement[];
 }
 
+/**
+ * Component that displays student performance data in a sortable table with mini charts
+ * 
+ * This component analyzes xAPI statements to extract student performance metrics including:
+ * - Average grades
+ * - Grade progression over time (displayed as mini line charts)
+ * - Average number of attempts per successful completion
+ * 
+ * @component
+ * @param {StudentPerformanceProps} props - Component props
+ * @returns {React.ReactElement} The rendered component
+*/
 const StudentPerformanceTable: React.FC<StudentPerformanceProps> = ({ statements }) => {
-    const theme = useTheme();
-
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null);
     const [sortBy, setSortBy] = useState<'id' | 'average' | 'attempts'>('id');
 
-    // Extract number from mbox string (e.g., "mailto:student25@test.com" -> 25)
+    /**
+     * Extracts a numeric identifier from an email/mbox string
+     * Used for sorting students by their ID
+     * 
+     * @param {string} mbox - The mbox identifier string (typically an email)
+     * @returns {number} The extracted numeric ID or 0 if not found
+    */
     const extractNumberFromMbox = (mbox: string) => {
         const match = mbox.match(/\d+/);
         return match ? parseInt(match[0], 10) : 0;
     };
 
+    /**
+     * Processes xAPI statements to extract student performance data
+     * 
+     * Aggregates data for each student including:
+     * - All grade values
+     * - Total attempts at activities
+     * - Number of successful completions
+     * 
+     * @returns {Array<{id: string, mbox: string, grades: number[], average: string, attempts: string}>} 
+     *          Processed student performance data with calculated metrics
+    */
     const studentData = useMemo(() => {
         const studentMap = new Map<string, { id: string; mbox: string; grades: number[]; totalAttempts: number; passedCount: number }>();
 
@@ -72,7 +104,12 @@ const StudentPerformanceTable: React.FC<StudentPerformanceProps> = ({ statements
         });
     }, [statements]);
 
-    // Sort function with numeric mbox sorting
+    /**
+     * Sorts the student data based on the current sort column and direction
+     * 
+     * @returns {Array<{id: string, mbox: string, grades: number[], average: string, attempts: string}>}
+     *          Sorted array of student data
+    */
     const sortedData = useMemo(() => {
         const sorted = [...studentData];
         if (sortBy === 'id') {
@@ -101,6 +138,12 @@ const StudentPerformanceTable: React.FC<StudentPerformanceProps> = ({ statements
         return sorted;
     }, [studentData, sortBy, sortDirection]);
 
+    /**
+     * Handles sorting when a column header is clicked
+     * Toggles sort direction if the same column is clicked again
+     * 
+     * @param {('id' | 'average' | 'attempts')} column - The column identifier to sort by
+    */
     const handleSort = (column: 'id' | 'average' | 'attempts') => {
         const isAsc = sortBy === column && sortDirection === 'asc';
         setSortDirection(isAsc ? 'desc' : 'asc');

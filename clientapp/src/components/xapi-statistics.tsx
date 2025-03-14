@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Verb, XAPIStatement, CourseData, LearnerProfile } from '../types/types';
 import {
     Card,
@@ -19,6 +19,7 @@ import {
     SvgIconComponent,
 } from '@mui/icons-material';
 import LearnerDistribution from './learner-distribution';
+import { ParseDuration } from '../helper/helper';
 
 interface StatisticsProps {
     learnerProfiles: LearnerProfile[];
@@ -54,24 +55,6 @@ interface UsageListProps {
 */
 const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: StatisticsProps) => {
     const [activeTab, setActiveTab] = useState<TabValue>('learners');
-
-    /**
-     * Parses ISO 8601 duration format into minutes
-     * 
-     * @param duration - ISO 8601 duration string
-     * @returns Total duration in minutes
-    */
-    const parseDuration = (duration: string): number => {
-        const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-        if (!matches) return 15; 
-
-        const [, hours, minutes, seconds] = matches;
-        return (
-            (parseInt(hours || '0') * 60) +
-            parseInt(minutes || '0') +
-            Math.ceil(parseInt(seconds || '0') / 60)
-        );
-    };
 
     /**
      * Calculates and memoizes various statistics from xAPI statements
@@ -135,7 +118,7 @@ const XAPIStatistics = ({ learnerProfiles, statements, verbs, courseData }: Stat
             }
 
             if (statement.result?.duration) {
-                const duration = parseDuration(statement.result.duration);
+                const duration = ParseDuration(statement.result.duration);
                 const currentDuration = learnerDurations.get(learnerEmail) || 0;
                 const newDuration = currentDuration + duration;
                 learnerDurations.set(

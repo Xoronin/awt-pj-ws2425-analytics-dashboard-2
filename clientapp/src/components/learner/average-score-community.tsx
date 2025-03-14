@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Label, Legend } from 'recharts';
 import { Box, Typography, useTheme } from '@mui/material';
 import { XAPIStatement, LearnerProfile, CourseData } from '../../types/types';
@@ -9,17 +9,33 @@ interface AverageScoreCommunity {
     courseData: CourseData; 
 }
 
+/**
+ * Visualizes the community's average score as a donut chart.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {LearnerProfile[]} props.learners - Array of learner profiles
+ * @param {CourseData} props.courseData - Structured course data
+ * 
+ * @returns {React.ReactElement} A donut chart displaying the community's average score as a percentage
+ */
 const AverageScoreChartCommunity: React.FC<AverageScoreCommunity> = ({ statements, learners, courseData }) => {
     const theme = useTheme();
 
-    // Berechne den durchschnittlichen Score für alle Nutzer
+    /**
+     * Calculates the community's average score from scored xAPI statements.
+     * First calculates each learner's average, then averages those scores.
+     * 
+     * @returns {number} Community average score as a percentage (0-100)
+     */
     const averageScore = useMemo(() => {
         const scores: number[] = [];
 
         learners.forEach(learner => {
             const userScores = statements
                 .filter(statement => statement.actor.mbox === learner.email && statement.verb.id === 'http://adlnet.gov/expapi/verbs/scored')
-                .map(statement => statement.result!.score!.scaled! * 100); // Skaliert auf %
+                .map(statement => statement.result!.score!.scaled! * 100);
 
             if (userScores.length > 0) {
                 const userAvgScore = userScores.reduce((sum, score) => sum + score, 0) / userScores.length;
@@ -27,11 +43,9 @@ const AverageScoreChartCommunity: React.FC<AverageScoreCommunity> = ({ statement
             }
         });
 
-        // Gesamt-Mittelwert für alle Nutzer berechnen
         return scores.length > 0 ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0;
     }, [statements, learners]);
 
-    // Daten für das Kreisdiagramm
     const chartData = [
         { name: 'Average Score', value: averageScore },
         { name: 'Remaining', value: 100 - averageScore }
@@ -69,7 +83,6 @@ const AverageScoreChartCommunity: React.FC<AverageScoreCommunity> = ({ statement
                         fill={theme.palette.primary.main}
                         labelLine={false}
                     >
-                        {/* Absolute Zahl im Zentrum anzeigen */}
                         <Label value={`${averageScore.toFixed(1)}%`} position="center" fontSize={20} fontWeight="bold" fill="#5E35B1" />
                         {chartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index]} />
@@ -84,9 +97,9 @@ const AverageScoreChartCommunity: React.FC<AverageScoreCommunity> = ({ statement
                             } else if (typeof value === 'string') {
                                 numValue = parseFloat(value);
                             } else if (Array.isArray(value)) {
-                                numValue = parseFloat(value[0] as string); // Erstes Element konvertieren
+                                numValue = parseFloat(value[0] as string);
                             } else {
-                                numValue = 0; // Fallback-Wert
+                                numValue = 0; 
                             }
 
                             return numValue.toFixed(1);
