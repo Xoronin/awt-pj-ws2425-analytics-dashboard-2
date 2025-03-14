@@ -188,7 +188,7 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
      * @returns {string} Formatted date string
      */
     const formatDate = (dateStr: string): string => {
-        return new Date(dateStr).toLocaleDateString('de-DE', {
+        return new Date(dateStr).toLocaleDateString('en-EN', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
@@ -243,7 +243,7 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                             }}
                             tick={{ fontSize: '0.75em' }}
                             height={40}
-                            tickFormatter={(value) => new Date(value).toLocaleDateString('de-DE', {
+                            tickFormatter={(value) => new Date(value).toLocaleDateString('en-EN', {
                                 month: 'short',
                                 day: 'numeric'
                             })}
@@ -273,7 +273,7 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
                                             fontSize: '0.85rem'
                                         }}>
                                             <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
-                                                {new Date(label).toLocaleDateString('de-DE', {
+                                                {new Date(label).toLocaleDateString('en-EN', {
                                                     month: 'short',
                                                     day: 'numeric',
                                                     year: 'numeric'
