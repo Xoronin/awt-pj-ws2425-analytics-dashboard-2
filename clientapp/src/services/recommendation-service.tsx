@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { LearnerProfile, XAPIStatement, CourseData, Activity } from '../types/types';
 import { Typography, Box } from '@mui/material';
+import { ParseDuration } from '../helper/helper';
 
 interface RecommendationServiceProps {
     learnerProfile: LearnerProfile;
@@ -55,18 +56,11 @@ const RecommendationService: React.FC<RecommendationServiceProps> = ({
                     acc[activityId].scores.push(statement.result.score.scaled);
                 }
                 if (statement.result?.duration) {
-                    acc[activityId].avgTime = parseDuration(statement.result.duration);
+                    acc[activityId].avgTime = ParseDuration(statement.result.duration);
                 }
                 acc[activityId].attempts++;
                 return acc;
             }, {} as Record<string, ActivityHistory>);
-    };
-
-    const parseDuration = (duration: string): number => {
-        const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-        if (!matches) return 0;
-        const [, hours, minutes, seconds] = matches.map(Number);
-        return (hours || 0) * 60 + (minutes || 0) + (seconds || 0) / 60;
     };
 
     const getMetricValue = (metric: number | { start: number; middle: number; end: number }): number => {

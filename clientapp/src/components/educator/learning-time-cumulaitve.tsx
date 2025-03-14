@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, ReferenceLine } from "recharts";
 import { XAPIStatement, LearnerProfile } from '../../types/types';
 import { Box, Typography, Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
+import { ParseDuration } from '../../helper/helper';
 
 /**
  * Props interface for the LineTimeChartCumulative component
@@ -40,23 +41,6 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
     const [selectedDateData, setSelectedDateData] = useState<LearnerDataItem[]>([]);
-
-    /**
-     * Parses an ISO 8601 duration string and converts it to minutes
-     * 
-     * @param {string} duration - ISO 8601 duration string (e.g., "PT1H30M15S")
-     * @returns {number} Total duration in minutes
-    */
-    const parseDuration = (duration: string): number => {
-        const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-        if (!matches) return 0;
-        const [, hours, minutes, seconds] = matches;
-        return (
-            (parseInt(hours || "0") * 60) +
-            parseInt(minutes || "0") +
-            Math.ceil(parseInt(seconds || "0") / 60)
-        );
-    };
 
     // Color palette for learner lines in the chart
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -132,7 +116,7 @@ const LineTimeChartCumulative = ({ statements, learnerProfiles }: LineTimeChartC
             const learnerEmail = statement.actor.mbox;
             if (!learnerData[learnerEmail]) return;
 
-            const duration = statement.result?.duration ? parseDuration(statement.result.duration) : 0;
+            const duration = statement.result?.duration ? ParseDuration(statement.result.duration) : 0;
             cumulativeTime[learnerEmail] = (cumulativeTime[learnerEmail] || 0) + duration;
 
             learnerData[learnerEmail].push({

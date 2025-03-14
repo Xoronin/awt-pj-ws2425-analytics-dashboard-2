@@ -8,20 +8,33 @@ interface AverageScoreProps {
     learner: LearnerProfile;
 }
 
+/**
+ * Visualizes a learner's average score as a donut chart.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {LearnerProfile} props.learner - The learner profile data
+ * 
+ * @returns {React.ReactElement} A donut chart displaying the learner's average score as a percentage
+ */
 const AverageScoreChart: React.FC<AverageScoreProps> = ({ statements, learner }) => {
     const theme = useTheme();
 
-    // Berechne den durchschnittlichen Score für den Nutzer
+    /**
+     * Calculates the learner's average score from scored xAPI statements.
+     * 
+     * @returns {number} Average score as a percentage (0-100)
+     */
     const averageScore = useMemo(() => {
         const scores = statements
             .filter(statement => statement.actor.mbox === learner.email && statement.verb.id === 'http://adlnet.gov/expapi/verbs/scored')
-            .map(statement => statement.result!.score!.scaled! * 100); // Skaliert auf %
+            .map(statement => statement.result!.score!.scaled! * 100); 
 
         const totalScore = scores.reduce((sum, score) => sum + score, 0);
         return scores.length > 0 ? Math.round(totalScore / scores.length) : 0;
     }, [statements, learner]);
 
-    // Daten für das Kreisdiagramm
     const chartData = [
         { name: 'Achieved Score', value: averageScore },
         { name: 'Remaining', value: 100 - averageScore }
@@ -58,7 +71,6 @@ const AverageScoreChart: React.FC<AverageScoreProps> = ({ statements, learner })
                         fill={theme.palette.primary.main}
                         labelLine={false}
                     >
-                        {/* Absolute Zahl im Zentrum anzeigen */}
                         <Label value={`${averageScore.toFixed(1)}%`} position="center" fontSize={20} fontWeight="bold" fill="#7B1FA2" />
                         {chartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index]} />
@@ -73,9 +85,9 @@ const AverageScoreChart: React.FC<AverageScoreProps> = ({ statements, learner })
                             } else if (typeof value === 'string') {
                                 numValue = parseFloat(value);
                             } else if (Array.isArray(value)) {
-                                numValue = parseFloat(value[0] as string); // Erstes Element konvertieren
+                                numValue = parseFloat(value[0] as string);
                             } else {
-                                numValue = 0; // Fallback-Wert
+                                numValue = 0; 
                             }
 
                             return numValue.toFixed(1);

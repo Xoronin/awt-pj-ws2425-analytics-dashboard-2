@@ -1,22 +1,12 @@
 import React, { useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 import type { XAPIStatement, LearnerProfile } from '../types/types';
+import { ParseDuration } from '../helper/helper';
 
 interface CumulativeRecProps {
     statements: XAPIStatement[];
     learnerProfiles: LearnerProfile[];
 }
-
-const parseDuration = (duration: string): number => {
-    const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!matches) return 15;
-    const [, hours, minutes, seconds] = matches;
-    return (
-        (parseInt(hours || '0') * 60) +
-        parseInt(minutes || '0') +
-        Math.ceil(parseInt(seconds || '0') / 60)
-    );
-};
 
 const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfiles }) => {
     const studentTimes = useMemo(() => {
@@ -31,7 +21,7 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
             const learnerEmail = statement.actor.mbox;
             const username = learnerEmail.split('@')[0];
 
-            const duration = statement.result?.duration ? parseDuration(statement.result.duration) : 0;
+            const duration = statement.result?.duration ? ParseDuration(statement.result.duration) : 0;
             cumulativeTime[username] = (cumulativeTime[username] || 0) + duration;
         });
 

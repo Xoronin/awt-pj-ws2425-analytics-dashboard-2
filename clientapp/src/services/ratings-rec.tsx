@@ -1,24 +1,12 @@
 import React, { useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 import type { XAPIStatement, CourseData } from '../types/types';
+import { ParseDuration } from '../helper/helper';
 
 interface RatingsRecProps {
     statements: XAPIStatement[];
     courseData: CourseData;
 }
-
-// Utility function to parse duration in the format "PT20M37S" to minutes
-const parseDuration = (duration: string): number => {
-    const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!matches) return 15;
-
-    const [, hours, minutes, seconds] = matches;
-    return (
-        (parseInt(hours || '0') * 60) +
-        parseInt(minutes || '0') +
-        Math.ceil(parseInt(seconds || '0') / 60)
-    );
-};
 
 const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
     const ratedStatements = statements.filter(
@@ -124,7 +112,7 @@ const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
                     const typicalLearningTime = getActivityField(activity.activityId, 'typicalLearningTime');
                     const title = getActivityField(activity.activityId, 'title');
 
-                    const parsedLearningTime = typicalLearningTime ? parseDuration(typicalLearningTime) : 15;
+                    const parsedLearningTime = typicalLearningTime ? ParseDuration(typicalLearningTime) : 15;
 
                     return (
                         <Box

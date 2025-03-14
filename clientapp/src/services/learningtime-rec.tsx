@@ -1,24 +1,13 @@
 import React, { useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 import type { XAPIStatement, CourseData } from '../types/types';
+import { ParseDuration } from '../helper/helper';
 
 interface LearningtimeRecProps {
     statements: XAPIStatement[];
     courseData: CourseData;
 }
 
-// Utility function to parse duration in the format "PT20M37S" to minutes
-const parseDuration = (duration: string): number => {
-    const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!matches) return 15; // Default to 15 minutes if the duration is not available.
-
-    const [, hours, minutes, seconds] = matches;
-    return (
-        (parseInt(hours || '0') * 60) +
-        parseInt(minutes || '0') +
-        Math.ceil(parseInt(seconds || '0') / 60)
-    );
-};
 
 const LearningtimeRec: React.FC<LearningtimeRecProps> = ({ statements, courseData }) => {
     const completedStatements = statements.filter(
@@ -36,7 +25,7 @@ const LearningtimeRec: React.FC<LearningtimeRecProps> = ({ statements, courseDat
             const duration = statement.result?.duration;
 
             if (activityId && duration) {
-                const completionTime = parseDuration(duration);
+                const completionTime = ParseDuration(duration);
                 if (!completionTimeMap[activityId]) {
                     completionTimeMap[activityId] = { totalTime: 0, count: 0 };
                 }
@@ -113,7 +102,7 @@ const LearningtimeRec: React.FC<LearningtimeRecProps> = ({ statements, courseDat
                     const typicalLearningTime = getActivityField(activity.activityId, 'typicalLearningTime');
                     const title = getActivityField(activity.activityId, 'title');
 
-                    const expectedTime = typicalLearningTime ? parseDuration(typicalLearningTime) : 15;
+                    const expectedTime = typicalLearningTime ? ParseDuration(typicalLearningTime) : 15;
                     const timeDifference = Math.abs(activity.averageTime - expectedTime) / expectedTime;
 
                     return (

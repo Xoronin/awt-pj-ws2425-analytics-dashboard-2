@@ -5,19 +5,38 @@ import { XAPIStatement, LearnerProfile, CourseData } from '../../types/types';
 
 interface LearningAttemptsCommunity {
     statements: XAPIStatement[];
-    learners: LearnerProfile[]; // Alle Lernenden
+    learners: LearnerProfile[];
     courseData: CourseData;
 }
 
+/**
+ * Visualizes the community's aggregate pass/fail attempts as a donut chart.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {LearnerProfile[]} props.learners - Array of learner profiles
+ * @param {CourseData} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A donut chart displaying community pass/fail attempts with percentage
+ */
 const LearningAttemptsCommunity: React.FC<LearningAttemptsCommunity> = ({ statements, learners, courseData }) => {
     const theme = useTheme();
 
     const COLORS = ['#5E35B1', '#D1C4E9'];
 
+    /**
+     * Calculates and organizes community learning attempt statistics from xAPI statements.
+     * 
+     * @returns {Object} Statistics about learning attempts across all learners
+     * @property {number} failed - Total number of failed attempts across the community
+     * @property {number} passed - Total number of passed attempts across the community
+     * @property {number} totalAttempts - Total number of all attempts (passed + failed)
+     * @property {number} averageAttempts - Average number of attempts per activity
+     */
     const attemptsData = useMemo(() => {
         const attemptsMap: Record<string, { failed: number; passed: number }> = {};
 
-        // Sammeln der Versuche für alle Lernenden
         learners.forEach(learner => {
             statements.forEach(statement => {
                 if (statement.actor.mbox === learner.email) {
@@ -38,7 +57,6 @@ const LearningAttemptsCommunity: React.FC<LearningAttemptsCommunity> = ({ statem
             });
         });
 
-        // Berechne die mittlere Anzahl der Versuche für alle Lernenden
         const totalAttempts = Object.values(attemptsMap).reduce(
             (acc, { failed, passed }) => {
                 acc.failed += failed;
@@ -54,12 +72,11 @@ const LearningAttemptsCommunity: React.FC<LearningAttemptsCommunity> = ({ statem
         return {
             failed: totalAttempts.failed,
             passed: totalAttempts.passed,
-            totalAttempts: totalAttempts.failed + totalAttempts.passed, // Gesamtzahl der Versuche
+            totalAttempts: totalAttempts.failed + totalAttempts.passed, 
             averageAttempts
         };
     }, [statements, learners]);
 
-    // Berechne den Anteil der bestandenen Versuche
     const passPercentage = (attemptsData.passed / attemptsData.totalAttempts) * 100;
 
     const chartData = [

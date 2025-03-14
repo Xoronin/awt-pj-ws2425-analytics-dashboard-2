@@ -12,9 +12,28 @@ interface LearningTimeProps {
     learner: LearnerProfile;
 }
 
+/**
+ * Visualizes a learner's time spent learning per day as a line chart.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {CourseData} props.courseData - Structured course data containing sections and activities
+ * @param {LearnerProfile} props.learner - The learner profile data
+ * 
+ * @returns {React.ReactElement} A line chart displaying learning time per day
+ */
 const LearningTimeChart: React.FC<LearningTimeProps> = ({ statements, learner }) => {
     const theme = useTheme();
 
+    /**
+     * Processes xAPI statements to extract daily learning time data.
+     * Filters for the current learner and "exited" verb statements with duration.
+     * 
+     * @returns {Array} Array of objects containing date and time spent data
+     * @property {string} date - The date in YYYY-MM-DD format
+     * @property {number} time - Total learning time in minutes for that day
+     */
     const learningData = useMemo(() => {
         const timeMap: Record<string, number> = {};
 
@@ -30,10 +49,9 @@ const LearningTimeChart: React.FC<LearningTimeProps> = ({ statements, learner })
                 }
             });
 
-        // Um das Datum chronologisch zu sortieren, wird die data nach dem Datum sortiert
         return Object.entries(timeMap)
             .map(([date, time]) => ({ date, time }))
-            .sort((a, b) => dayjs(a.date).isBefore(dayjs(b.date)) ? -1 : 1);  // Sortierung nach Datum
+            .sort((a, b) => dayjs(a.date).isBefore(dayjs(b.date)) ? -1 : 1); 
     }, [statements, learner]);
 
     return (

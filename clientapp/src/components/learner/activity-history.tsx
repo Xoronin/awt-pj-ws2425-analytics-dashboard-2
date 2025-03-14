@@ -1,25 +1,17 @@
-﻿import React, { useMemo, useState } from 'react';
+﻿import {
+    Cancel as FailedIcon, CheckCircle as CompletedIcon
+} from '@mui/icons-material';
 import {
-    Card,
-    CardContent,
-    Typography,
-    Box,
-    Table,
+    Box, Paper, Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
-    TableRow,
-    Paper,
-    Chip,
-    LinearProgress
+    TableRow, Typography
 } from '@mui/material';
-import {
-    CheckCircle as CompletedIcon,
-    Cancel as FailedIcon
-} from '@mui/icons-material';
+import React, { useMemo } from 'react';
 import { CourseData, LearnerProfile, XAPIStatement } from '../../types/types';
-import { stat } from 'fs';
+import { ParseDuration } from '../../helper/helper';
 
 interface ActivityHistoryProps {
     learner: LearnerProfile;
@@ -39,31 +31,26 @@ interface ActivityPerformance {
     lastAttemptDate: Date;
 }
 
+/**
+ * Displays a learner's activity history in a sortable table format.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {LearnerProfile} props.learner - The learner profile data
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {CourseData} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A table displaying the learner's activity history
+ */
 const ActivityHistory: React.FC<ActivityHistoryProps> = ({
     learner,
     statements,
     courseData
 }) => {
 
-    // Helper function to parse ISO 8601 duration
-    const parseDuration = (duration: string): number => {
-        const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-        if (!matches) return 15; // default to 15 minutes
-
-        const [, hours, minutes, seconds] = matches;
-        return (
-            (parseInt(hours || '0') * 60) +
-            parseInt(minutes || '0') +
-            Math.ceil(parseInt(seconds || '0') / 60)
-        );
-    };
-
-    // Memoized calculation of learner's activity performance
     const learnerActivities = useMemo(() => {
-        // Tracking structure for activity performance
         const activityPerformance: Record<string, ActivityPerformance> = {};
 
-        // Filter statements for the selected learner
         const learnerStatements = statements.filter(
             statement => statement.actor.mbox === learner.email
         );
@@ -75,9 +62,7 @@ const ActivityHistory: React.FC<ActivityHistoryProps> = ({
 
             if (!activityId) return;
 
-            // Initialize activity performance tracking
             if (!activityPerformance[activityId]) {
-                // Find activity details
                 let activityDetails = null;
                 for (const section of courseData.sections) {
                     const activity = section.activities.find(a => a.id === activityId);
@@ -104,14 +89,11 @@ const ActivityHistory: React.FC<ActivityHistoryProps> = ({
 
             const performance = activityPerformance[activityId];
 
-            // Track attempts
             performance.attempts++;
 
-            // Track scores
             if (statement.result?.score?.raw !== undefined) {
                 performance.scores.push(statement.result.score.raw);
 
-                // If this is a completion or passed statement, store the score as completion score
                 if (statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed' ||
                     statement.verb.id === 'http://adlnet.gov/expapi/verbs/passed') {
                     performance.completed = true;
@@ -119,14 +101,12 @@ const ActivityHistory: React.FC<ActivityHistoryProps> = ({
                 }
             }
 
-            // Track duration
             if (!(statement.verb.id === "http://adlnet.gov/expapi/verbs/completed") && statement.result?.duration) {
-                performance.totalDuration += parseDuration(statement.result.duration);
+                performance.totalDuration += ParseDuration(statement.result.duration);
             }
 
         });
 
-        // Convert to sorted array
         return Object.values(activityPerformance)
             .sort((a, b) => b.lastAttemptDate.getTime() - a.lastAttemptDate.getTime());
     }, [learner, statements, courseData]);

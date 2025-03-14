@@ -11,28 +11,12 @@ import {
     TableSortLabel,
 } from '@mui/material';
 import { XAPIStatement, CourseData } from '../../types/types';
+import { ParseDuration } from '../../helper/helper';
 
 interface CourseOverviewProps {
     statements: XAPIStatement[];
     courseData: CourseData;
 }
-
-/**
- * Parses an ISO 8601 duration string (PT format) into minutes.
- * @param {string | null} duration - Duration string in PT format (e.g., "PT1H30M15S") or null
- * @returns {number} - Number of minutes, defaults to 15 if input is null or invalid
- */
-const parseDuration = (duration: string | null): number => {
-    if (!duration) return 15;
-
-    const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!matches) return 15;
-
-    const [, hours, minutes, seconds] = matches;
-    return (
-        (parseInt(hours || '0') * 60) + parseInt(minutes || '0') + Math.ceil(parseInt(seconds || '0') / 60)
-    );
-};
 
 /**
  * Displays a sortable table of course activities with their metadata and analytics.
@@ -261,7 +245,7 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
             interactivityLevel: getActivityField(activityId, 'interactivityLevel'),
             semanticDensity: getActivityField(activityId, 'semanticDensity'),
             difficulty: getActivityField(activityId, 'difficulty'),
-            typicalLearningTime: parseDuration(getActivityField(activityId, 'typicalLearningTime')),
+            typicalLearningTime: ParseDuration(getActivityField(activityId, 'typicalLearningTime')),
             averageLearningTime: calculateAverageLearningTime(activityId),
             averageGrade: calculateAverageGrade(activityId),
             averageAttemptsToPass: calculateAverageAttemptsToPass(activityId),

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { XAPIStatement, CourseData } from '../../types/types';
 import { ResponsiveContainer, XAxis, YAxis, Tooltip, BarChart, Bar, CartesianGrid } from 'recharts';
+import { ParseDuration } from '../../helper/helper';
 
 /**
  * Props interface for the ActivityTime component
@@ -13,24 +14,6 @@ interface ActivityTimeProps {
     statements: XAPIStatement[];
     courseData: CourseData;
 }
-
-/**
- * Parses an ISO 8601 duration string and converts it to minutes
- * 
- * @param {string} duration - ISO 8601 duration string (e.g., "PT1H30M15S")
- * @returns {number} Total duration in minutes
- */
-const parseDuration = (duration: string): number => {
-    const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!matches) return 15; 
-
-    const [, hours, minutes, seconds] = matches;
-    return (
-        (parseInt(hours || '0') * 60) +
-        parseInt(minutes || '0') +
-        Math.ceil(parseInt(seconds || '0') / 60)
-    );
-};
 
 /**
  * Component that displays a histogram of student learning time distribution
@@ -88,7 +71,7 @@ const ActivityTime: React.FC<ActivityTimeProps> = ({ statements, courseData }) =
                 statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed' && 
                 statement.result?.duration
             ) {
-                const duration = parseDuration(statement.result.duration);
+                const duration = ParseDuration(statement.result.duration);
 
                 const learnerEmail = statement.actor.mbox;
 

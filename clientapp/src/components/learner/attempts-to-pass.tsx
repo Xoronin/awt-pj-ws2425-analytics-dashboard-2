@@ -9,11 +9,31 @@ interface LearningAttempts {
     courseData: CourseData;
 }
 
+/**
+ * Visualizes a learner's pass/fail attempts as a donut chart.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {XAPIStatement[]} props.statements - Array of xAPI statements for analysis
+ * @param {LearnerProfile} props.learner - The learner profile data
+ * @param {CourseData} props.courseData - Structured course data containing sections and activities
+ * 
+ * @returns {React.ReactElement} A donut chart displaying pass/fail attempts with percentage
+ */
 const LearningAttempts: React.FC<LearningAttempts> = ({ statements, learner }) => {
     const theme = useTheme();
 
     const COLORS = ['#7B1FA2', '#BA68C8'];
 
+    /**
+     * Calculates and organizes learning attempt statistics from xAPI statements.
+     * 
+     * @returns {Object} Statistics about learning attempts
+     * @property {number} failed - Total number of failed attempts
+     * @property {number} passed - Total number of passed attempts
+     * @property {number} totalActivities - Number of distinct activities attempted
+     * @property {number} averageAttempts - Average number of attempts per activity
+     */
     const attemptsData = useMemo(() => {
         const attemptsMap: Record<string, { failed: number; passed: number }> = {};
 
@@ -56,7 +76,6 @@ const LearningAttempts: React.FC<LearningAttempts> = ({ statements, learner }) =
         { name: 'Failed Attempts', value: attemptsData.failed }
     ];
 
-    // Berechne den Anteil der Passed Attempts als Prozentsatz mit 2 Nachkommastellen
     const passedPercentage = ((attemptsData.passed / (attemptsData.passed + attemptsData.failed)) * 100).toFixed(1);
 
     return (
