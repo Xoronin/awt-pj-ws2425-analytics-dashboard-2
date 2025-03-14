@@ -110,9 +110,9 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
     };
 
     /**
-     * Calculates average time spent on an activity based on completed statements.
+     * Calculates average time spent on an activity per student.
      * @param {string} activityId - The ID of the activity
-     * @returns {string} - Average duration in minutes or "N/A" if no relevant data
+     * @returns {string} - Average duration per student in minutes or "N/A" if no relevant data
      */
     const calculateAverageLearningTime = (activityId: string): string => {
         const relevantStatements = statements.filter(
@@ -121,19 +121,32 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
                 'https://w3id.org/learning-analytics/learning-management-system/external-id'
                 ] === activityId &&
                 statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed' &&
-                statement.result?.duration
+                statement.result?.duration &&
+                statement.actor?.mbox
         );
 
-        if (relevantStatements.length === 0) return 'N/A'; 
+        if (relevantStatements.length === 0) return 'N/A';
 
-        const totalDuration = relevantStatements.reduce((sum, statement) => {
-            const duration = statement.result?.duration;
-            return sum + (duration ? ParseDuration(duration) : 0);
-        }, 0);
-        console.log('Total Duration:', totalDuration);
-        console.log('Rel. Statements:', relevantStatements.length);
-        const averageDuration = Math.round(totalDuration / relevantStatements.length);
-        return `${averageDuration} min`; 
+        const studentDurations: { [email: string]: number } = {};
+
+        relevantStatements.forEach((statement) => {
+            const email = statement.actor.mbox!;
+            const duration = ParseDuration(statement.result!.duration!);
+
+            if (!studentDurations[email]) {
+                studentDurations[email] = 0;
+            }
+
+            studentDurations[email] += duration;
+        });
+
+        const studentDurationsArray = Object.values(studentDurations);
+        const averageDuration = Math.round(
+            studentDurationsArray.reduce((sum, duration) => sum + duration, 0) /
+            studentDurationsArray.length
+        );
+
+        return `${averageDuration} min`;
     };
 
     /**
@@ -165,13 +178,11 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
             studentScores[email].push(score);
         });
 
-        // Calculate average for each student
         const studentAverages = Object.values(studentScores).map((scores) => {
             const total = scores.reduce((sum, score) => sum + score, 0);
             return total / scores.length;
         });
 
-        // Calculate overall average
         const overallAverage = studentAverages.reduce((sum, avg) => sum + avg, 0) / studentAverages.length;
         return overallAverage.toFixed(1); // Return the average grade rounded to 2 decimal places.
     };
