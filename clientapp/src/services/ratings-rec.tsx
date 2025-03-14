@@ -74,19 +74,19 @@ const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
 
     /**
      * Identifies activities that need improvement based on two criteria:
-     * 1. Low average score (below 70% of the overall average)
-     * 2. High number of low ratings (more than 30 ratings of 2 or lower)
+     * 1. Low average score (below 67% of the overall average)
+     * 2. High number of low ratings (more than 13 ratings of 2 or lower)
      * 
      * @returns {Array} Array of activities needing improvement, sorted by increasing average score
      * 
      */
     const improvementNeededActivities = useMemo(() => {
         const lowAverageActivities = activityRatings.filter(
-            (activity) => activity.averageScore < overallAverageScore * 0.7
+            (activity) => activity.averageScore < overallAverageScore * 0.67
         );
 
         const highLowRatingsActivities = activityRatings.filter(
-            (activity) => activity.lowRatingsCount > 30 
+            (activity) => activity.lowRatingsCount > 13
         );
 
         const combinedActivitiesMap = new Map();

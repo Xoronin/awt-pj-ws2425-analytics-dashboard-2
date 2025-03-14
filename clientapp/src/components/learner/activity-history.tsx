@@ -168,7 +168,7 @@ const ActivityHistory: React.FC<ActivityHistoryProps> = ({
                 <TableHead>
                     <TableRow>
                         <TableCell sx={{ fontWeight: 'bold', fontSize: '1rem', width: '40%' }}>Activity</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold', fontSize: '1rem', width: '30%' }}>Section</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', fontSize: '1rem', width: '30%' }}>Module</TableCell>
                         <TableCell sx={{ fontWeight: 'bold', fontSize: '1rem', width: '10%' }}>Status</TableCell>
                         <TableCell sx={{ fontWeight: 'bold', fontSize: '1rem', width: '10%'}}>Score</TableCell>
                         <TableCell sx={{ fontWeight: 'bold', fontSize: '1rem', width: '10%'}}>Duration</TableCell>
