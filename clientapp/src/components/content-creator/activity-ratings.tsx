@@ -36,20 +36,36 @@ const ActivityRatings: React.FC<ActivityRatingsProps> = ({ statements }) => {
      * @returns {Array<{rating: number, count: number}>} Array of rating counts for visualization
      */
     const ratingsData = useMemo(() => {
-        const ratingsCount = Array(10).fill(0); 
+        const ratingsCount = Array(10).fill(0);
+        const studentLatestRating = new Map();
 
         statements
-            .filter(statement => statement.verb.id === 'http://id.tincanapi.com/verb/rated') 
+            .filter(statement =>
+                statement.verb.id === 'http://id.tincanapi.com/verb/rated' &&
+                statement.actor?.mbox)
             .forEach(statement => {
+                const studentEmail = statement.actor.mbox;
                 const rawScore = statement.result?.score?.raw;
+                const timestamp = new Date(statement.timestamp).getTime();
+
                 if (rawScore !== undefined && rawScore >= 1 && rawScore <= 10) {
-                    ratingsCount[rawScore - 1] += 1; 
+                    if (!studentLatestRating.has(studentEmail) ||
+                        timestamp > studentLatestRating.get(studentEmail).timestamp) {
+                        studentLatestRating.set(studentEmail, {
+                            rating: rawScore,
+                            timestamp: timestamp
+                        });
+                    }
                 }
             });
 
+        studentLatestRating.forEach(data => {
+            ratingsCount[data.rating - 1] += 1;
+        });
+
         return ratingsCount.map((count, index) => ({
-            rating: index + 1,  
-            count,              
+            rating: index + 1,
+            count,
         }));
     }, [statements]);
 
