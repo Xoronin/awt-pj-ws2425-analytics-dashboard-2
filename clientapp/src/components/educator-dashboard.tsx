@@ -187,7 +187,7 @@ const EducatorsDashboard: React.FC<LearnerDashboardProps> = ({
                                         }}
                                     >
                                         <span className="emoji">📊<br /></span>
-                                        <span className="text"> Academic <br /> Results</span>
+                                        <span className="text"> Academic <br/> Results</span>
                                     </Typography>
                                 </Grid>
 

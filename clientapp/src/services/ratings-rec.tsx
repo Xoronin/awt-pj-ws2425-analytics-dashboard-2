@@ -90,7 +90,6 @@ const RatingsRec: React.FC<RatingsRecProps> = ({ statements, courseData }) => {
         );
 
         const combinedActivitiesMap = new Map();
-
         lowAverageActivities.forEach(activity => {
             combinedActivitiesMap.set(activity.activityId, {
                 ...activity,

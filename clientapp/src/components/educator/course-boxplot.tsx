@@ -177,6 +177,7 @@ const CourseBoxplot: React.FC<CourseBoxplotProps> = ({
                                 const index = tooltipItems[0].dataIndex;
                                 const activityId = activityIds[index];
                                 const activityNum = activityNumbers[activityId];
+
                                 return `Activity ${activityNum}: ${fullTitles[activityId]}`;
                             }
                         }
@@ -213,6 +214,7 @@ const CourseBoxplot: React.FC<CourseBoxplotProps> = ({
                             },
                             callback: function (value, index, values) {
                                 return labels[index];
+
                             }
                         }
                     }

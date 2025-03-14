@@ -139,8 +139,8 @@ const StudentGradeRec: React.FC<StudentGradeRecProps> = ({ statements }) => {
                                     px: 1.5,
                                     py: 1.5,
                                     bgcolor: student.averageScore <= studentGrades.overallAverage * 0.4
-                                        ? '#6B1212'
-                                        : '#D32F2F',
+                                    ? '#6B1212'
+                                    : '#D32F2F',
                                     color: 'white',
                                     borderRadius: 1,
                                     fontSize: '0.8rem',

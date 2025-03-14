@@ -53,7 +53,7 @@ const AverageScoreEducator: React.FC<AverageScoreEducatorProps> = ({ statements,
 
         return scores.length > 0 ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0;
     }, [statements, learners]);
-
+  
     const chartData = [
         { name: 'Average Score', value: averageScore },
         { name: 'Remaining', value: 100 - averageScore }

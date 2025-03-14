@@ -68,6 +68,7 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
     const inactiveStudents = useMemo(() => {
         const studentActivities: Record<string, { timestamp: Date; cumulativeTime: number }[]> = {};
 
+        // Sort statements by timestamp
         const sortedStatements = [...statements].sort((a, b) =>
             new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
         );
@@ -104,6 +105,7 @@ const CumulativeRec: React.FC<CumulativeRecProps> = ({ statements, learnerProfil
         const studentsWithInactivity: StudentActivity[] = [];
 
         Object.entries(studentActivities).forEach(([username, activities]) => {
+
             if (activities.length < 2) {
                 return;
             }
