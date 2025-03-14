@@ -8,7 +8,7 @@ interface StudentGradeRecProps {
 }
 
 /**
- * Identifies and displays students with below-average grades,
+ * Identifies and displays students with significantly below-average grades,
  * providing recommendations for educators to address underperforming students.
  * 
  * @component
@@ -25,7 +25,7 @@ const StudentGradeRec: React.FC<StudentGradeRecProps> = ({ statements }) => {
 
     /**
      * Analyzes scored statements to calculate grade averages and identify 
-     * students performing significantly below the class average.
+     * students performing significantly below the class average (below 60% of the average).
      * 
      * @returns {Object} Object containing grade analysis
      * @property {Array} students - Underperforming students sorted by lowest score
