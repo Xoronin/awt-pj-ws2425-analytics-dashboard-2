@@ -128,7 +128,7 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ statements, courseData 
 
         const totalDuration = relevantStatements.reduce((sum, statement) => {
             const duration = statement.result?.duration;
-            return sum + (duration ? parseDuration(duration) : 0);
+            return sum + (duration ? ParseDuration(duration) : 0);
         }, 0);
         console.log('Total Duration:', totalDuration);
         console.log('Rel. Statements:', relevantStatements.length);
