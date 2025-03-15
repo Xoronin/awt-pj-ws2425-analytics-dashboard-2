@@ -31,7 +31,7 @@ interface StudentActivity {
     inactivityEndDate: Date;
 }
 
-const INACTIVITY_THRESHOLD_DAYS = 5;
+const INACTIVITY_THRESHOLD_DAYS = 6;
 
 const getDateString = (date: Date): string => {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
