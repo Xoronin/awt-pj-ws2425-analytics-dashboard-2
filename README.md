@@ -19,7 +19,7 @@ cd server
 npm install
 ```
 
-add file called .env to folder server with following content:
+If no .env file present add file called .env to folder server with following content:
 
 ```
 MONGODB_URI=mongodb+srv://analyticsDashboard2:BCQPfgkv6Jz3FOMN@awt-pj-ws2425-analytics.c4p6m.mongodb.net/?retryWrites=true&w=majority&tls=true
